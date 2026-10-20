@@ -2,6 +2,7 @@
 
 *Working title (renamed from Paati's Muruku Kitchen on 20 Oct 2026).* A short 2D learning and cooking game for Deepavali. The player learns what Deepavali is and what muruku is with Paati (grandmother), earns the six ingredients by answering her questions, makes one muruku with a wooden press, and can then keep cooking with her in a free kitchen.
 
+- **Play it:** **https://krishanala.github.io/paatis-recipe-kitchen/** (GitHub Pages; every push to `main` goes live in about a minute)
 - **Design brief and user flow:** [docs/design-brief.md](docs/design-brief.md)
 - **Quiz facts and their sources:** [docs/quiz-research.md](docs/quiz-research.md)
 - **Flow diagram and edge cases:** [docs/user-flow.md](docs/user-flow.md)
@@ -80,6 +81,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **21 Oct 2026, live:** The repo was made public so the game could be hosted for free on GitHub Pages.
 - **20 Oct 2026, renamed:** The game is now **Paati's Recipe Kitchen**, and the first screen opens with a "Happy Deepavali!" banner.
 - **20 Oct 2026, festive glow:** Following the user's mood references, the off-white screens gained warm Deepavali light: hanging marigold garlands, soft bokeh, gold firework sparkles, glowing lamps, and a golden lotus diya (`assets/art/lotus-diya.svg`, generated) at the heart of the kolam. The references themselves are not used in the game, because two of them are watermarked stock images. The Title screen no longer has body text; the stories explain the game.
 - **20 Oct 2026, garlands:** Following the user's garland references, the marigold garlands and mango-leaf toran are drawn from generated art: ruffled marigolds in three shades, jasmine-and-rose tassels, glossy mango leaves and brass bells (`assets/art/marigold-*.svg`, `jasmine-tassel.svg`, `mango-leaf.svg`, `rose.svg`, `brass-bell.svg`). They are used in the top valance (Title, Finale), the swaying side strands, and the toran on the Cook screen.
