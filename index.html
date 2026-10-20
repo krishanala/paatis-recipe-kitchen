@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Paati's Recipe Kitchen</title>
+    <meta name="description" content="Learn about Deepavali with Paati, earn the ingredients, then make your own muruku." />
+    <link rel="icon" href="assets/art/diya.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #fffbf5;
+        overscroll-behavior: none;
+      }
+      #game {
+        width: 100%;
+        height: 100%;
+        height: 100dvh; /* follows mobile browser toolbars */
+        touch-action: none;
+      }
+      /* The kitchen is landscape. On a phone or small tablet held upright, ask for a turn. */
+      #rotate {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 32px;
+        box-sizing: border-box;
+        background: #fffbf5;
+        color: #131927;
+        font: 500 18px/1.5 Inter, system-ui, sans-serif;
+        text-align: center;
+      }
+      #rotate img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #ffc654;
+      }
+      #rotate strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #212967;
+        font-size: 24px;
+        font-weight: 700;
+      }
+      #rotate .turn {
+        width: 56px;
+        height: 36px;
+        border: 4px solid #f77700;
+        border-radius: 8px;
+        animation: turn 2.4s ease-in-out infinite;
+      }
+      @keyframes turn {
+        0%, 30% { transform: rotate(0deg); }
+        60%, 100% { transform: rotate(90deg); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #rotate .turn { animation: none; transform: rotate(90deg); }
+      }
+      @media (orientation: portrait) and (pointer: coarse) and (max-width: 1000px) {
+        #rotate { display: flex; }
+        #game { visibility: hidden; }
+      }
+      noscript {
+        display: block;
+        padding: 24px;
+        color: #131927;
+        font: 16px/1.5 Inter, system-ui, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="rotate" role="status">
+      <img src="assets/paati/avatar.png" alt="" />
+      <p><strong>Happy Deepavali!</strong>Please turn your device sideways to cook with Paati.</p>
+      <div class="turn" aria-hidden="true"></div>
+    </div>
+    <noscript>Paati's Recipe Kitchen needs JavaScript to run.</noscript>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.88.2/dist/phaser.min.js"></script>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
