@@ -9,9 +9,10 @@ import { ResultScene } from './scenes/ResultScene.js';
 import { FinaleScene } from './scenes/FinaleScene.js';
 import { NoteScene } from './scenes/NoteScene.js';
 
-// Phaser measures text when it is created, so wait (briefly) for Inter, and Kalam for handwriting, to load first.
+// Phaser measures text when it is created, so wait (briefly) for the fonts to load first: Inter, EB Garamond for
+// the game's name, and Kalam for handwriting.
 const timeout = new Promise((resolve) => setTimeout(resolve, 2500));
-const faces = [...['400', '500', '600', '700'].map((w) => `${w} 24px Inter`), '400 24px Kalam'];
+const faces = [...['400', '500', '600', '700'].map((w) => `${w} 24px Inter`), '700 24px "EB Garamond"', '400 24px Kalam'];
 const fonts = Promise.all(faces.map((face) => document.fonts.load(face))).catch(() => {});
 await Promise.race([fonts, timeout]);
 

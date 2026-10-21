@@ -3,10 +3,17 @@ import { Button } from '../ui/Button.js';
 import { art, bokeh, burst, celebrate, doorstepKolam, garland, glow, hangingGarlands, paati, sparkle, twinkles } from '../ui/widgets.js';
 import { settings, saveSettings, progress } from '../state.js';
 import { resumeStep } from '../flow.js';
+import { fontSize } from '../ui/text.js';
 import { PAATI } from '../content.js';
 import { BLEED, BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
 
 let introPlayed = false; // the welcome greeting plays once per visit to the site
+
+// The game's name: EB Garamond in maroon, raised on a deeper maroon edge.
+const SERIF = '"EB Garamond", Garamond, Georgia, serif';
+const MAROON = 0x800000;
+const MAROON_EDGE = 0x4d0000;
+const NAME_DEPTH = 5;
 
 // Screen 1 · Title: a Happy Deepavali greeting, the game name, Paati inviting the player in, Play, then Sound,
 // Help and Full screen.
@@ -56,7 +63,7 @@ export class TitleScene extends BaseScene {
     // stacked by real heights so it still fits when phones enlarge the text.
     const x = 96;
     const started = progress.step >= 0 || progress.freeKitchen;
-    const title = this.text(x, 0, "Paati's Recipe", 'h1', { width: 620, color: COLOR.indigo900 });
+    const title = this.gameName(x, 0);
     const icon = BUTTON_HEIGHT.giant; // the icon buttons are drawn at the default (giant) height
     const measure = (str) => {
       const t = this.text(0, 0, str, 'b3');
@@ -65,12 +72,12 @@ export class TitleScene extends BaseScene {
       return size;
     };
     const labelH = measure('Help').h;
-    const labelGap = 5; // between each icon button and its label
-    const total = title.height + 36 + BUTTON_HEIGHT.giant + 28 + icon + labelGap + labelH;
+    const labelGap = 10; // between each icon button and its label
+    const total = title.textHeight + 36 + BUTTON_HEIGHT.giant + 28 + icon + labelGap + labelH;
     let y = Math.max(110, Math.round(392 - total / 2));
     title.setY(y);
-    const titleMid = y + title.height / 2;
-    y += title.height + 36;
+    const titleMid = y + title.textHeight / 2;
+    y += title.textHeight + 36;
 
     const playX = x + 150;
     const play = new Button(this, playX, y + BUTTON_HEIGHT.giant / 2, {
@@ -202,6 +209,19 @@ export class TitleScene extends BaseScene {
       }
     });
     later(3150 + 110 * (toolParts.length / 2) + 340, settle);
+  }
+
+  // "Paati's Recipe" in EB Garamond, maroon, standing on a 5 px deeper-maroon edge so it looks raised (3D).
+  // The edge is the name repeated 1 to 5 px lower, behind it. Returns a container; textHeight is its full height.
+  gameName(x, y) {
+    const layer = (dy, colour) =>
+      this.text(0, dy, "Paati's Recipe", 'h1', { width: 640, color: colour, weight: 700 }).setFontFamily(SERIF).setFontSize(fontSize('h1') + 10);
+    const edge = [];
+    for (let d = NAME_DEPTH; d >= 1; d--) edge.push(layer(d, MAROON_EDGE));
+    const face = layer(0, MAROON);
+    const name = this.add.container(x, y, [...edge, face]);
+    name.textHeight = face.height + NAME_DEPTH;
+    return name;
   }
 
   // "Happy Deepavali!" ribbon: a Rani pink pill trimmed in gold, with a lit diya at each end, centred on (0, 0).
