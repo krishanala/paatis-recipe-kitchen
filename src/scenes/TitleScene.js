@@ -57,7 +57,7 @@ export class TitleScene extends BaseScene {
     const x = 96;
     const started = progress.step >= 0 || progress.freeKitchen;
     const title = this.text(x, 0, "Paati's Recipe", 'h1', { width: 620, color: COLOR.indigo900 });
-    const icon = BUTTON_HEIGHT.icon;
+    const icon = BUTTON_HEIGHT.giant; // the icon buttons are drawn at the default (giant) height
     const measure = (str) => {
       const t = this.text(0, 0, str, 'b3');
       const size = { w: t.width, h: t.height };
@@ -65,7 +65,8 @@ export class TitleScene extends BaseScene {
       return size;
     };
     const labelH = measure('Help').h;
-    const total = title.height + 36 + BUTTON_HEIGHT.giant + 28 + icon + 6 + labelH;
+    const labelGap = 5; // between each icon button and its label
+    const total = title.height + 36 + BUTTON_HEIGHT.giant + 28 + icon + labelGap + labelH;
     let y = Math.max(110, Math.round(392 - total / 2));
     title.setY(y);
     const titleMid = y + title.height / 2;
@@ -104,7 +105,7 @@ export class TitleScene extends BaseScene {
     tools.forEach((tool, i) => {
       const bx = playX + (i - (tools.length - 1) / 2) * spacing;
       const button = new Button(this, bx, rowY, { variant: 'icon', icon: tool.icon, onClick: tool.onClick });
-      const label = this.text(bx, rowY + icon / 2 + 6, tool.label ?? '', 'b3', { origin: [0.5, 0], color: COLOR.grey600 });
+      const label = this.text(bx, rowY + icon / 2 + labelGap, tool.label ?? '', 'b3', { origin: [0.5, 0], color: COLOR.grey600 });
       toolParts.push(button, label);
       if (tool.key === 'sound') {
         this.soundButton = button;
