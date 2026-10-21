@@ -1,9 +1,9 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, art, card, header, ingredientArt, sparkle, toran } from '../ui/widgets.js';
+import { PaatiBubble, art, card, header, ingredientArt, kolamCorner, sparkle, toran } from '../ui/widgets.js';
 import { BUTTON_FONT, makeText } from '../ui/text.js';
-import { ADD_ORDER, COOK_LINES as LINES, QUIZ_LINES, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
-import { BUTTON_HEIGHT, COLOR, COMPACT, lerpColor, pick } from '../theme.js';
+import { ADD_ORDER, ASK_LINES, COOK_LINES as LINES, COOK_QUESTIONS, QUIZ_LINES, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
+import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, MIN_HIT, STAGE, lerpColor, pick } from '../theme.js';
 import { NoteSheet } from '../ui/NoteSheet.js';
 import { progress, settings, markChapterDone } from '../state.js';
 import { WATER_ZONE, GOLDEN_ZONE, scoreDough, scoreTwist, scoreFry, fryColour, buildResult } from '../scoring.js';
@@ -54,6 +54,10 @@ export class CookScene extends BaseScene {
     header(this, { title: this.free ? 'Free kitchen · Cook' : 'Chapter 3 · How is it made?' });
 
     this.cook = { addMistakes: 0, water: 0, twist: null };
+    // Paati asks one question at the start of five steps; right first time unlocks her tip for that step.
+    // The free kitchen has no questions, and every tip is on.
+    this.asked = new Set();
+    this.tips = this.free ? { add: true, water: true, knead: true, twist: true, fry: true } : {};
     this.stepObjs = [];
     this.bowlObjs = [];
     this.chips = [];
@@ -118,7 +122,6 @@ export class CookScene extends BaseScene {
     this.pointerDown = this.pointerMove = this.pointerUp = this.tick = this.onNext = null;
     this.nextBtn.setVisible(false).setEnabled(true);
     this.drawChips();
-    this.drawCard();
     const run = {
       add: () => this.stepAdd(),
       water: () => this.stepWater(),
@@ -127,7 +130,126 @@ export class CookScene extends BaseScene {
       twist: () => this.stepTwist(),
       fry: () => this.stepFry(),
     };
-    run[STEPS[i].id]();
+    const id = STEPS[i].id;
+    const question = !this.free && COOK_QUESTIONS[id];
+    if (question && !this.asked.has(id)) {
+      // Ask first. The step's card text would give the answer away, so it waits.
+      this.asked.add(id);
+      this.drawCard({ hide: true });
+      this.ask(question, (firstTry) => {
+        this.tips[id] = firstTry;
+        this.drawCard();
+        run[id]();
+      });
+      return;
+    }
+    this.drawCard();
+    run[id]();
+  }
+
+  // ---- Paati asks ----------------------------------------------------------------------------------
+
+  // A question card over the kitchen. A wrong answer is set aside with Paati's hint, and the choices pause until
+  // Try again. The right answer gets her explanation and, if it was the first try, her tip for the step.
+  // Continue goes on to the step. onDone(firstTry).
+  ask(q, onDone) {
+    this.focus.pushLayer();
+    const W = pick(760, 900);
+    const x = 640 - W / 2;
+    const top = pick(118, 104);
+    const objs = [];
+    const add = (o, depth = 902) => {
+      objs.push(o.setDepth(depth));
+      return o;
+    };
+    add(this.add.rectangle(640, 360, STAGE.width + 2 * BLEED, STAGE.height, 0x2b1a0e, 0.5).setInteractive(), 900);
+    const panel = add(this.add.graphics(), 901);
+    const drawPanel = (bottom) => {
+      const h = bottom + 30 - top;
+      panel.clear();
+      panel.fillStyle(0x000000, 0.12);
+      panel.fillRoundedRect(x, top + 6, W, h, 24);
+      panel.fillStyle(COLOR.white, 1);
+      panel.fillRoundedRect(x, top, W, h, 24);
+      kolamCorner(panel, x, top, 1, 1);
+      kolamCorner(panel, x + W, top, -1, 1);
+      kolamCorner(panel, x, top + h, 1, -1);
+      kolamCorner(panel, x + W, top + h, -1, -1);
+    };
+    const eyebrow = add(makeText(this, x + 44, top + 30, ASK_LINES.eyebrow, 'b3', { weight: 700, color: 0xb35600 }));
+    const question = add(makeText(this, x + 44, eyebrow.y + eyebrow.height + 6, q.q, 'h5', { width: W - 88 }));
+    const optionsTop = question.y + question.height + 20;
+    const step = Math.max(BUTTON_HEIGHT.large + 14, MIN_HIT + 2);
+    let tries = 0;
+    let answered = false;
+    let firstTry = false;
+    // Paati's bubble and the action button sit above the shade while the card is open.
+    const bubbleDepth = this.bubble.depth;
+    this.bubble.setDepth(1000);
+    const action = add(new Button(this, 1080, 652, { label: 'Try again', width: 300, onClick: () => onAction() }), 1000).setVisible(false);
+
+    const choose = (btn, choice) => {
+      if (answered) return;
+      tries++;
+      if (!choice.correct) {
+        btn.setLook('setAside');
+        if (!settings.reduceMotion) this.tweens.add({ targets: btn, x: btn.x + 8, duration: 50, yoyo: true, repeat: 3, ease: 'Sine.InOut' });
+        options.forEach((o) => o.look !== 'setAside' && o.setEnabled(false));
+        this.say(choice.why, choice.why, 'warning');
+        action.setLabel('Try again').setVisible(true);
+        if (this.focus.visible) this.focus.focus(action);
+        return;
+      }
+      answered = true;
+      firstTry = tries === 1;
+      btn.setLook('correct');
+      // The right answer moves up under the question, with Paati's tip (or a word of comfort) under it.
+      options.forEach((o) => o !== btn && o.setVisible(false));
+      btn.setY(optionsTop + BUTTON_HEIGHT.large / 2);
+      const boxTop = optionsTop + BUTTON_HEIGHT.large + 16;
+      const box = add(this.add.graphics());
+      const label = add(makeText(this, x + 64, boxTop + 16, firstTry ? ASK_LINES.tipLabel : ASK_LINES.noTipLabel, 'b3', { weight: 700, color: firstTry ? COLOR.green700 : 0xb35600 }));
+      const text = add(makeText(this, x + 64, label.y + label.height + 4, firstTry ? q.tip : ASK_LINES.noTip, 's1', { width: W - 128 }));
+      const boxBottom = text.y + text.height + 16;
+      box.fillStyle(firstTry ? 0xe8f6ec : COLOR.yellow50, 1);
+      box.fillRoundedRect(x + 44, boxTop, W - 88, boxBottom - boxTop, 16);
+      box.fillStyle(firstTry ? COLOR.green600 : COLOR.yellow500, 1);
+      box.fillRoundedRect(x + 44, boxTop + 12, 6, boxBottom - boxTop - 24, 3);
+      drawPanel(boxBottom);
+      if (firstTry) sparkle(this, x + W - 90, boxTop + 20, { radius: 70, count: 12, depth: 950 });
+      this.say(choice.why, choice.why, 'success');
+      action.setLabel('Continue').setVisible(true);
+      if (this.focus.visible) this.focus.focus(action);
+    };
+    const options = q.choices.map((choice, i) =>
+      add(
+        new Button(this, 640, optionsTop + BUTTON_HEIGHT.large / 2 + i * step, {
+          label: choice.text,
+          size: 'large',
+          variant: 'outline',
+          width: W - 88,
+          align: 'left',
+          inset: 36,
+          onClick: () => choose(options[i], choice),
+        }),
+      ),
+    );
+    drawPanel(optionsTop + (q.choices.length - 1) * step + BUTTON_HEIGHT.large);
+
+    const onAction = () => {
+      if (!answered) {
+        action.setVisible(false);
+        options.forEach((o) => o.look !== 'setAside' && o.setEnabled(true));
+        this.say(QUIZ_LINES.tryAgain, QUIZ_LINES.tryAgain, 'info');
+        if (this.focus.visible) this.focus.focus(options.find((o) => o.enabled));
+        return;
+      }
+      objs.forEach((o) => o.destroy());
+      this.bubble.setDepth(bubbleDepth);
+      this.focus.popLayer();
+      onDone(firstTry);
+    };
+    this.say(ASK_LINES.intro, ASK_LINES.intro);
   }
 
   keep(obj) {
@@ -183,12 +305,13 @@ export class CookScene extends BaseScene {
     });
   }
 
-  drawCard() {
+  // The step card. hide: true keeps the instructions back while Paati asks her question.
+  drawCard({ hide = false } = {}) {
     const step = STEPS[this.stepIndex];
     this.cardEyebrow.setText(`STEP ${this.stepIndex + 1} OF ${STEPS.length}`);
     this.cardTitle.setText(step.title);
-    this.cardBody.setY(this.cardTitle.y + this.cardTitle.height + 14).setText(this.showFull ? step.full : step.short);
-    this.cardNote.setText(step.id === 'add' && !COMPACT ? RECIPE_NOTE : '').setY(this.cardBody.y + this.cardBody.height + 12);
+    this.cardBody.setY(this.cardTitle.y + this.cardTitle.height + 14).setText(hide ? '' : this.showFull ? step.full : step.short);
+    this.cardNote.setText(!hide && step.id === 'add' && !COMPACT ? RECIPE_NOTE : '').setY(this.cardBody.y + this.cardBody.height + 12);
     if (!COMPACT) this.fullToggle?.setLabel(this.showFull ? 'Show short hint' : 'Show full steps');
   }
 
@@ -479,11 +602,22 @@ export class CookScene extends BaseScene {
     this.destroyBowl();
     this.drawBowl();
     this.addIndex = 0;
+    // The jars sit in a shuffled row, so the order is up to you. Paati's tip numbers them in her order.
+    const slots = Phaser.Utils.Array.Shuffle(ADD_ORDER.map((_, i) => i));
     ADD_ORDER.forEach((id, i) => {
       const ing = ingredient(id);
       const img = ingredientArt(this, 0, -16, ing, TOKENS.art);
       const label = makeText(this, 0, TOKENS.label - 12, ing.name, 'b3', { weight: 600, width: 136, align: 'center', origin: [0.5, 0] });
-      const token = this.draggable(520 + i * 150, TOKENS.y, 140, 132, [img, label], BOWL, BOWL.r + 40, (b) => this.tryAdd(b));
+      const content = [img, label];
+      if (this.tips.add) {
+        const badge = this.add.graphics();
+        badge.fillStyle(COLOR.buttonFill, 1);
+        badge.fillCircle(-50, -52, 16);
+        badge.lineStyle(2, COLOR.white, 1);
+        badge.strokeCircle(-50, -52, 16);
+        content.push(badge, makeText(this, -50, -52, String(i + 1), 'b3', { weight: 700, color: COLOR.offWhite, origin: 0.5 }));
+      }
+      const token = this.draggable(520 + slots[i] * 150, TOKENS.y, 140, 132, content, BOWL, BOWL.r + 40, (b) => this.tryAdd(b));
       token.ing = ing;
     });
     this.line(LINES.addStart);
@@ -603,7 +737,9 @@ export class CookScene extends BaseScene {
       t += dt;
       // Water only runs once the pitcher is tipped far enough.
       if (jug.angle > PITCHER.pour.angle * 0.75) return;
-      this.cook.water = Math.min(1, this.cook.water + (dt / 1000) * 0.15);
+      const nearGreen = this.cook.water >= lo - 0.1 && this.cook.water <= hi;
+      const rate = this.tips.water && nearGreen ? 0.06 : 0.15;
+      this.cook.water = Math.min(1, this.cook.water + (dt / 1000) * rate);
       this.mix.water = this.cook.water;
       this.paintMix();
       drawMeter();
@@ -695,7 +831,7 @@ export class CookScene extends BaseScene {
     let shown = 0;
     const knead = (da) => {
       if (this.kneaded >= NEED) return;
-      this.kneaded += da;
+      this.kneaded += da * (this.tips.knead ? 1.6 : 1);
       drawRing();
       const p = Math.min(1, this.kneaded / NEED);
       if (p - shown >= 0.08 || p >= 1) {
@@ -947,6 +1083,20 @@ export class CookScene extends BaseScene {
     this.fillG = this.add.graphics();
     this.muruku.add([this.edgeG, this.fillG]);
     this.resetTwist();
+    if (this.tips.twist) {
+      // The same spiral the hold button draws, dashed and faint, under the dough.
+      const guide = this.keep(this.add.graphics({ x: PAN.x, y: PAN.y }));
+      this.children.moveBelow(guide, this.muruku);
+      const b = 7.5 * (OIL_R / 141);
+      const pts = [];
+      for (let th = 0; ; th += 0.06) {
+        const r = 8 + b * th;
+        if (r > OIL_R - 12) break;
+        pts.push({ x: r * Math.cos(th), y: r * Math.sin(th) });
+      }
+      guide.lineStyle(4, COLOR.white, 0.55);
+      for (let i = 0; i < pts.length - 1; i += 2) guide.lineBetween(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
+    }
 
     // The press nozzle follows the spiral, small and see-through so the dough under it stays visible.
     const pressTop = this.keep(art(this, PAN.x, PAN.y, 'press-top', 60).setAlpha(NOZZLE.idle));
@@ -1147,7 +1297,8 @@ export class CookScene extends BaseScene {
 
     this.tick = (dt) => {
       const key = fry.flipped ? 'b' : 'a';
-      fry[key] = Math.min(1, fry[key] + (dt / 1000) * 0.07);
+      const golden = fry[key] >= GOLDEN_ZONE[0] && fry[key] <= GOLDEN_ZONE[1];
+      fry[key] = Math.min(1, fry[key] + (dt / 1000) * (this.tips.fry && golden ? 0.035 : 0.07));
       if (fizz) fizz.frequency = 8 + 24 * fry[key];
       fry.since += dt;
       if (fry.since > 150) {

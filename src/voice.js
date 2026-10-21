@@ -1,4 +1,4 @@
-import { ADD_ORDER, COOK_LINES, EXTRA_FACTS, NOTE, QUIZ_BANK, QUIZ_LINES, RESULT_LINES, STORE_LINES, STORIES, ingredient } from './content.js';
+import { ADD_ORDER, ASK_LINES, COOK_LINES, COOK_QUESTIONS, EXTRA_FACTS, NOTE, QUIZ_BANK, QUIZ_LINES, RESULT_LINES, STORE_LINES, STORIES, ingredient } from './content.js';
 import { settings } from './state.js';
 
 // Voice-over hooks. Every line Paati says goes through speak() (PaatiBubble.say calls it), so recordings can be
@@ -78,6 +78,8 @@ export function voiceScript() {
     COOK_LINES.addWrong(ingredient(id)).forEach((t) => add('cook addWrong', t));
     if (i > 0) COOK_LINES.addNext(ingredient(ADD_ORDER[i - 1]), ingredient(id)).forEach((t) => add('cook addNext', t));
   });
+  add('cook question', ASK_LINES.intro);
+  for (const [id, q] of Object.entries(COOK_QUESTIONS)) q.choices.forEach((c) => add(`cook question ${id}`, c.why));
   Object.values(RESULT_LINES).forEach((r) => add('result', r.line));
   ['intro', 'ask', 'empty', 'rolling', 'tie', 'send', 'sent'].forEach((k) => add('note', NOTE[k]));
   const seen = new Set();

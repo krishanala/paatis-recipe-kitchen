@@ -28,11 +28,12 @@ export function pickQuiz(chapter) {
   return progress.quizPick[chapter].map((id) => bank.questions.find((q) => q.id === id));
 }
 
-// Paati's story for a chapter: fixed lines, or the intro, one teaching line per question she will ask, and the outro.
+// Paati's story for a chapter: fixed lines, or the chapter's hook (intro and outro). She asks first and explains
+// after, so the story never gives an answer away.
 export function storyLines(id) {
   const story = STORIES[id];
   if (story.lines) return story.lines;
-  return [story.intro, ...pickQuiz(id).map((q) => q.teach), story.outro].filter(Boolean);
+  return [story.intro, story.outro].filter(Boolean);
 }
 
 // Facts for the free kitchen: everything from the banks that wasn't asked this time, then the extra facts.

@@ -53,6 +53,7 @@ export class QuizScene extends BaseScene {
   showQuestion() {
     const q = this.questions[this.index];
     const type = q.type ?? 'choice';
+    this.type = type;
     this.answered = false;
     this.tries = 0;
     this.mistakes = 0;
@@ -267,6 +268,14 @@ export class QuizScene extends BaseScene {
     }
     btn.setLook('correct');
     this.answers.forEach((b) => b !== btn && b.look !== 'setAside' && b.setEnabled(false));
+    // Stacked answers: only the right one stays, moved up to the top, so Paati's explanation has room.
+    if (this.type === 'choice') {
+      const y0 = this.answers[0].y;
+      this.answers.forEach((b) => b !== btn && (settings.reduceMotion ? b.setVisible(false) : this.tweens.add({ targets: b, alpha: 0, duration: 200, onComplete: () => b.setVisible(false) })));
+      if (settings.reduceMotion) btn.setY(y0);
+      else this.tweens.add({ targets: btn, y: y0, duration: 280, delay: 120, ease: 'Cubic.Out' });
+      this.bubbleTop = y0 + btn.bh / 2 + 16;
+    }
     this.complete(choice.why, this.tries === 1);
   }
 

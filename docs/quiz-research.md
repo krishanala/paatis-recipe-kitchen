@@ -1,8 +1,9 @@
 # Quiz research: Paati's facts and where they come from
 
-Paati teaches every answer before she asks it. Each chapter draws from a **question bank** in [`src/content.js`](../src/content.js) (`QUIZ_BANK`):
+**Paati asks first, then explains** (changed on 22 Oct 2026; before that she taught every answer in her story first). Each chapter draws from a **question bank** in [`src/content.js`](../src/content.js) (`QUIZ_BANK`):
 
-- Paati's story for the chapter is her intro, then one *teach* line for each question she will ask, then her outro.
+- Paati's story for the chapter is a two-line hook that sets the scene without giving any answer away.
+- A wrong answer gets a nudge that doesn't give the answer away, then **Try again**. The right answer gets the full explanation (the "fact" below).
 - **Core** questions are asked every time. The rest are picked at random, so replaying the game brings new facts.
 - In the free kitchen, the facts that weren't asked come back as Paati's in-between facts, along with a few extras.
 
@@ -36,24 +37,24 @@ Questions in the same **group** are never asked together. The three Deepavali-mo
 
 ## Chapter 1 · What is Deepavali?
 
-| # | Paati teaches | Answer | Why it's here | Sources |
+| # | The fact (Paati explains it after you answer) | Answer | Why it's here | Sources |
 |---|---|---|---|---|
 | ★ kolam-rice | The kolam is drawn with rice flour so ants and little birds get a meal too. | So ants and birds can eat it too | The "why rice?" question. Hardly anyone knows a kolam is a meal for small creatures. | [Wikipedia: Kolam](https://en.wikipedia.org/wiki/Kolam) ("coarse rice flour… ants and birds"); Vijaya Nagarajan, [*Feeding a Thousand Souls*](https://india.oup.com/product/feeding-a-thousand-souls-women-ritual-and-ecology-in-india-an-exploration-of-the-kolam-9780197761137/) (Oxford University Press); [The Better India](https://thebetterindia.com/289974/kolam-rice-powder-traditional-wisdom-heritage-significance) |
 | name | Deepavali means *a row of lights*: deepa = lamp, avali = row. | A row of lights | The name explains the festival. | [Wiktionary: Diwali](https://en.wiktionary.com/wiki/Diwali) (Sanskrit *dīpāvali*, "row of lights") |
 | new-moon *(true or not)* | Deepavali falls on a night with no moon, the darkest night of the month. | "A big, bright full moon": **not true** | A surprising reason why the lamps matter. | [Wikipedia: Diwali](https://en.wikipedia.org/wiki/Diwali) (new moon, *amavasya*, in Ashvin or Kartika) |
 | oil-bath | Many Tamil homes start Deepavali before sunrise with a warm oil bath, called a "Ganga bath". | With an oil bath before sunrise | A Tamil custom many people outside Tamil Nadu don't know. | [Wikipedia: Naraka Chaturdashi](https://en.wikipedia.org/wiki/Naraka_Chaturdashi); [SBS Tamil](https://www.sbs.com.au/language/tamil/en/article/from-oil-baths-to-sweets-and-fireworks-celebrating-deepavali-the-south-indian-way/kobjxxgum) |
 | medicine | After the bath, many Tamil families eat a spoonful of "Deepavali medicine" (ginger, pepper, herbs) to help the tummy with all the sweets. | To help the tummy with all the sweets | A fun, little-known custom (*Deepavali marundhu* or *lehiyam*). | [India Currents](https://indiacurrents.com/?p=160719); [My Cooking Journey](https://www.mycookingjourney.com/?p=643); [Goya Journal](https://www.goya.in/blog/leigyam-a-herbal-remedy-for-the-excesses-of-deepavali-feasting) |
-| narakasura | In a story told in South India, Krishna and Satyabhama defeat Narakasura, whose last wish is that the day be remembered with lamps and joy. | Narakasura himself | A twist most people haven't heard. | [Time Out Kuala Lumpur](https://www.timeout.com/kuala-lumpur/things-to-do/deepavali-in-malaysia-the-myths-and-real-stories-behind-its-celebrations); [Sri Sathya Sai Balvikas](https://sssbalvikas.in/kn/lessons/significance-of-deepavali-kn/); [Wikipedia: Naraka Chaturdashi](https://en.wikipedia.org/wiki/Naraka_Chaturdashi) |
+| narakasura | In a story told in South India, Krishna and Satyabhama defeat Narakasura, whose last wish is that the day be remembered with lamps and joy. | Narakasura, who was defeated | A twist most people haven't heard. | [Time Out Kuala Lumpur](https://www.timeout.com/kuala-lumpur/things-to-do/deepavali-in-malaysia-the-myths-and-real-stories-behind-its-celebrations); [Sri Sathya Sai Balvikas](https://sssbalvikas.in/kn/lessons/significance-of-deepavali-kn/); [Wikipedia: Naraka Chaturdashi](https://en.wikipedia.org/wiki/Naraka_Chaturdashi) |
 | rama | In North India, many families remember Rama, Sita and Lakshmana coming home to Ayodhya, with lamps lighting their way. | To welcome Rama and Sita home | Shows that different regions tell different stories. | [Wikipedia: Diwali](https://en.wikipedia.org/wiki/Diwali); [Science Museum blog](https://blog.sciencemuseum.org.uk/happy-diwali/) |
 | faiths *(true or not)* | Jains remember Mahavira; Sikhs celebrate Bandi Chhor Divas, when Guru Hargobind was set free. | "Only Hindus celebrate": **not true** | Deepavali belongs to more than one faith. | [Wikipedia: Diwali](https://en.wikipedia.org/wiki/Diwali); [Religion News Service](https://religionnews.com/2019/10/18/more-than-1-billion-people-celebrate-on-diwali-what-does-it-mean-to-them/) |
-| kolam-maths | Some kolams are one endless line looping around the dots, and scientists studied kolams to teach computers to draw patterns. | How to teach computers to draw | A "wow" fact. Gift Siromoney's "kolam array grammars" grew out of studying kolams. | [Chennai Mathematical Institute: Gift Siromoney's kolam work](https://www.cmi.ac.in/gift/Kolam/kola_pattern.htm); [Wikipedia: Kolam](https://en.wikipedia.org/wiki/Kolam) |
+| kolam-maths | Some kolams are one endless line looping around the dots, and scientists studied kolams to teach computers to draw patterns. | Ways to teach computers to draw | A "wow" fact. Gift Siromoney's "kolam array grammars" grew out of studying kolams. | [Chennai Mathematical Institute: Gift Siromoney's kolam work](https://www.cmi.ac.in/gift/Kolam/kola_pattern.htm); [Wikipedia: Kolam](https://en.wikipedia.org/wiki/Kolam) |
 | turmeric | In many homes, new Deepavali clothes get a tiny dab of turmeric on one corner as a blessing. | A tiny dab of turmeric | A small, warm family detail. | [Women's Web](https://womensweb.in/?p=82838); [Little Day Out](https://www.littledayout.com/interesting-things-to-know-about-deepavali/) |
 | morning-order *(put in order)* | A Tamil Deepavali morning: an oil bath before sunrise, then Deepavali medicine, then new clothes and blessings from elders. | Oil bath → medicine → new clothes and blessings | Puts the morning customs together as a sequence. | Same sources as oil-bath and medicine; [Hindutone: Diwali in Chennai](https://hindutone.com/festivals/diwali-celebrations-in-chennai-tamil-nadu-india-2026-a-complete-guide/) (new clothes and elders' blessings after the bath) |
 | spot-diya *(tap the picture)* | A diya is a little clay lamp with oil and a cotton wick. | The little lamp | Lets younger players answer with a picture. | [Wikipedia: Diya](https://en.wikipedia.org/wiki/Diya_(lamp)) |
 
 ## Chapter 2 · What is muruku?
 
-| # | Paati teaches | Answer | Why it's here | Sources |
+| # | The fact (Paati explains it after you answer) | Answer | Why it's here | Sources |
 |---|---|---|---|---|
 | ★ twisted | *Muruku* means twisted, after how the dough is shaped. | Twisted | The name explains the snack. | [Wikipedia: Murukku](https://en.wikipedia.org/wiki/Murukku) (Tamil *muṟukku*, "twisting") |
 | ★ why-rice | Rice grows all over Tamil Nadu, and the Kaveri delta around Thanjavur is called "the rice bowl of Tamil Nadu". | Rice grows all over Tamil Nadu | Answers "why rice?" | [Wikipedia: Thanjavur district](https://en.wikipedia.org/wiki/Thanjavur_district); [Anna University: Cauvery Delta Zone](https://www.annauniv.edu/cccdm/ccis/cauverydelta.html) |
@@ -67,12 +68,28 @@ Questions in the same **group** are never asked together. The three Deepavali-mo
 
 ## Chapter 4 · Why muruku at Deepavali?
 
-| # | Paati teaches | Answer | Why it's here | Sources |
+| # | The fact (Paati explains it after you answer) | Answer | Why it's here | Sources |
 |---|---|---|---|---|
 | ★ shared | The jars go to family, neighbours and visitors; sharing is the best part. | Family, neighbours and visitors | The heart of the brief. | Design brief |
-| together | Muruku takes hours, so generations make it together and share stories. | It takes time, so many hands help | The heart of the brief. | Design brief |
+| together | Muruku takes hours, so generations make it together and share stories. | It takes hours, so many hands help | The heart of the brief. | Design brief |
 | keeps *(true or not)* | After frying, muruku has almost no water left, so in a closed jar it stays crunchy for weeks: make it early, share it for days. | "It goes soft after one day": **not true** | Explains *why muruku* is a festival snack. | Recipe storage guidance: [Spicy Indian Kitchen](https://spicyindiankitchen.com/murukku-recipe-2/), [Easy Indian Cookbook](https://easyindiancookbook.com/butter-murukku/) (2–3 weeks airtight) |
 | open-house | In Malaysia, many families hold a Deepavali open house where friends of every background drop in for muruku and sweets. | A home where friends can drop in | Sharing beyond the street. | [Sunday Observer](https://archives.sundayobserver.lk/2002/11/03/fea19.html) (muruku "a traditional must" in Malaysia); [The Sun Malaysia](https://thesun.my/malaysia-news/harmonious-joyful-and-vibrant-celebration-of-festival-of-lights-nationwide-HC13226032) |
+
+## Wrong answers
+
+Wrong choices are meant to be believable, so the question makes you think: "It shows up brighter than chalk", "Mysuru, in Karnataka", "Firm, like clay". They are never silly, and never a dig at a tradition. Each wrong answer has its own nudge, which points the way without giving the answer away.
+
+## Questions in the kitchen
+
+Paati asks one question at the start of five cooking steps (not in the free kitchen). Right first time unlocks her tip for that step, which makes it a little easier. Otherwise there's no tip, and no penalty. The step's instructions stay hidden until the question is answered.
+
+| Step | Question | Answer | Paati's tip if right first time | Source |
+|---|---|---|---|---|
+| Add | Why does muruku dough get a spoonful of ghee? | It makes muruku crisp, not hard | The jars (shuffled) are numbered in her order | Common muruku recipe guidance (a little hot ghee or butter for crispness). Needs a home cook's confirmation |
+| Water | How should the water go into the flour? | A little at a time | The pitcher slows down near the green zone | Common recipe guidance. Needs confirmation |
+| Knead | How soft should muruku dough be? | Soft, like your earlobe | Each circle counts for more | Design brief ("soft like an earlobe") |
+| Twist | Where do you start the muruku spiral? | In the middle, then round and out | A faint guide spiral on the oil | Common recipe guidance. Needs confirmation (some families may start differently) |
+| Fry | When do you flip the muruku in the oil? | When the underside turns golden | Golden lasts a little longer | Design brief (flip once, lift when golden) |
 
 ## Extra facts in the free kitchen (never quizzed)
 
@@ -117,3 +134,4 @@ Please check these closely:
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
 8. **The remembrance offering** (Note screen). Is "many families set out the favourite foods of loved ones who have passed away" fair across the families you know? Is the pigeon (rather than, say, a lamp) a kind way to show the note going to them? And is the closing line, "Wherever they are, they know you remember them", gentle enough for anyone who has lost someone recently, young or old?
 9. **Paati's humour** (stories, store, kitchen, results). The jokes are on Paati, the food or the moment, never on the player or the tradition. Do any land wrong in your families, or read as unkind to grandparents? For example: "Shoes off, appetite on.", "Older cooks, call your common sense.", "Nobody can un-water dough." and "Most of them were me."
+10. **The new wrong answers and the kitchen questions.** Is each wrong answer believable but clearly wrong once explained? Check especially "A new year" (some families do start a new year around Deepavali, so the nudge says so), "Wheat does not grow in India", Mysuru and Kolkata for the muruku town, and "At the edge, then round and in" for the spiral. Are the ghee, water and spiral answers true to how your families make muruku?

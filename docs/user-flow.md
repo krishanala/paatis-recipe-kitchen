@@ -43,6 +43,8 @@ flowchart TD
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
+| Paati asks first and explains after. Stories are short hooks that don't give answers away | Story, Quiz |
+| Paati asks one question at the start of five cooking steps; right first time unlocks her tip for that step (no penalty otherwise) | Cook (not the free kitchen) |
 | Start cooking only appears once all six ingredients are collected | Store |
 | Every muruku is served: no fail state, no timers | Cook → Result |
 | In the free kitchen the Store is always full, and there is no quiz, shop or points | Free kitchen |
