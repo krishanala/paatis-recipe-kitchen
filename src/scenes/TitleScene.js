@@ -83,6 +83,8 @@ export class TitleScene extends BaseScene {
     const play = new Button(this, playX, y + BUTTON_HEIGHT.giant / 2, {
       label: started ? 'Continue' : 'Play',
       width: 300,
+      font: 'Poppins, Inter, system-ui, sans-serif',
+      labelColor: COLOR.offWhite, // the page's background colour
       onClick: () => {
         // On phones and tablets, Play also goes full screen so the browser's bars don't shrink the game.
         if (window.matchMedia('(pointer: coarse)').matches && this.canFullscreen() && !this.scale.isFullscreen) this.toggleFullscreen();

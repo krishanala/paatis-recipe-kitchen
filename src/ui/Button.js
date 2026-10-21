@@ -20,11 +20,13 @@ export class Button extends Phaser.GameObjects.Container {
       content,
       align = 'center',
       inset = 76, // left-aligned labels start this far in from the left edge
+      labelColor, // overrides the variant's text colour in every state
+      font, // overrides the label's font family
       onClick,
       onHoldStart,
       onHoldEnd,
     } = opts;
-    Object.assign(this, { variant, dark, icon, onClick, onHoldStart, onHoldEnd });
+    Object.assign(this, { variant, dark, icon, labelColor, onClick, onHoldStart, onHoldEnd });
     this.bh = height ?? BUTTON_HEIGHT[size] ?? BUTTON_HEIGHT.giant;
     this.bw = width ?? (variant === 'icon' ? this.bh : 280);
     this.br = radius ?? (variant === 'icon' ? this.bh / 2 : RADIUS.button);
@@ -48,6 +50,7 @@ export class Button extends Phaser.GameObjects.Container {
         align: left ? 'left' : 'center',
         origin: [left ? 0 : 0.5, 0.5],
       });
+      if (font) this.label.setFontFamily(font);
       this.add(this.label);
     }
     if (icon) {
@@ -213,7 +216,7 @@ export class Button extends Phaser.GameObjects.Container {
       g.strokeRoundedRect(-w / 2, -h / 2, w, h, r);
     }
     const dim = !this.enabled ? 0.5 : 1;
-    this.label?.setColor(css(c.text)).setAlpha(dim);
+    this.label?.setColor(css(this.labelColor ?? c.text)).setAlpha(dim);
     this.iconText?.setColor(css(c.text)).setAlpha(dim);
     this.drawIcon(c.text, dim);
 
