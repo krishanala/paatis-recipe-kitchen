@@ -1,6 +1,6 @@
 # Paati's Recipe
 
-*Working title (first Paati's Muruku Kitchen, then Paati's Recipe Kitchen).* A short 2D learning and cooking game for Deepavali. The player learns what Deepavali is and what muruku is with Paati (grandmother), earns the six ingredients by answering her questions, makes one muruku with a wooden press, and can then keep cooking with her in a free kitchen.
+*Working title (first Paati's Muruku Kitchen, then Paati's Recipe Kitchen).* A short 2D learning and cooking game for Deepavali. The player learns what Deepavali is and what muruku is with Paati (grandmother), earns the six ingredients by answering her questions, makes one muruku with a wooden press, and can then keep cooking with her in a free kitchen. It is for every age, from young children to grandparents.
 
 - **Play it:** **https://krishanala.github.io/paatis-recipe-kitchen/** (GitHub Pages; every push to `main` goes live in about a minute)
 - **Design brief and user flow:** [docs/design-brief.md](docs/design-brief.md)

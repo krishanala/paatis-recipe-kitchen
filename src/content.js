@@ -37,7 +37,7 @@ export const STORIES = {
   ch1: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Deepavali is the festival of lights. Let me tell you some things even grown-ups often do not know.',
+    intro: 'Deepavali is the festival of lights. Let me tell you some things many people do not know.',
     outro: 'Did you catch all of that? Let us see what you remember!',
   },
   ch2: {
@@ -53,7 +53,7 @@ export const STORIES = {
       'Our store is full. Now we cook!',
       'Rice flour gives the crunch, urad dal flour makes it light, ghee makes it rich and spices give the taste.',
       'Then we fill the wooden press and twist the dough into a spiral over hot oil.',
-      'We fry it until it is golden. In real life, hot oil is for grown-ups, so always ask an adult to help.',
+      'We fry it until it is golden. In real life, hot oil can burn, so take great care. Younger cooks, ask an adult to help.',
     ],
   },
   ch4: {
@@ -421,5 +421,5 @@ export const FINALE = {
   thanks: 'Now we can share this with the whole street. Thank you for cooking with me, dear.',
   more: 'Would you like to make more muruku with me?',
   goodbye: 'Thank you, dear. Come back any time. Happy Deepavali!',
-  safety: 'Muruku may contain sesame. Hot oil needs an adult in real life.',
+  safety: 'May contain sesame. Younger cooks need an adult near hot oil.',
 };

@@ -25,7 +25,7 @@ Questions in the same **group** are never asked together. The three Deepavali-mo
 
 **Writing rules followed** (from the [design brief](design-brief.md#accessibility-and-cultural-care)):
 
-- Each question has three choices, at a reading level a primary-school child can follow.
+- The game is for every age, from young children to grandparents. Questions use simple words a young child can follow, and never talk down to adults.
 - Wrong answers are gentle and point back to the story; nothing is shown in red.
 - Facts that aren't universal say "many families".
 - The text is English only, apart from names and places: Paati, muruku, kolam, urad dal, Deepavali, Narakasura, Manapparai, and so on.
@@ -101,18 +101,18 @@ The game uses no Tamil word for the offering, and it doesn't describe the ritual
 - **Health claims about diyas** ("ghee lamps purify the air"). Sources gave no evidence.
 - **"The star plate's ridges make muruku crisper".** No reliable source was found. Paati only says the plate "gives muruku its ridges".
 - **Why Manapparai muruku tastes special (its water).** It's a local saying with no source found.
-- **Thalai Deepavali** (a newly married couple's first Deepavali). It's lovely, but about weddings, not children.
+- **Thalai Deepavali** (a newly married couple's first Deepavali). It's lovely, but it's about one couple rather than the whole family's Deepavali.
 - **Exact Deepavali 2026 date.** Sources disagree between 7 and 8 November for Tamil Nadu, depending on the panchang (open question 8).
 
 ## For the cultural reviewers
 
 Please check these closely:
 
-1. **Religious stories** (narakasura, rama, faiths). Is the wording respectful and accurate for children? Narakasura's "last wish" comes from popular retellings, not one fixed text, so the line says "many families in South India tell…".
+1. **Religious stories** (narakasura, rama, faiths). Is the wording respectful and accurate, and right for every age, from young children to grandparents? Narakasura's "last wish" comes from popular retellings, not one fixed text, so the line says "many families in South India tell…".
 2. **"Ganga bath"** for the pre-dawn oil bath. Is this how your families say it in English?
 3. **Deepavali medicine.** Is "Deepavali medicine" a good English name for *marundhu* or *lehiyam*? Is "ginger, pepper and herbs" a fair short description?
 4. **Turmeric on new clothes.** This varies by family. Keep it, or drop it?
-5. **Rice as "plenty".** Is this the right way to describe the blessing for children?
+5. **Rice as "plenty".** Is this the right way to describe the blessing?
 6. **Urad dal "makes muruku light".** This comes from the brief and needs a home cook's confirmation.
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
-8. **The remembrance offering** (Note screen). Is "many families set out the favourite foods of loved ones who have passed away" fair across the families you know? Is the pigeon (rather than, say, a lamp) a kind way to show the note going to them? And is the closing line, "Wherever they are, they know you remember them", gentle enough for a child who has lost someone recently?
+8. **The remembrance offering** (Note screen). Is "many families set out the favourite foods of loved ones who have passed away" fair across the families you know? Is the pigeon (rather than, say, a lamp) a kind way to show the note going to them? And is the closing line, "Wherever they are, they know you remember them", gentle enough for anyone who has lost someone recently, young or old?
