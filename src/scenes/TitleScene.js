@@ -15,10 +15,6 @@ const MAROON = 0x800000;
 const MAROON_EDGE = 0x4d0000;
 const NAME_DEPTH = 5;
 
-// Play is a deeper marigold, so its off-white label passes the 3:1 contrast for large text in every state
-// (normal 3.5:1, hover 3.3:1, pressed 4.4:1).
-const PLAY_FILLS = { base: 0xd96500, hover: 0xe06a00, press: 0xc25700 };
-
 // Screen 1 · Title: a Happy Deepavali greeting, the game name, Paati inviting the player in, Play, then Sound,
 // Help and Full screen.
 export class TitleScene extends BaseScene {
@@ -87,9 +83,6 @@ export class TitleScene extends BaseScene {
     const play = new Button(this, playX, y + BUTTON_HEIGHT.giant / 2, {
       label: started ? 'Continue' : 'Play',
       width: 300,
-      font: 'Poppins, Inter, system-ui, sans-serif',
-      labelColor: COLOR.offWhite, // the page's background colour
-      fills: PLAY_FILLS,
       onClick: () => {
         // On phones and tablets, Play also goes full screen so the browser's bars don't shrink the game.
         if (window.matchMedia('(pointer: coarse)').matches && this.canFullscreen() && !this.scale.isFullscreen) this.toggleFullscreen();

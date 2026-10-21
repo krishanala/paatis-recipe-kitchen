@@ -11,22 +11,37 @@ import { drawSegment, paintRibbon, edgeOf } from '../draw.js';
 
 // On phones (COMPACT) text is larger, so Paati's bubble needs more room at the bottom and the work area
 // tucks up and shrinks a little to stay clear of it.
-const BOWL = pick({ x: 830, y: 455, r: 105 }, { x: 830, y: 432, r: 92 });
+const BOWL = pick({ x: 830, y: 455, r: 105 }, { x: 830, y: 432, r: 92 }); // where things are dropped
+// The wooden bowl art (bowl-back / bowl-front, 320 × 230, rim centre at 160, 62) and where its rim sits.
+const BOWL_W = pick(304, 266);
+const BS = BOWL_W / 320;
+const RIM_Y = BOWL.y - 34;
+const HEAP_H = 128 * BS; // the heap's height above the rim when the bowl is full
+// The clay pitcher (pitcher.svg, 240 × 220) rests on its base beside the bowl, and lifts and tips to pour.
+const PITCHER = pick(
+  { x: 1050, y: 352, width: 140, pour: { x: 1010, y: 272, angle: -55 } },
+  { x: 1040, y: 330, width: 128, pour: { x: 1000, y: 262, angle: -55 } },
+);
 const PAN = pick({ x: 830, y: 388, width: 400 }, { x: 830, y: 372, width: 340 });
-const OIL_R = 134 * (PAN.width / 360) - 8; // the oil circle in pan-hot.svg, less a margin
+const OIL_R = 134 * (PAN.width / 360) - 8; // the oil circle in pot-oil.svg, less a margin
+// Hold to twist sits beside the pot, so the spiral stays in full view.
+const TWIST_W = pick(200, 240);
+const TWIST_BUTTON = { x: PAN.x + PAN.width / 2 + 24 + TWIST_W / 2, y: PAN.y, width: TWIST_W };
 const PRESS = pick({ x: 960, y: 400, width: 300 }, { x: 960, y: 380, width: 280 }); // press-*.svg is 270 × 300
 const RAW = 0xf3e2b8;
-const FLOUR = 0xf4ead2;
+const RICE = 0xfbf7ee; // rice flour on its own
+const FLOUR = 0xf4ead2; // the flours mixed
 const DOUGH = 0xe9d3a3;
 const ALT_BUTTON = pick({ x: 525, y: 540, width: 240 }, { x: 525, y: 500, width: 240 }); // tap-and-hold alternatives
 const TOKENS = pick({ y: 262, art: 78, label: 46 }, { y: 222, art: 64, label: 38 }); // ingredient row in step 1
 const CARD = pick({ y: 196, h: 384 }, { y: 196, h: 324 });
 const BUBBLE_TOP = 596; // the bubble sits here, or higher when a long line needs the room
+const NOZZLE = { idle: 0.35, pressing: 0.55 }; // the press nozzle over the oil, see-through
 
 const wrapAngle = (a) => (a > Math.PI ? a - 2 * Math.PI : a < -Math.PI ? a + 2 * Math.PI : a);
 
-// Screen 5 · Cook: one muruku in six steps. Bowl (top-down) for steps 1–3, press (side view) for step 4,
-// pan (top-down) for steps 5–6. Every step can be done by touch, mouse or keyboard, and nothing can fail.
+// Screen 5 · Cook: one muruku in six steps. A wooden bowl (from the front) for steps 1–3, the press (side view)
+// for step 4, and a pot of oil (from above) for steps 5–6. Every step can be done by touch, mouse or keyboard, and nothing can fail.
 export class CookScene extends BaseScene {
   constructor() {
     super('Cook');
@@ -115,7 +130,7 @@ export class CookScene extends BaseScene {
   }
 
   keep(obj) {
-    this.stepObjs.push(obj);
+    if (obj) this.stepObjs.push(obj);
     return obj;
   }
 
@@ -221,13 +236,13 @@ export class CookScene extends BaseScene {
     });
   }
 
-  holdButton(label, onStart, onEnd) {
+  holdButton(label, onStart, onEnd, at = ALT_BUTTON) {
     return this.keep(
-      new Button(this, ALT_BUTTON.x, ALT_BUTTON.y, {
+      new Button(this, at.x, at.y, {
         label,
         size: 'large',
         variant: 'outline',
-        width: ALT_BUTTON.width,
+        width: at.width,
         onHoldStart: onStart,
         onHoldEnd: onEnd,
       }),
@@ -236,22 +251,15 @@ export class CookScene extends BaseScene {
 
   // ---- bowl (steps 1–3) ----------------------------------------------------------------------------
 
+  // The wooden bowl, seen from the front and a little above. What's inside is drawn between its back and its front
+  // lip, so it sits in the bowl and rises above the rim as a mound.
   drawBowl() {
-    const { x, y, r } = BOWL;
-    const g = this.add.graphics();
-    g.fillStyle(0x000000, 0.1);
-    g.fillCircle(x, y + 8, r + 18);
-    g.fillStyle(0xa9b0b7, 1);
-    g.fillCircle(x, y, r + 18);
-    g.fillStyle(0xe2e6ea, 1);
-    g.fillCircle(x, y, r + 11);
-    g.fillStyle(0xc3c9cf, 1);
-    g.fillCircle(x, y, r);
-    g.fillStyle(0xd3d8dd, 1);
-    g.fillCircle(x - r * 0.1, y - r * 0.1, r * 0.88);
-    // Contents are drawn around (0, 0) so they can squish while kneading.
-    this.contents = this.add.graphics({ x, y });
-    this.bowlObjs.push(g, this.contents);
+    const back = art(this, BOWL.x, RIM_Y, 'bowl-back', BOWL_W).setOrigin(0.5, 62 / 230);
+    // Contents are drawn around the rim's centre (0, 0), so they can squish while kneading.
+    this.contents = this.add.graphics({ x: BOWL.x, y: RIM_Y });
+    const front = art(this, BOWL.x, RIM_Y, 'bowl-front', BOWL_W).setOrigin(0.5, 62 / 230);
+    this.bowlObjs.push(back, this.contents, front);
+    this.mix = { level: 0, layers: [], specks: false, ghee: false, water: 0, kneaded: 0 };
   }
 
   destroyBowl() {
@@ -259,62 +267,203 @@ export class CookScene extends BaseScene {
     this.bowlObjs = [];
   }
 
-  addToBowl(ing, index) {
+  // A heap in the bowl: its base fills the opening and its top rises h above the rim. `k` shapes it: about 1.3 is a
+  // soft peaked pile of flour, lower is a rounder lump of dough.
+  heap(g, { dx = 0, rx, h, k = 1.3, colour, alpha = 1, rough = 0, seed = 'heap' }) {
+    const rnd = new Phaser.Math.RandomDataGenerator([seed]);
+    const baseY = 2 * BS;
+    const ry = 30 * BS;
+    const pts = [];
+    const N = 36;
+    for (let i = 0; i <= N; i++) {
+      const x = -rx + (2 * rx * i) / N;
+      const bump = rough * rnd.realInRange(-1, 1) * (1 - (x / rx) ** 2);
+      pts.push({ x: dx + x, y: this.surfaceY(x, rx, h, k) - bump });
+    }
+    for (let i = 1; i < N; i++) {
+      const t = (Math.PI * i) / N;
+      pts.push({ x: dx + rx * Math.cos(t), y: baseY + ry * Math.sin(t) });
+    }
+    g.fillStyle(colour, alpha);
+    g.fillPoints(pts, true);
+  }
+
+  // How high a heap's surface is at x from its middle (for its outline, and for scattering specks, lumps and drops).
+  surfaceY(x, rx, h, k = 1.3) {
+    const u = Phaser.Math.Clamp(Math.abs(x) / rx, 0, 1);
+    return 2 * BS - h * Math.pow(1 - u * u, k);
+  }
+
+  // The heap's size and shape right now: flour piles to a soft peak, dough slumps rounder.
+  heapShape() {
+    const wet = Math.min(1, this.mix.water / 0.6);
+    return { rx: 132 * BS, h: HEAP_H * this.mix.level * (1 - 0.18 * wet), k: 1.3 - 0.65 * wet, wet };
+  }
+
+  // Everything in the bowl: flour heaps (each flour its own little heap on top), spices, ghee, then as water goes
+  // in it turns to dough, rounder and smoother, and kneading smooths out the lumps.
+  paintMix() {
     const g = this.contents;
-    const r = BOWL.r;
-    const spot = [
-      [-0.2, -0.15],
-      [0.22, -0.1],
-      [0, 0.22],
-      [0, 0],
-      [0.1, 0.05],
-    ][index];
-    const cx = spot[0] * r;
-    const cy = spot[1] * r;
-    const rnd = new Phaser.Math.RandomDataGenerator([ing.id]);
-    if (ing.id === 'spices') {
+    const m = this.mix;
+    g.clear();
+    if (m.level <= 0) return;
+    const { rx, h, k, wet } = this.heapShape();
+    const colour = lerpColor(m.layers.length ? FLOUR : RICE, DOUGH, wet);
+    const rough = (1 - wet) * 3 * BS;
+    // Shadowed body, the lit face up and to the left, and a soft highlight.
+    this.heap(g, { rx, h, k, colour: lerpColor(colour, 0x8a6d3b, 0.22), rough, seed: 'body' });
+    this.heap(g, { dx: -6 * BS, rx: rx * 0.94, h: h * 0.97, k, colour, rough, seed: 'body' });
+    if (wet < 0.5) {
+      // Before the water, each flour sits as its own little heap on the pile.
+      m.layers.forEach((layer, i) => {
+        const lh = 2 * BS - this.surfaceY(layer.dx, rx, h, k) + 14 * BS * (1 - wet * 2);
+        const lc = lerpColor(layer.colour, colour, wet * 2);
+        this.heap(g, { dx: layer.dx + 3 * BS, rx: rx * 0.48, h: lh, colour: lerpColor(lc, 0x8a6d3b, 0.2), rough, seed: `layer${i}` });
+        this.heap(g, { dx: layer.dx, rx: rx * 0.45, h: lh * 0.97, colour: lc, rough, seed: `layer${i}` });
+      });
+    }
+    this.heap(g, { dx: -28 * BS, rx: rx * 0.46, h: h * 0.8, k, colour: lerpColor(colour, 0xffffff, 0.5), alpha: 0.55, seed: 'shine' });
+    const rnd = new Phaser.Math.RandomDataGenerator(['mix']);
+    const spot = (spread = 0.8) => {
+      const x = rnd.realInRange(-rx * spread, rx * spread);
+      const top = this.surfaceY(x, rx, h, k);
+      return { x, y: rnd.realInRange(top + 6 * BS, Math.max(top + 8 * BS, 2 * BS + 18 * BS)) };
+    };
+    // Powdery grain while it is dry.
+    if (wet < 1) {
       for (let k = 0; k < 40; k++) {
-        g.fillStyle([0xc8402a, 0xe8b323, 0x7a4a1e, 0x2e2a26][k % 4], 1);
-        g.fillCircle(rnd.between(-r * 0.5, r * 0.5), rnd.between(-r * 0.5, r * 0.5), 2.5);
+        const p = spot(0.85);
+        g.fillStyle(0x8a6d3b, 0.14 * (1 - wet));
+        g.fillCircle(p.x, p.y, rnd.realInRange(0.8, 1.6) * BS);
       }
-    } else if (ing.id === 'ghee') {
-      g.fillStyle(ing.colour, 0.9);
-      for (let k = 0; k < 6; k++) g.fillCircle(cx + rnd.between(-40, 40), cy + rnd.between(-40, 40), rnd.between(6, 12));
-    } else {
-      g.fillStyle(lerpColor(ing.colour, 0x8a6d3b, 0.12), 1);
-      g.fillCircle(cx + 3, cy + 4, r * 0.42);
-      g.fillStyle(ing.colour, 1);
-      g.fillCircle(cx, cy, r * 0.42);
+    }
+    if (m.specks) {
+      for (let k = 0; k < 46; k++) {
+        const p = spot(0.75);
+        g.fillStyle([0xc8402a, 0xe8b323, 0x7a4a1e, 0x2e2a26][k % 4], 1 - wet * 0.35);
+        g.fillCircle(p.x, p.y, rnd.realInRange(1.6, 2.6) * BS);
+      }
+    }
+    if (m.ghee && wet < 0.8) {
+      for (let k = 0; k < 5; k++) {
+        const x = rnd.realInRange(-rx * 0.45, rx * 0.45);
+        const y = this.surfaceY(x, rx, h, k) + rnd.realInRange(8, 26) * BS;
+        g.fillStyle(0xf2c14e, 0.9 * (1 - wet / 0.8));
+        g.fillEllipse(x, y, rnd.realInRange(16, 24) * BS, rnd.realInRange(8, 11) * BS);
+        g.fillStyle(0xffffff, 0.7 * (1 - wet / 0.8));
+        g.fillCircle(x - 4 * BS, y - 2 * BS, 2 * BS);
+      }
+    }
+    // Wet dough is lumpy until it is kneaded smooth.
+    if (wet > 0.15) {
+      const lumps = Math.round(12 * (1 - m.kneaded));
+      for (let k = 0; k < 12; k++) {
+        const p = spot(0.7);
+        const r = rnd.realInRange(7, 13) * BS;
+        if (k >= lumps) continue;
+        g.fillStyle(lerpColor(colour, 0x8a6d3b, 0.14), 0.8);
+        g.fillCircle(p.x + 2 * BS, p.y + 2 * BS, r);
+        g.fillStyle(lerpColor(colour, 0xffffff, 0.3), 1);
+        g.fillCircle(p.x, p.y, r);
+      }
+    }
+    if (m.water > WATER_ZONE[1]) {
+      g.fillStyle(0xffffff, 0.4);
+      g.fillEllipse(-rx * 0.25, 2 * BS - h * 0.72, rx * 0.5, 12 * BS);
+    }
+    if (m.kneaded >= 1) {
+      g.fillStyle(0xffffff, 0.5);
+      g.fillEllipse(-rx * 0.3, 2 * BS - h * 0.7, rx * 0.34, 16 * BS);
     }
   }
 
-  // The mix in the bowl: dry flour → dough as water goes in; lumps fade as it is kneaded.
-  paintDough(water, kneaded = 0) {
-    const g = this.contents;
-    const r = BOWL.r;
-    g.clear();
-    const colour = lerpColor(FLOUR, DOUGH, Math.min(1, water / 0.6));
-    g.fillStyle(lerpColor(colour, 0x8a6d3b, 0.15), 1);
-    g.fillCircle(3, 5, r * 0.74);
-    g.fillStyle(colour, 1);
-    g.fillCircle(0, 0, r * 0.74);
-    const rnd = new Phaser.Math.RandomDataGenerator(['lumps']);
-    const lumps = Math.round(14 * (1 - kneaded));
-    for (let k = 0; k < 14; k++) {
-      const lx = rnd.between(-r * 0.5, r * 0.5);
-      const ly = rnd.between(-r * 0.5, r * 0.5);
-      const lr = rnd.between(8, 16);
-      if (k >= lumps) continue;
-      g.fillStyle(lerpColor(colour, 0xffffff, 0.35), 1);
-      g.fillCircle(lx, ly, lr);
-    }
-    if (water > WATER_ZONE[1]) {
-      g.fillStyle(0xffffff, 0.35);
-      g.fillEllipse(-r * 0.25, -r * 0.3, r * 0.5, r * 0.18);
-    }
-    if (kneaded >= 1) {
-      g.fillStyle(0xffffff, 0.45);
-      g.fillCircle(-r * 0.28, -r * 0.28, r * 0.16);
+  // The top of the heap, in world coordinates: where things land and water falls.
+  heapTop(dx = 0) {
+    const { rx, h, k } = this.heapShape();
+    return { x: BOWL.x + dx, y: RIM_Y + this.surfaceY(dx, rx, h, k) };
+  }
+
+  dotTexture() {
+    if (this.textures.exists('cook-dot')) return 'cook-dot';
+    const g = this.make.graphics({ x: 0, y: 0 }, false);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(8, 8, 8);
+    g.generateTexture('cook-dot', 16, 16);
+    g.destroy();
+    return 'cook-dot';
+  }
+
+  // An ingredient pours from above into the bowl and the heap grows; flour puffs up a little cloud as it lands.
+  pourIn(colours, { puff = true, grow, onDone } = {}) {
+    const apply = () => {
+      grow?.(1);
+      this.paintMix();
+      onDone?.();
+    };
+    if (settings.reduceMotion) return apply();
+    const land = this.heapTop(0);
+    const top = land.y - 110;
+    const speed = 380;
+    const g = 1100;
+    const fallMs = ((-speed + Math.sqrt(speed * speed + 2 * g * (land.y - top))) / g) * 1000;
+    const stream = this.add
+      .particles(BOWL.x, top, this.dotTexture(), {
+        x: { min: -16, max: 16 },
+        speedY: speed,
+        gravityY: g,
+        lifespan: fallMs,
+        scale: { min: 0.22, max: 0.42 },
+        tint: colours,
+        frequency: 10,
+        quantity: 3,
+      })
+      .setDepth(5);
+    this.time.delayedCall(420, () => stream.stop());
+    this.time.delayedCall(420 + fallMs + 50, () => stream.destroy());
+    this.time.delayedCall(fallMs, () => {
+      if (puff) {
+        const cloud = this.add
+          .particles(0, 0, this.dotTexture(), {
+            speed: { min: 30, max: 120 },
+            angle: { min: 190, max: 350 },
+            lifespan: 700,
+            scale: { start: 0.5, end: 1.4 },
+            alpha: { start: 0.5, end: 0 },
+            tint: colours,
+            emitting: false,
+          })
+          .setDepth(5);
+        cloud.explode(22, land.x, land.y);
+        this.time.delayedCall(800, () => cloud.destroy());
+      }
+      this.tweens.addCounter({
+        from: 0,
+        to: 1,
+        duration: 480,
+        ease: 'Sine.Out',
+        onUpdate: (tw) => {
+          grow?.(tw.getValue());
+          this.paintMix();
+        },
+        onComplete: () => onDone?.(),
+      });
+    });
+  }
+
+  addToBowl(ing, index) {
+    const m = this.mix;
+    const from = m.level;
+    if (ing.id === 'spices') {
+      m.specks = true;
+      this.pourIn([0xc8402a, 0xe8b323, 0x7a4a1e, 0x2e2a26], { puff: false });
+    } else if (ing.id === 'ghee') {
+      m.ghee = true;
+      this.pourIn([0xf2c14e, 0xe8b323], { puff: false });
+    } else {
+      // Rice flour makes the heap; the other flours each land as their own little heap on top.
+      const to = [0.62, 0.78, 0.9][index] ?? 0.9;
+      if (index > 0) m.layers.push({ dx: index === 1 ? 46 * BS : -52 * BS, colour: ing.colour });
+      this.pourIn([index === 0 ? RICE : ing.colour, 0xffffff], { grow: (t) => (m.level = from + (to - from) * t) });
     }
   }
 
@@ -343,7 +492,7 @@ export class CookScene extends BaseScene {
       return;
     }
     const index = this.addIndex++;
-    this.flyInto(token, BOWL, 0.4, () => this.addToBowl(token.ing, index));
+    this.flyInto(token, { x: BOWL.x, y: this.heapTop().y - 100 }, 0.4, () => this.addToBowl(token.ing, index));
     if (this.addIndex < ADD_ORDER.length) {
       const next = ingredient(ADD_ORDER[this.addIndex]);
       this.say(`${token.ing.note} Next, the ${next.name.toLowerCase()}.`, `Next: ${next.name.toLowerCase()}.`);
@@ -358,9 +507,15 @@ export class CookScene extends BaseScene {
   stepWater() {
     this.cook.water = 0;
     this.pouring = false;
-    this.paintDough(0);
-    const pot = this.keep(art(this, 1000, 280, 'jar-clay', 110));
+    this.mix.water = 0;
+    this.paintMix();
+    // The clay pitcher rests beside the bowl; pouring lifts and tips it so water streams from its spout.
+    const s = PITCHER.width / 240;
+    // Its shadow stays on the counter, fading while the pitcher is lifted.
+    const shadow = this.keep(this.add.ellipse(PITCHER.x - 4 * s, PITCHER.y + 4, 150 * s, 14 * s, 0x5a3a1e, 0.16));
+    const jug = this.keep(art(this, PITCHER.x, PITCHER.y, 'pitcher', PITCHER.width).setOrigin(130 / 240, 207 / 220));
     const stream = this.keep(this.add.graphics());
+    const splash = this.keep(this.add.graphics());
     const meter = this.keep(this.add.graphics());
     const M = { x: 1184, top: 226, h: 330, w: 28 };
     const zoneTop = M.top + M.h * (1 - WATER_ZONE[1]);
@@ -384,36 +539,83 @@ export class CookScene extends BaseScene {
     };
     drawMeter();
 
+    // Where the spout is, wherever the pitcher has moved and turned.
+    const spout = () => {
+      const lx = (24 - 130) * s;
+      const ly = (50 - 207) * s;
+      const c = Math.cos(jug.rotation);
+      const sn = Math.sin(jug.rotation);
+      return { x: jug.x + lx * c - ly * sn, y: jug.y + lx * sn + ly * c };
+    };
+    const tilt = (on) => {
+      const pose = on ? PITCHER.pour : { x: PITCHER.x, y: PITCHER.y, angle: 0 };
+      shadow.setAlpha(on ? 0.4 : 1);
+      if (settings.reduceMotion) jug.setPosition(pose.x, pose.y).setAngle(pose.angle);
+      else this.tweens.add({ targets: jug, x: pose.x, y: pose.y, angle: pose.angle, duration: 240, ease: 'Sine.Out' });
+    };
     const start = () => {
+      if (this.pouring) return;
       this.pouring = true;
-      if (!settings.reduceMotion) this.tweens.add({ targets: pot, angle: -40, duration: 180 });
-      else pot.setAngle(-40);
+      tilt(true);
     };
     const stop = () => {
       if (!this.pouring) return;
       this.pouring = false;
       stream.clear();
-      if (!settings.reduceMotion) this.tweens.add({ targets: pot, angle: 0, duration: 180 });
-      else pot.setAngle(0);
+      splash.clear();
+      tilt(false);
       this.waterFeedback();
     };
     this.holdButton('Hold to pour', start, stop);
     this.pointerDown = (p) => {
-      if (Math.hypot(p.x - pot.x, p.y - pot.y) < 70 || Math.hypot(p.x - BOWL.x, p.y - BOWL.y) < BOWL.r) start();
+      if (Math.hypot(p.x - jug.x, p.y - (jug.y - 60)) < 90 || Math.hypot(p.x - BOWL.x, p.y - BOWL.y) < BOWL.r) start();
     };
     this.pointerUp = stop;
+    let t = 0;
     this.tick = (dt) => {
       if (!this.pouring) return;
+      t += dt;
+      // Water only runs once the pitcher is tipped far enough.
+      if (jug.angle > PITCHER.pour.angle * 0.75) return;
       this.cook.water = Math.min(1, this.cook.water + (dt / 1000) * 0.15);
-      this.paintDough(this.cook.water);
+      this.mix.water = this.cook.water;
+      this.paintMix();
       drawMeter();
-      stream.clear();
-      stream.lineStyle(7, 0x7fb8e0, 0.85);
-      stream.lineBetween(pot.x - 52, pot.y - 18, BOWL.x + 10, BOWL.y - 8);
+      this.drawStream(stream, splash, spout(), this.heapTop(10), t);
       if (this.cook.water > 0.05 && !this.nextBtn.enabled) this.nextBtn.setEnabled(true);
     };
     this.say('Now water. Hold to pour, and let go in the green zone.', 'Hold to pour. Stop in the green.');
     this.showNext('Done pouring', () => this.goStep(2), false);
+  }
+
+  // A stream of water arcing from the spout into the bowl, with drops and a splash where it lands.
+  drawStream(stream, splash, from, to, t) {
+    stream.clear();
+    splash.clear();
+    const wobble = Math.sin(t / 70) * 2.5;
+    const cx = from.x - 26 + wobble;
+    const cy = from.y + 4;
+    const curve = new Phaser.Curves.QuadraticBezier(new Phaser.Math.Vector2(from.x, from.y), new Phaser.Math.Vector2(cx, cy), new Phaser.Math.Vector2(to.x, to.y));
+    const pts = curve.getPoints(16);
+    stream.lineStyle(9, 0x4f9fdc, 0.9);
+    stream.strokePoints(pts, false);
+    stream.lineStyle(3, 0xd9f0ff, 0.9);
+    stream.strokePoints(pts.map((p) => ({ x: p.x - 2, y: p.y })), false);
+    // Drops flicking off the stream and a crown of splash at the bottom.
+    const rnd = new Phaser.Math.RandomDataGenerator([String(Math.floor(t / 90))]);
+    for (let k = 0; k < 4; k++) {
+      const p = pts[rnd.between(6, 15)];
+      stream.fillStyle(0x7fc0ee, 0.9);
+      stream.fillCircle(p.x + rnd.realInRange(-10, 10), p.y + rnd.realInRange(-4, 4), rnd.realInRange(1.5, 3));
+    }
+    splash.fillStyle(0xbfe3fb, 0.55);
+    splash.fillEllipse(to.x, to.y + 2, 46, 12);
+    splash.lineStyle(2.5, 0x4f9fdc, 0.85);
+    for (let k = 0; k < 5; k++) {
+      const a = Math.PI + (k + 0.5) * (Math.PI / 5);
+      const r = 10 + rnd.realInRange(0, 8);
+      splash.lineBetween(to.x + Math.cos(a) * 6, to.y + Math.sin(a) * 4, to.x + Math.cos(a) * r * 1.6, to.y + Math.sin(a) * r);
+    }
   }
 
   waterFeedback() {
@@ -431,19 +633,29 @@ export class CookScene extends BaseScene {
     this.kneaded = 0;
     this.kneading = false;
     this.autoKnead = false;
-    this.paintDough(this.cook.water, 0);
+    this.mix.water = this.cook.water;
+    this.mix.kneaded = 0;
+    this.paintMix();
+    // A ring around the bowl fills as you knead.
     const ring = this.keep(this.add.graphics());
-    const R = BOWL.r + 30;
+    const E = { x: BOWL.x, y: RIM_Y + 30 * BS, rx: BOWL_W / 2 + 26, ry: 130 * BS + 14 };
+    const arc = (from, to) => {
+      const pts = [];
+      const n = Math.max(2, Math.ceil(((to - from) / (Math.PI * 2)) * 72));
+      for (let i = 0; i <= n; i++) {
+        const a = from + ((to - from) * i) / n;
+        pts.push({ x: E.x + E.rx * Math.cos(a), y: E.y + E.ry * Math.sin(a) });
+      }
+      return pts;
+    };
     const drawRing = () => {
       const p = Math.min(1, this.kneaded / NEED);
       ring.clear();
       ring.lineStyle(10, COLOR.grey300, 0.7);
-      ring.strokeCircle(BOWL.x, BOWL.y, R);
+      ring.strokePoints(arc(0, Math.PI * 2), true);
       if (p > 0) {
         ring.lineStyle(10, p >= 1 ? COLOR.green600 : COLOR.yellow500, 1);
-        ring.beginPath();
-        ring.arc(BOWL.x, BOWL.y, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p);
-        ring.strokePath();
+        ring.strokePoints(arc(-Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p), false);
       }
     };
     drawRing();
@@ -455,24 +667,26 @@ export class CookScene extends BaseScene {
       const p = Math.min(1, this.kneaded / NEED);
       if (p - shown >= 0.08 || p >= 1) {
         shown = p;
-        this.paintDough(this.cook.water, p);
-        if (!settings.reduceMotion) this.tweens.add({ targets: this.contents, scaleX: 1.05, scaleY: 0.95, duration: 90, yoyo: true });
+        this.mix.kneaded = p;
+        this.paintMix();
+        if (!settings.reduceMotion) this.tweens.add({ targets: this.contents, scaleX: 1.05, scaleY: 0.93, duration: 90, yoyo: true });
       }
       if (p >= 1) {
         this.kneading = this.autoKnead = false;
-        sparkle(this, BOWL.x, BOWL.y);
+        sparkle(this, BOWL.x, this.heapTop().y + 20);
         this.say('Soft like an earlobe. Perfect.', 'Soft and smooth.', 'success');
         this.showNext('Next step', () => this.goStep(3));
       }
     };
+    const inRing = (p) => ((p.x - E.x) / (E.rx + 30)) ** 2 + ((p.y - E.y) / (E.ry + 30)) ** 2 <= 1;
     this.pointerDown = (p) => {
-      if (Math.hypot(p.x - BOWL.x, p.y - BOWL.y) > R + 30) return;
+      if (!inRing(p)) return;
       this.kneading = true;
-      this.lastAngle = Math.atan2(p.y - BOWL.y, p.x - BOWL.x);
+      this.lastAngle = Math.atan2(p.y - E.y, p.x - E.x);
     };
     this.pointerMove = (p) => {
-      if (!this.kneading || Math.hypot(p.x - BOWL.x, p.y - BOWL.y) < 12) return;
-      const a = Math.atan2(p.y - BOWL.y, p.x - BOWL.x);
+      if (!this.kneading || Math.hypot(p.x - E.x, p.y - E.y) < 12) return;
+      const a = Math.atan2(p.y - E.y, p.x - E.x);
       knead(Math.abs(wrapAngle(a - this.lastAngle)));
       this.lastAngle = a;
     };
@@ -569,24 +783,80 @@ export class CookScene extends BaseScene {
     this.say('Into the press it goes. Drag the dough into the wooden press.', 'Dough into the press.');
   }
 
+  // ---- the pot of oil (steps 5–6) -------------------------------------------------------------------
+
+  bubbleTexture() {
+    if (this.textures.exists('oil-bubble')) return 'oil-bubble';
+    const g = this.make.graphics({ x: 0, y: 0 }, false);
+    // A pale bubble with an amber rim, so it shows on golden oil, and a bright glint.
+    g.fillStyle(0xfff3c4, 0.6);
+    g.fillCircle(16, 16, 13);
+    g.lineStyle(2.5, 0xa86a12, 0.65);
+    g.strokeCircle(16, 16, 13);
+    g.lineStyle(1.5, 0xffffff, 0.8);
+    g.beginPath();
+    g.arc(16, 16, 10, Math.PI * 1.05, Math.PI * 1.55);
+    g.strokePath();
+    g.fillStyle(0xffffff, 0.95);
+    g.fillCircle(11, 11, 3);
+    g.generateTexture('oil-bubble', 32, 32);
+    g.destroy();
+    return 'oil-bubble';
+  }
+
+  // Bubbles in the hot oil: around the dough (all of it, or just the freshest bit while twisting), or anywhere
+  // in the pot. Nothing when Reduce motion is on.
+  fizz({ around = true, recent = false, frequency = 30, quantity = 2, scale = { start: 0.16, end: 0.42 } } = {}) {
+    if (settings.reduceMotion) return null;
+    const source = {
+      getRandomPoint: (p) => {
+        const pool = recent ? this.samples.slice(-50) : this.samples;
+        if (around && pool.length) {
+          const s = pool[Math.floor(Math.random() * pool.length)];
+          const a = Math.random() * Math.PI * 2;
+          const d = s.w * 0.45 + Math.random() * 12;
+          p.x = s.x + Math.cos(a) * d;
+          p.y = s.y + Math.sin(a) * d;
+        } else {
+          const a = Math.random() * Math.PI * 2;
+          const r = Math.sqrt(Math.random()) * (OIL_R - 6);
+          p.x = Math.cos(a) * r;
+          p.y = Math.sin(a) * r;
+        }
+        return p;
+      },
+    };
+    return this.add.particles(PAN.x, PAN.y, this.bubbleTexture(), {
+      emitZone: { type: 'random', source },
+      lifespan: { min: 260, max: 640 },
+      scale,
+      alpha: { start: 0.95, end: 0 },
+      frequency,
+      quantity,
+    });
+  }
+
   // ---- step 5: twist -------------------------------------------------------------------------------
 
   stepTwist() {
-    this.pan = art(this, PAN.x, PAN.y, 'pan-hot', PAN.width);
+    this.pan = art(this, PAN.x, PAN.y, 'pot-oil', PAN.width);
     this.muruku = this.add.container(PAN.x, PAN.y);
     this.edgeG = this.add.graphics();
     this.fillG = this.add.graphics();
     this.muruku.add([this.edgeG, this.fillG]);
     this.resetTwist();
 
-    const pressTop = this.keep(art(this, PAN.x, PAN.y, 'press-top', 84).setAlpha(0.6));
+    // The press nozzle follows the spiral, small and see-through so the dough under it stays visible.
+    const pressTop = this.keep(art(this, PAN.x, PAN.y, 'press-top', 60).setAlpha(NOZZLE.idle));
     this.pressTop = pressTop;
+    // Hot oil fizzes where the fresh dough goes in.
+    this.keep(this.fizz({ recent: true, frequency: 25, quantity: 3 }));
     const again = this.keep(
-      new Button(this, ALT_BUTTON.x, ALT_BUTTON.y - BUTTON_HEIGHT.large / 2 - 14 - BUTTON_HEIGHT.medium / 2, {
+      new Button(this, TWIST_BUTTON.x, TWIST_BUTTON.y + BUTTON_HEIGHT.large / 2 + 14 + BUTTON_HEIGHT.medium / 2, {
         label: 'Start again',
         size: 'medium',
         variant: 'outline',
-        width: ALT_BUTTON.width,
+        width: TWIST_BUTTON.width,
         onClick: () => {
           this.resetTwist();
           again.setVisible(false);
@@ -618,6 +888,7 @@ export class CookScene extends BaseScene {
         this.autoTwist = false;
         this.endStroke(again);
       },
+      TWIST_BUTTON,
     );
     // The tap-and-hold alternative lays a steady spiral outward from the middle while held.
     this.tick = (dt) => {
@@ -633,7 +904,7 @@ export class CookScene extends BaseScene {
       const r2 = 8 + b * this.autoTheta;
       this.addSample(r2 * Math.cos(this.autoTheta), r2 * Math.sin(this.autoTheta));
     };
-    this.say('Careful, the oil is hot. Hold, and draw a spiral from the middle outwards.', 'Spiral from the middle.');
+    this.say('Careful, the oil is hot. Press and hold Hold to twist, beside the pot, and watch your spiral grow. You can draw it with your finger too.', 'Hold the button, or draw a spiral.');
     this.showNext('Done twisting', () => this.finishTwist(), false);
   }
 
@@ -647,18 +918,18 @@ export class CookScene extends BaseScene {
     this.fillG.clear();
     this.edgeG.fillStyle(edgeOf(RAW), 1);
     this.fillG.fillStyle(RAW, 1);
-    this.pressTop?.setPosition(PAN.x, PAN.y).setAlpha(0.6);
+    this.pressTop?.setPosition(PAN.x, PAN.y).setAlpha(NOZZLE.idle);
   }
 
   beginStroke() {
     this.pressing = true;
     this.stroke++;
-    this.pressTop.setAlpha(1);
+    this.pressTop.setAlpha(NOZZLE.pressing);
   }
 
   endStroke(again) {
     this.pressing = false;
-    this.pressTop.setAlpha(0.6);
+    this.pressTop.setAlpha(NOZZLE.idle);
     if (this.samples.length > 20) {
       this.nextBtn.setEnabled(true);
       again.setVisible(true);
@@ -719,20 +990,25 @@ export class CookScene extends BaseScene {
     const loaderY = M.top + M.h + pick(70, 46);
     const diya = this.keep(art(this, 470, loaderY - 4, 'diya', 48));
     this.keep(makeText(this, 500, loaderY, 'Frying…', 'b3', { weight: 600, origin: [0, 0.5] }));
-    if (!settings.reduceMotion) {
-      this.tweens.add({ targets: diya, alpha: 0.6, duration: 260, yoyo: true, repeat: -1 });
-      const bubbles = this.time.addEvent({
-        delay: 200,
-        loop: true,
-        callback: () => {
-          const a = Math.random() * Math.PI * 2;
-          const r = Math.random() * OIL_R;
-          const c = this.add.circle(PAN.x + Math.cos(a) * r, PAN.y + Math.sin(a) * r, 3, 0xfff6da, 0).setStrokeStyle(1.5, 0xfff6da, 0.8);
-          this.tweens.add({ targets: c, scale: 2, alpha: 0, duration: 600, onComplete: () => c.destroy() });
-        },
-      });
-      this.keep({ destroy: () => bubbles.remove() });
+    // The oil bubbles hard all round the muruku, with bigger bubbles rising across the pot. It calms a little
+    // as the side in the oil turns golden.
+    // Froth hugs the muruku while it fries, under it and over the oil.
+    const foam = this.keep(this.add.graphics({ x: PAN.x, y: PAN.y }));
+    this.children.moveBelow(foam, this.muruku);
+    const runs = [];
+    this.samples.forEach((p, i) => {
+      if (i === 0 || p.stroke !== this.samples[i - 1].stroke) runs.push([]);
+      runs[runs.length - 1].push(p);
+    });
+    const avgW = this.samples.reduce((sum, p) => sum + p.w, 0) / Math.max(1, this.samples.length);
+    for (const [width, colour, alpha] of [[avgW + 22, 0xfff0c2, 0.45], [avgW + 10, 0xffffff, 0.4]]) {
+      foam.lineStyle(width, colour, alpha);
+      runs.forEach((run) => run.length > 1 && foam.strokePoints(run, false));
     }
+    if (!settings.reduceMotion) this.tweens.add({ targets: foam, alpha: { from: 1, to: 0.7 }, duration: 320, yoyo: true, repeat: -1 });
+    const fizz = this.keep(this.fizz({ frequency: 8, quantity: 6, scale: { start: 0.2, end: 0.55 } }));
+    this.keep(this.fizz({ around: false, frequency: 60, quantity: 1, scale: { start: 0.3, end: 0.75 } }));
+    if (!settings.reduceMotion) this.tweens.add({ targets: diya, alpha: 0.6, duration: 260, yoyo: true, repeat: -1 });
 
     const repaint = () => {
       const inOil = fry.flipped ? fry.b : fry.a;
@@ -766,6 +1042,7 @@ export class CookScene extends BaseScene {
     this.tick = (dt) => {
       const key = fry.flipped ? 'b' : 'a';
       fry[key] = Math.min(1, fry[key] + (dt / 1000) * 0.07);
+      if (fizz) fizz.frequency = 8 + 24 * fry[key];
       fry.since += dt;
       if (fry.since > 150) {
         fry.since = 0;

@@ -372,7 +372,7 @@ export const STEPS = [
   { id: 'water', title: 'Water', chip: 'Water', full: 'Hold the button to pour water. Let go when the meter is in the green zone.', short: 'Hold to pour. Stop in the green.' },
   { id: 'knead', title: 'Knead', chip: 'Knead', full: 'Rub the dough in circles until the ring is full. It should feel soft, like an earlobe.', short: 'Rub in circles until the ring is full.' },
   { id: 'fill', title: 'Fill the press', chip: 'Fill', full: 'Drag the dough into the wooden press, fit the plunger on top, then choose the star plate.', short: 'Dough in, plunger on, star plate.' },
-  { id: 'twist', title: 'Twist', chip: 'Twist', full: 'Hold the press over the hot oil and draw a spiral, starting in the middle. Lift your finger to stop. Or hold the Hold to twist button.', short: 'Hold and draw a spiral from the middle.' },
+  { id: 'twist', title: 'Twist', chip: 'Twist', full: 'Press and hold Hold to twist, beside the pot, and watch the spiral grow from the middle. Or draw the spiral on the oil with your finger.', short: 'Hold the button, or draw a spiral.' },
   { id: 'fry', title: 'Fry', chip: 'Fry', full: 'Watch the colour. Flip it once, then lift it out when it is golden.', short: 'Flip once. Lift when golden.' },
 ];
 

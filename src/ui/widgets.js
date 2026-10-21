@@ -1,4 +1,4 @@
-import { BLEED, COLOR, STAGE, css } from '../theme.js';
+import { BLEED, BUTTON_HEIGHT, COLOR, STAGE, css } from '../theme.js';
 import { makeText } from './text.js';
 import { Button } from './Button.js';
 import { settings, progress } from '../state.js';
@@ -37,7 +37,8 @@ export function silkTrim(scene, y, band = COLOR.marigold500, x = 0, w = STAGE.wi
   return g;
 }
 
-// Navbar Top: back on the left, title in the middle, chapter diyas and help on the right.
+// Navbar Top: back on the left, title in the middle, then chapter diyas, Full screen (where the browser allows it)
+// and help on the right.
 export function header(scene, { title, onBack }) {
   const dark = scene.dark;
   const g = scene.add.graphics();
@@ -46,8 +47,21 @@ export function header(scene, { title, onBack }) {
   silkTrim(scene, HEADER_H, scene.mood.band, -BLEED, STAGE.width + 2 * BLEED);
   new Button(scene, 50, HEADER_H / 2, { variant: 'icon', icon: 'back', onClick: onBack ?? (() => scene.toTitle()) });
   makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h5', { dark, origin: 0.5 });
-  diyaRow(scene, 1010, HEADER_H / 2, progress.chaptersDone.length);
-  new Button(scene, STAGE.width - 50, HEADER_H / 2, { variant: 'icon', icon: 'help', onClick: () => scene.openSettings() });
+  diyaRow(scene, 920, HEADER_H / 2, progress.chaptersDone.length);
+  const helpX = STAGE.width - 50;
+  if (scene.canFullscreen?.()) {
+    // Icon buttons are drawn at the default (giant) height, and are as wide as they are tall.
+    const fs = new Button(scene, helpX - BUTTON_HEIGHT.giant - 12, HEADER_H / 2, { variant: 'icon', icon: 'fullscreen', onClick: () => scene.toggleFullscreen() });
+    const sync = () => fs.setIcon(scene.scale.isFullscreen ? 'fullscreen-exit' : 'fullscreen');
+    scene.scale.on('enterfullscreen', sync);
+    scene.scale.on('leavefullscreen', sync);
+    scene.events.once('shutdown', () => {
+      scene.scale.off('enterfullscreen', sync);
+      scene.scale.off('leavefullscreen', sync);
+    });
+    sync();
+  }
+  new Button(scene, helpX, HEADER_H / 2, { variant: 'icon', icon: 'help', onClick: () => scene.openSettings() });
 }
 
 // Page Control: one diya per chapter; the flame turns on when the chapter is done.

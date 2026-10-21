@@ -33,8 +33,11 @@ export const COLOR = {
   primary500: 0x4e61f6, // secondary actions, links, focus ring on light
   primary700: 0x3745af,
   marigold500: 0xf77700, // the one main action
-  marigoldHover: 0xff8a1a, // stand-ins until design builds the full Marigold ramp
-  marigoldPress: 0xd96500,
+  // Filled buttons are a deeper marigold, so their off-white labels pass 3:1 contrast for large text in every
+  // state (normal 3.5:1, hover 3.3:1, pressed 4.4:1).
+  buttonFill: 0xd96500,
+  buttonHover: 0xe06a00,
+  buttonPress: 0xc25700,
   yellow500: 0xffaa00, // lamp glow, stars, highlights
   yellow300: 0xffc654, // focus ring on dark
   yellow50: 0xfff7e6, // paper and kitchen backgrounds

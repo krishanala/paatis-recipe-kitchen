@@ -1,8 +1,8 @@
 import { COLOR, RADIUS, BUTTON_HEIGHT, MIN_HIT, css } from '../theme.js';
-import { makeText } from './text.js';
+import { BUTTON_FONT, makeText } from './text.js';
 
 // Design-system button with Default, Hover, Focus, Press and Disabled states.
-// variant: 'filled' (the one main action, Marigold) | 'outline' | 'clear' | 'icon' | 'bare' (wraps custom content)
+// variant: 'filled' (the one main action, deep Marigold with an off-white label) | 'outline' | 'clear' | 'icon' | 'bare' (wraps custom content)
 // look (outline answers): 'default' | 'selected' | 'correct' | 'setAside'. Never red.
 // Pass onHoldStart/onHoldEnd instead of onClick for press-and-hold actions (pour, knead, twist).
 export class Button extends Phaser.GameObjects.Container {
@@ -20,14 +20,11 @@ export class Button extends Phaser.GameObjects.Container {
       content,
       align = 'center',
       inset = 76, // left-aligned labels start this far in from the left edge
-      labelColor, // overrides the variant's text colour in every state
-      font, // overrides the label's font family
-      fills, // filled variant: { base, hover, press } colours instead of the Marigold ones
       onClick,
       onHoldStart,
       onHoldEnd,
     } = opts;
-    Object.assign(this, { variant, dark, icon, labelColor, fills, onClick, onHoldStart, onHoldEnd });
+    Object.assign(this, { variant, dark, icon, onClick, onHoldStart, onHoldEnd });
     this.bh = height ?? BUTTON_HEIGHT[size] ?? BUTTON_HEIGHT.giant;
     this.bw = width ?? (variant === 'icon' ? this.bh : 280);
     this.br = radius ?? (variant === 'icon' ? this.bh / 2 : RADIUS.button);
@@ -51,7 +48,7 @@ export class Button extends Phaser.GameObjects.Container {
         align: left ? 'left' : 'center',
         origin: [left ? 0 : 0.5, 0.5],
       });
-      if (font) this.label.setFontFamily(font);
+      this.label.setFontFamily(BUTTON_FONT);
       this.add(this.label);
     }
     if (icon) {
@@ -164,9 +161,10 @@ export class Button extends Phaser.GameObjects.Container {
     switch (this.variant) {
       case 'filled':
         return {
-          fill: pressed ? (this.fills?.press ?? COLOR.marigoldPress) : hover ? (this.fills?.hover ?? COLOR.marigoldHover) : (this.fills?.base ?? COLOR.marigold500),
+          fill: pressed ? COLOR.buttonPress : hover ? COLOR.buttonHover : COLOR.buttonFill,
           fillAlpha: this.enabled ? 1 : 0.35,
-          text: COLOR.grey900,
+          // Off-white (the page colour) on the deep marigold; a disabled button keeps dark text so it stays legible.
+          text: this.enabled ? COLOR.offWhite : COLOR.grey900,
           shadow: this.enabled,
         };
       case 'outline':
@@ -217,7 +215,7 @@ export class Button extends Phaser.GameObjects.Container {
       g.strokeRoundedRect(-w / 2, -h / 2, w, h, r);
     }
     const dim = !this.enabled ? 0.5 : 1;
-    this.label?.setColor(css(this.labelColor ?? c.text)).setAlpha(dim);
+    this.label?.setColor(css(c.text)).setAlpha(dim);
     this.iconText?.setColor(css(c.text)).setAlpha(dim);
     this.drawIcon(c.text, dim);
 

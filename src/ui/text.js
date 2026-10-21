@@ -2,6 +2,7 @@ import { TYPE, TEXT_BASE_SCALE, COLOR, RES, css, textBoost } from '../theme.js';
 import { settings } from '../state.js';
 
 export const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+export const BUTTON_FONT = 'Poppins, Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
 export function fontSize(role) {
   return Math.round(TYPE[role].size * TEXT_BASE_SCALE * textBoost(role) * settings.textScale);
