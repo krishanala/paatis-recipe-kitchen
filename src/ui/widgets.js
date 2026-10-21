@@ -598,34 +598,39 @@ const MAROON_EDGE = 0x4d0000;
 const RAISE = 5;
 
 // A heading in EB Garamond maroon, standing on a 5 px deeper-maroon edge so it looks raised (3D): the edge is the
-// text repeated 1 to 5 px lower, behind it. Returns a container; textHeight is its full height.
-export function raisedTitle(scene, x, y, str, { size = fontSize('h1') + 10, width = 640, align = 'left', origin = [0, 0] } = {}) {
+// text repeated 1 to 5 px lower, behind it (raise: 0 for flat). Returns a container; textHeight is its full height.
+export function raisedTitle(scene, x, y, str, { size = fontSize('h1') + 10, width = 640, align = 'left', origin = [0, 0], raise = RAISE } = {}) {
   const layer = (dy, colour) =>
     makeText(scene, 0, dy, str, 'h1', { width, color: colour, weight: 700, align, origin }).setFontFamily(SERIF).setFontSize(size);
   const edge = [];
-  for (let d = RAISE; d >= 1; d--) edge.push(layer(d, MAROON_EDGE));
+  for (let d = raise; d >= 1; d--) edge.push(layer(d, MAROON_EDGE));
   const face = layer(0, MAROON);
   const title = scene.add.container(x, y, [...edge, face]);
-  title.textHeight = face.height + RAISE;
+  title.textHeight = face.height + raise;
   title.textWidth = face.width;
   return title;
 }
 
 // A Rani pink ribbon trimmed in gold, with a lit diya at each end, centred on (0, 0). bw and bh are its size.
-export function ribbon(scene, str) {
-  const t = makeText(scene, 0, 0, str, 'h5', { color: COLOR.white, weight: 700, origin: [0, 0.5] });
-  const d = Math.round(t.height * 1.15);
+// size is the text size in px; text with line breaks is centred, and the ribbon's ends round off to suit.
+export function ribbon(scene, str, { size } = {}) {
+  const t = makeText(scene, 0, 0, str, 'h5', { color: COLOR.white, weight: 700, origin: [0, 0.5], align: 'center' });
+  if (size) t.setFontSize(size);
+  const lines = str.split('\n').length;
+  const lineH = t.height / lines;
+  const d = Math.round(lineH * 1.15);
   const pad = 18;
   const gap = 10;
   const w = pad + d + gap + t.width + gap + d + pad;
   const h = Math.round(t.height + 24);
+  const r = Math.min(h / 2, (lineH + 24) / 2);
   const g = scene.add.graphics();
   g.fillStyle(0x000000, 0.12);
-  g.fillRoundedRect(0, 4, w, h, h / 2);
+  g.fillRoundedRect(0, 4, w, h, r);
   g.fillStyle(COLOR.rani500, 1);
-  g.fillRoundedRect(0, 0, w, h, h / 2);
+  g.fillRoundedRect(0, 0, w, h, r);
   g.lineStyle(2, COLOR.yellow500, 1);
-  g.strokeRoundedRect(4, 4, w - 8, h - 8, (h - 8) / 2);
+  g.strokeRoundedRect(4, 4, w - 8, h - 8, r - 4);
   t.setPosition(pad + d + gap, h / 2);
   const left = art(scene, pad + d / 2, h / 2 - 3, 'diya', d);
   const right = art(scene, w - pad - d / 2, h / 2 - 3, 'diya', d);

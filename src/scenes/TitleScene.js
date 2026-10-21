@@ -2,11 +2,13 @@ import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
 import { celebrate, raisedTitle, ribbon, sparkle, welcomeStage } from '../ui/widgets.js';
 import { settings, saveSettings, progress } from '../state.js';
+import { fontSize } from '../ui/text.js';
 import { resumeStep } from '../flow.js';
 import { PAATI } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
 
 let introPlayed = false; // the welcome greeting plays once per visit to the site
+const GREETING_MS = 5000; // how long Happy Deepavali stays up
 
 // Screen 1 · Title: a Happy Deepavali greeting, the game name, Paati inviting the player in, Play, then Sound,
 // Help and Full screen.
@@ -25,7 +27,7 @@ export class TitleScene extends BaseScene {
     // stacked by real heights so it still fits when phones enlarge the text.
     const x = 96;
     const started = progress.step >= 0 || progress.freeKitchen;
-    const title = raisedTitle(this, x, 0, "Paati's Recipe");
+    const title = raisedTitle(this, x, 0, "PAATI'S RECIPE", { raise: 0, width: 760 });
     const icon = BUTTON_HEIGHT.giant; // the icon buttons are drawn at the default (giant) height
     const measure = (str) => {
       const t = this.text(0, 0, str, 'b3');
@@ -101,11 +103,13 @@ export class TitleScene extends BaseScene {
     }
   }
 
-  // Welcome: "Happy Deepavali!" pops up with firecrackers and pops away, then "Paati's Recipe" slides in, then
-  // Play, then the icons. A tap or key press skips to the end. Reduce motion swaps the steps without movement.
+  // Welcome: "Happy Deepavali" pops up big with firecrackers, stays for five seconds and pops away, then the name
+  // slides in, then Play, then the icons. A tap or key press skips to the end. Reduce motion swaps the steps
+  // without movement.
   intro(x, titleMid, title, play, toolParts) {
-    const S = pick(1.45, 1.3);
-    const banner = ribbon(this, 'Happy Deepavali!');
+    const banner = ribbon(this, 'Happy\nDeepavali', { size: fontSize('h5') + 20 });
+    // As big as the left column allows.
+    const S = Math.min(pick(1.5, 1.35), 600 / banner.bw);
     banner.setPosition(x + (banner.bw * S) / 2, titleMid).setScale(S).setDepth(20);
     const parts = [title, play, ...toolParts];
     const home = parts.map((o) => ({ x: o.x, y: o.y }));
@@ -132,7 +136,7 @@ export class TitleScene extends BaseScene {
     this.input.keyboard?.on('keydown', settle);
 
     if (settings.reduceMotion) {
-      later(1600, settle);
+      later(GREETING_MS, settle);
       return;
     }
     const fade = (targets, cfg) => this.tweens.add({ targets, alpha: { from: 0, to: 1 }, ...cfg });
@@ -147,8 +151,9 @@ export class TitleScene extends BaseScene {
         [x + banner.bw * S - 60, titleMid - 150],
       ]);
     });
-    // 2 · …and pops away.
-    later(1900, () => {
+    // 2 · …stays for five seconds, and pops away.
+    const out = 200 + 520 + GREETING_MS;
+    later(out, () => {
       this.tweens.chain({
         targets: banner,
         tweens: [
@@ -158,10 +163,10 @@ export class TitleScene extends BaseScene {
       });
     });
     // 3 · Paati's Recipe slides in from the left.
-    later(2320, () => fade(title, { x: { from: home[0].x - 380, to: home[0].x }, duration: 700, ease: 'Cubic.Out' }));
+    later(out + 420, () => fade(title, { x: { from: home[0].x - 380, to: home[0].x }, duration: 700, ease: 'Cubic.Out' }));
     // 4 · Then Play, then the icons one by one.
-    later(2850, () => fade(play, { y: { from: home[1].y + 36, to: home[1].y }, scale: { from: 0.85, to: 1 }, duration: 420, ease: 'Back.Out' }));
-    later(3150, () => {
+    later(out + 950, () => fade(play, { y: { from: home[1].y + 36, to: home[1].y }, scale: { from: 0.85, to: 1 }, duration: 420, ease: 'Back.Out' }));
+    later(out + 1250, () => {
       for (let i = 0; i < toolParts.length; i += 2) {
         const pair = [toolParts[i], toolParts[i + 1]];
         pair.forEach((o, k) => {
@@ -170,7 +175,7 @@ export class TitleScene extends BaseScene {
         });
       }
     });
-    later(3150 + 110 * (toolParts.length / 2) + 340, settle);
+    later(out + 1250 + 110 * (toolParts.length / 2) + 340, settle);
   }
 
   refreshSound() {
