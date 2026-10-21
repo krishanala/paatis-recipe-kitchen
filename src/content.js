@@ -66,8 +66,8 @@ export const STORIES = {
 
 // The six ingredients. `art` is a file in assets/art. Order matches the Store shelves.
 export const INGREDIENTS = [
-  { id: 'riceFlour', name: 'Rice flour', art: 'sack-rice-flour', note: 'Rice flour gives muruku its crunch.', colour: 0xfffdf7 },
-  { id: 'uradFlour', name: 'Urad dal flour', art: 'jar-steel', note: 'Urad dal flour adds flavour and makes it light.', colour: 0xf1e2c0 },
+  { id: 'riceFlour', name: 'Rice flour', art: 'rice-flour', artScale: 1.25, note: 'Rice flour gives muruku its crunch.', colour: 0xfffdf7 },
+  { id: 'uradFlour', name: 'Urad dal flour', art: 'urad-dal', artScale: 1.25, note: 'Urad dal flour adds flavour and makes it light.', colour: 0xf1e2c0 },
   { id: 'flour', name: 'Flour', art: 'flour-tin', note: 'A little flour helps the dough bind and stay soft.', colour: 0xf7f0e2 },
   { id: 'spices', name: 'Spices', art: 'spice-tin', note: 'Spices give the taste. Many families add sesame seeds too.', colour: 0xc8552a },
   { id: 'ghee', name: 'Ghee', art: 'ghee-jar', note: 'Ghee makes the muruku richer.', colour: 0xf2c14e },

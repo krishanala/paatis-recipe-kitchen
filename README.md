@@ -14,7 +14,7 @@ This is a **playable starter build**. You can play the whole journey (Title → 
 
 - Paati's stories, the quiz questions and the facts are **drafts** waiting for review by Tamil-speaking home cooks.
 - The recipe card shows Paati's order but **no amounts**, which must come from a trusted family recipe.
-- Paati is illustrated, but the rest of the art is **placeholder** SVG, and there is **no audio** yet.
+- Paati, rice flour and urad dal are illustrated, but the rest of the art is **placeholder** SVG, and there is **no audio** yet.
 - Progress lasts for one visit only. Settings (sound, text size, reduce motion) are saved on the device.
 - The game is English-only for now, with no Tamil words.
 
@@ -84,6 +84,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **21 Oct 2026, ingredient art:** Rice flour (a jute sack with a scoop) and urad dal (a clay bowl of lentils with a scoop) use the user's illustrations, cut out from their white backgrounds as `assets/art/rice-flour.png` and `assets/art/urad-dal.png`. They are wider than the other jars and tins, so `artScale` in `INGREDIENTS` draws them a little larger to match.
 - **21 Oct 2026, firecrackers:** A right answer sends up firecrackers: rockets with sparkling trails that burst into colour (`rocket` and `celebrate` in `src/ui/widgets.js`). A two- or three-star muruku gets them too, and the Finale sky has them all the time. Reduce motion turns them off.
 - **21 Oct 2026, a note for someone you miss:** Before Paati's goodbye, a new screen (`src/scenes/NoteScene.js`) explains that the day before Deepavali, many families set out the favourite foods of loved ones who have passed away, as a way of saying "I remember you". The player can write a note on parchment, roll it up, tie it with a string, and send it off with a pigeon, or skip it. The note is **never saved or sent**: it exists only on that screen, and the screen says so. The parchment, scroll and pigeon are generated art (`assets/art/parchment.svg`, `scroll-roll.svg`, `pigeon-body.svg`, `pigeon-wing.svg`), and the handwriting uses the Kalam font. The wording needs cultural review ([quiz research](docs/quiz-research.md#remembering-loved-ones-the-note-screen)).
 - **21 Oct 2026, live:** The repo was made public so the game could be hosted for free on GitHub Pages.

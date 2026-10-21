@@ -15,8 +15,6 @@ const ART = [
   ['brass-bell', 0.55],
   ['banana-leaf', 1.2],
   ['petals', 1],
-  ['sack-rice-flour', 1.2],
-  ['jar-steel', 1.2],
   ['flour-tin', 1.2],
   ['spice-tin', 1.2],
   ['ghee-jar', 1.2],
@@ -55,6 +53,10 @@ export class BootScene extends Phaser.Scene {
     });
     for (const [key, scale] of ART) {
       this.load.svg(key, `assets/art/${key}.svg`, { scale: scale * RES });
+    }
+    // Illustrated ingredients (PNG, cut out from the user's illustrations on white).
+    for (const key of ['rice-flour', 'urad-dal']) {
+      this.load.image(key, `assets/art/${key}.png`);
     }
     // Paati is illustrated art (assets/paati), cut out from the source images in assets/paati/source.
     for (const pose of ['welcome', 'teaching', 'proud', 'sharing', 'avatar']) {

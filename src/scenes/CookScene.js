@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, art, card, header, sparkle, toran } from '../ui/widgets.js';
+import { PaatiBubble, art, card, header, ingredientArt, sparkle, toran } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
 import { ADD_ORDER, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, COMPACT, lerpColor, pick } from '../theme.js';
@@ -326,7 +326,7 @@ export class CookScene extends BaseScene {
     this.addIndex = 0;
     ADD_ORDER.forEach((id, i) => {
       const ing = ingredient(id);
-      const img = art(this, 0, -16, ing.art, TOKENS.art);
+      const img = ingredientArt(this, 0, -16, ing, TOKENS.art);
       const label = makeText(this, 0, TOKENS.label - 12, ing.name, 'b3', { weight: 600, width: 136, align: 'center', origin: [0.5, 0] });
       const token = this.draggable(520 + i * 150, TOKENS.y, 140, 132, [img, label], BOWL, BOWL.r + 40, (b) => this.tryAdd(b));
       token.ing = ing;

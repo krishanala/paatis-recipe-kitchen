@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, art, chip, header, sparkle, tooltip } from '../ui/widgets.js';
+import { PaatiBubble, chip, header, ingredientArt, sparkle, tooltip } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
 import { INGREDIENTS } from '../content.js';
 import { freeKitchenFacts } from '../quiz.js';
@@ -75,7 +75,7 @@ export class StoreScene extends BaseScene {
     const free = this.mode === 'free';
     const have = free || progress.collected.includes(ing.id);
     const isNew = earned.includes(ing.id);
-    const img = art(this, 0, 0, ing.art, 120).setOrigin(0.5, 1);
+    const img = ingredientArt(this, 0, 0, ing, 120).setOrigin(0.5, 1);
     if (!have || isNew) img.setTintFill(0xdcc59e).setAlpha(0.65);
 
     // The whole container is one button, so it can be tapped or reached with the keyboard.

@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, ProgressBar, art, card, celebrate, chip, header, sparkle } from '../ui/widgets.js';
+import { PaatiBubble, ProgressBar, art, card, celebrate, chip, header, ingredientArt, sparkle } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
 import { CHAPTERS, REWARDS, ingredient } from '../content.js';
 import { pickQuiz } from '../quiz.js';
@@ -218,7 +218,7 @@ export class QuizScene extends BaseScene {
       const ing = ingredient(reward);
       const have = progress.collected.includes(ing.id);
       t(cx, y + 36, 'ANSWER TO EARN', 'b3', { weight: 700, color: 0xb35600, origin: 0.5 });
-      this.rewardArt = art(this, cx, y + 160, ing.art, 150);
+      this.rewardArt = ingredientArt(this, cx, y + 160, ing, 150);
       if (!have) this.rewardArt.setTintFill(0xd9cdb8).setAlpha(0.7);
       this.side.push(this.rewardArt);
       t(cx, y + 270, ing.name, 'h5', { origin: 0.5 });
@@ -299,7 +299,7 @@ export class QuizScene extends BaseScene {
       this.updateStoreChip();
       return;
     }
-    const flyer = art(this, this.rewardArt.x, this.rewardArt.y, ing.art, 150).setDepth(700);
+    const flyer = ingredientArt(this, this.rewardArt.x, this.rewardArt.y, ing, 150).setDepth(700);
     this.tweens.add({
       targets: flyer,
       x: 1100,

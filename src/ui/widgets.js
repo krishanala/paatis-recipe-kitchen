@@ -12,6 +12,12 @@ export function art(scene, x, y, key, width) {
   return img;
 }
 
+// An ingredient's art for a slot of the given width. The illustrated ones are wider than they are tall,
+// so `artScale` draws them a little larger to look the same size as the jars and tins.
+export function ingredientArt(scene, x, y, ing, width) {
+  return art(scene, x, y, ing.art, width * (ing.artScale ?? 1));
+}
+
 // Full-body Paati, standing with her feet at (x, bottom), sized by height (the poses differ in width).
 export function paati(scene, x, bottom, key, height) {
   const img = scene.add.image(x, bottom, key).setOrigin(0.5, 1);
