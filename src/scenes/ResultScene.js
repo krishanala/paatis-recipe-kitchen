@@ -73,7 +73,7 @@ export class ResultScene extends BaseScene {
           this.go('Store', { mode: 'free' });
         },
       });
-      new Button(this, 1100, 664, { label: 'Finish', variant: 'outline', width: 260, onClick: () => this.finishGame() });
+      new Button(this, 1100, 664, { label: 'Finish', variant: 'outline', accent: true, width: 260, onClick: () => this.finishGame() });
     } else {
       new Button(this, 1080, 664, { label: 'Next', width: 300, onClick: () => this.advance() });
     }

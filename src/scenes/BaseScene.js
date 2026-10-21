@@ -90,10 +90,11 @@ export class BaseScene extends Phaser.Scene {
     this.go(step.scene, step.data);
   }
 
-  // Finish the game: the remembrance note first (once), then Paati's goodbye.
+  // Finish the game (from the free kitchen): Bonus for your heart first if the note hasn't been offered yet, then
+  // Paati's goodbye.
   finishGame() {
-    if (progress.noteSent) this.go('Finale', { mode: 'goodbye' });
-    else this.go('Note');
+    if (progress.noteDone) this.go('Finale', { mode: 'goodbye' });
+    else this.go('Finale', { mode: 'bonus' });
   }
 
   toTitle() {

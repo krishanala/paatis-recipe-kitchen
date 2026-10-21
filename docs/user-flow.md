@@ -22,15 +22,18 @@ flowchart TD
 
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
-    Q4 --> F["7 · Finale<br/>offer muruku · recap card · farewell"]
+    Q4 --> F["7 · Finale<br/>offer muruku · What you learned (3 boxes) · Next"]
+    F --> B["7 · Bonus for your heart<br/>welcome-page style"]
+    B -- Write a note --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
+    B -- Skip --> C["7 · Last page<br/>Make more muruku · Finish"]
+    N -- Continue or Skip --> C
+    C -- Finish --> G["7 · Finale<br/>Paati's goodbye"]
 
-    F -- Make more muruku --> FK["4 · Store (always full)<br/>Deepavali fact"]
+    C -- Make more muruku --> FK["4 · Store (always full)<br/>Deepavali fact"]
     FK --> K2["5 · Cook<br/>shorter hints"]
     K2 --> R2["6 · Result<br/>Make another · Finish"]
     R2 -- Make another --> FK
-    R2 -- Finish --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
-    F -- Finish --> N
-    N -- Continue or Skip --> G["7 · Finale<br/>Paati's goodbye"]
+    R2 -- Finish --> G
 ```
 
 ## Rules that shape the flow
@@ -45,7 +48,7 @@ flowchart TD
 | In the free kitchen the Store is always full, and there is no quiz, shop or points | Free kitchen |
 | Help opens settings from the header on every screen, and from the Title | All screens |
 | A right answer sends up firecrackers (two or three stars do too) | Quiz, Result |
-| The note for someone you miss comes once, before the goodbye, and can be skipped. It is never saved or sent | Note |
+| The note for someone you miss comes once, after What you learned, and can be skipped. It is never saved or sent | Bonus, Note |
 
 ## Edge cases to design for
 

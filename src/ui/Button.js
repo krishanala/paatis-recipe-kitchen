@@ -20,11 +20,12 @@ export class Button extends Phaser.GameObjects.Container {
       content,
       align = 'center',
       inset = 76, // left-aligned labels start this far in from the left edge
+      accent = false, // outline: marigold label, to pair with a filled button beside it
       onClick,
       onHoldStart,
       onHoldEnd,
     } = opts;
-    Object.assign(this, { variant, dark, icon, onClick, onHoldStart, onHoldEnd });
+    Object.assign(this, { variant, dark, icon, accent, onClick, onHoldStart, onHoldEnd });
     this.bh = height ?? BUTTON_HEIGHT[size] ?? BUTTON_HEIGHT.giant;
     this.bw = width ?? (variant === 'icon' ? this.bh : 280);
     this.br = radius ?? (variant === 'icon' ? this.bh / 2 : RADIUS.button);
@@ -177,6 +178,14 @@ export class Button extends Phaser.GameObjects.Container {
         if (look === 'correct') return { fill: 0xe8f6ec, stroke: COLOR.green600, strokeWidth: 3, text: COLOR.grey900 };
         if (look === 'selected') return { fill: COLOR.yellow50, stroke: COLOR.marigold500, strokeWidth: 3, text: COLOR.grey900 };
         if (look === 'setAside') return { fill: COLOR.grey100, stroke: COLOR.grey300, text: COLOR.grey600 };
+        if (this.accent) {
+          // The filled button's marigold on white: 3.5:1, fine for these large labels.
+          return {
+            fill: pressed ? 0xfdebd9 : hover ? 0xfff4e8 : COLOR.white,
+            stroke: hover || pressed ? COLOR.buttonFill : COLOR.grey300,
+            text: pressed ? COLOR.buttonPress : COLOR.buttonFill,
+          };
+        }
         return {
           fill: pressed ? 0xeceffe : hover ? 0xf6f7ff : COLOR.white,
           stroke: hover || pressed ? COLOR.primary500 : COLOR.grey300,

@@ -419,7 +419,14 @@ export const NOTE = {
 export const FINALE = {
   offer: 'Will you offer your muruku to Paati?',
   thanks: 'Now we can share this with the whole street. Thank you for cooking with me, dear.',
-  more: 'Would you like to make more muruku with me?',
+  // Bonus for your heart: the page before the note for someone you miss.
+  bonusRibbon: 'Bonus for your heart',
+  bonusTitle: 'A note for someone you miss',
+  bonusText: 'Write a few words to someone you miss, roll them up, and send them off with love.',
+  // The last page: more muruku, or finish.
+  choiceRibbon: 'Well done, dear!',
+  choiceTitle: 'Make more muruku?',
+  choiceText: 'In the free kitchen the store is always full, and I will tell you something new each time.',
   goodbye: 'Thank you, dear. Come back any time. Happy Deepavali!',
   safety: 'May contain sesame. Younger cooks need an adult near hot oil.',
 };

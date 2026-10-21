@@ -1,5 +1,5 @@
 import { BLEED, BUTTON_HEIGHT, COLOR, STAGE, css } from '../theme.js';
-import { makeText } from './text.js';
+import { fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { settings, progress } from '../state.js';
 
@@ -588,4 +588,86 @@ export function doorstepKolam(scene, x, y, width, { diyas = 5 } = {}) {
     lamps.push(halo, lamp);
   }
   return [floor, kolam, petals, ...lamps];
+}
+
+// ---- The welcome look: the Title, Bonus for your heart and the last page share it ----------------------
+
+export const SERIF = '"EB Garamond", Garamond, Georgia, serif';
+const MAROON = 0x800000;
+const MAROON_EDGE = 0x4d0000;
+const RAISE = 5;
+
+// A heading in EB Garamond maroon, standing on a 5 px deeper-maroon edge so it looks raised (3D): the edge is the
+// text repeated 1 to 5 px lower, behind it. Returns a container; textHeight is its full height.
+export function raisedTitle(scene, x, y, str, { size = fontSize('h1') + 10, width = 640, align = 'left', origin = [0, 0] } = {}) {
+  const layer = (dy, colour) =>
+    makeText(scene, 0, dy, str, 'h1', { width, color: colour, weight: 700, align, origin }).setFontFamily(SERIF).setFontSize(size);
+  const edge = [];
+  for (let d = RAISE; d >= 1; d--) edge.push(layer(d, MAROON_EDGE));
+  const face = layer(0, MAROON);
+  const title = scene.add.container(x, y, [...edge, face]);
+  title.textHeight = face.height + RAISE;
+  title.textWidth = face.width;
+  return title;
+}
+
+// A Rani pink ribbon trimmed in gold, with a lit diya at each end, centred on (0, 0). bw and bh are its size.
+export function ribbon(scene, str) {
+  const t = makeText(scene, 0, 0, str, 'h5', { color: COLOR.white, weight: 700, origin: [0, 0.5] });
+  const d = Math.round(t.height * 1.15);
+  const pad = 18;
+  const gap = 10;
+  const w = pad + d + gap + t.width + gap + d + pad;
+  const h = Math.round(t.height + 24);
+  const g = scene.add.graphics();
+  g.fillStyle(0x000000, 0.12);
+  g.fillRoundedRect(0, 4, w, h, h / 2);
+  g.fillStyle(COLOR.rani500, 1);
+  g.fillRoundedRect(0, 0, w, h, h / 2);
+  g.lineStyle(2, COLOR.yellow500, 1);
+  g.strokeRoundedRect(4, 4, w - 8, h - 8, (h - 8) / 2);
+  t.setPosition(pad + d + gap, h / 2);
+  const left = art(scene, pad + d / 2, h / 2 - 3, 'diya', d);
+  const right = art(scene, w - pad - d / 2, h / 2 - 3, 'diya', d);
+  const parts = [g, t, left, right];
+  parts.forEach((o) => o.setPosition(o.x - w / 2, o.y - h / 2));
+  const c = scene.add.container(0, 0, parts);
+  c.bw = w;
+  c.bh = h;
+  return c;
+}
+
+// The welcome scene: warm bokeh and a golden sunburst, the marigold valance with strands pinned to the screen edges,
+// firework sparkles, and Paati (in the given pose) at the back of a doorstep kolam with a golden lotus diya.
+// Text and buttons go in the left column, x 96 to about 660.
+export function welcomeStage(scene, poseKey) {
+  bokeh(scene, 14, { area: [-BLEED, 90, 620, 700], seed: 'title-left', strength: 0.7 });
+  bokeh(scene, 30, { area: [620, 90, 1280 + BLEED, 700], seed: 'title-right' });
+  glow(scene, 930, 330, 300);
+  burst(scene, 720, 150, 44);
+  burst(scene, 1160, 172, 58, COLOR.marigold500);
+  burst(scene, 1214, 440, 38);
+  burst(scene, 652, 520, 30, COLOR.marigold500);
+  garland(scene);
+  const strands = hangingGarlands(scene, [
+    [22, 14, 330],
+    [56, 14, 220, 'alt'],
+    [1224, 14, 220, 'alt'],
+    [1258, 14, 330],
+  ]);
+  scene.onView(({ left, right }) => {
+    [left + 22, left + 56, right - 56, right - 22].forEach((x, i) => (strands[i].x = x));
+  });
+  twinkles(scene, [
+    [700, 150, 12],
+    [1180, 140, 14],
+    [760, 300, 9],
+    [1200, 330, 10],
+    [660, 470, 8],
+    [1220, 520, 12],
+    [560, 130, 9],
+  ]);
+  doorstepKolam(scene, 930, 634, 430);
+  paati(scene, 930, 562, poseKey, 440);
+  art(scene, 930, 706, 'lotus-diya', 204).setOrigin(0.5, 1).setDepth(4);
 }

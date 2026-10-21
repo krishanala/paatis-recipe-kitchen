@@ -100,7 +100,7 @@ export class NoteScene extends BaseScene {
 
     this.actions([
       { label: 'Roll it up', x: 770, width: 320, onClick: () => this.rollUp() },
-      { label: 'Skip', x: 1040, width: 200, variant: 'outline', onClick: () => this.go('Finale', { mode: 'goodbye' }) },
+      { label: 'Skip', x: 1040, width: 200, variant: 'outline', accent: true, onClick: () => this.leave() },
     ]);
     // Keyboard users reach the fields with Tab, before the buttons.
     this.focus.items.unshift(this.proxy(message));
@@ -346,7 +346,6 @@ export class NoteScene extends BaseScene {
 
   send() {
     this.actions([]);
-    progress.noteSent = true;
     if (settings.reduceMotion) {
       this.scroll.destroy();
       return this.sentPage();
@@ -427,7 +426,13 @@ export class NoteScene extends BaseScene {
   sentPage() {
     this.bubble.say(NOTE.sent);
     this.fade(this.offering, true, 600);
-    this.actions([{ label: 'Continue', onClick: () => this.go('Finale', { mode: 'goodbye' }) }]);
+    this.actions([{ label: 'Continue', onClick: () => this.leave() }]);
     if (this.focus.visible) this.focus.focus(this.buttons[0]);
+  }
+
+  // Sent or skipped, the note is done; on to the last page (more muruku, or finish).
+  leave() {
+    progress.noteDone = true;
+    this.go('Finale', { mode: 'choice' });
   }
 }
