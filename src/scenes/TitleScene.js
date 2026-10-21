@@ -49,7 +49,7 @@ export class TitleScene extends BaseScene {
     // Left column: banner, name, then Play / Sound / Help, centred vertically and stacked by real heights so it
     // still fits when phones enlarge the text.
     const started = progress.step >= 0 || progress.freeKitchen;
-    const title = this.text(96, 0, "Paati's Recipe Kitchen", 'h1', { width: 620, color: COLOR.indigo900 });
+    const title = this.text(96, 0, "Paati's Recipe", 'h1', { width: 620, color: COLOR.indigo900 });
     const probe = this.text(0, 0, 'Happy Deepavali!', 'h5', { weight: 700 });
     const bannerH = probe.height + 24;
     probe.destroy();
@@ -86,8 +86,6 @@ export class TitleScene extends BaseScene {
     this.soundButton = sound;
     this.refreshSound();
     this.events.on('settings-closed', () => this.refreshSound());
-
-    this.text(96, 696, 'Starter build · draft stories, placeholder art', 'b3', { origin: [0, 1], color: COLOR.grey600 });
   }
 
   // "Happy Deepavali!" ribbon: a Rani pink pill trimmed in gold, with a lit diya at each end. Returns its bottom.
