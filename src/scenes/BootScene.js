@@ -30,6 +30,10 @@ const ART = [
   ['plate-ribbon', 1],
   ['pan-hot', 1.2],
   ['muruku-golden', 1],
+  ['parchment', 1.2],
+  ['scroll-roll', 1.2],
+  ['pigeon-body', 1],
+  ['pigeon-wing', 1],
 ];
 
 export class BootScene extends Phaser.Scene {

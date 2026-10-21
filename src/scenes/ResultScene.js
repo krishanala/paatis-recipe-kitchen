@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, art, card, header, sparkle, starRow } from '../ui/widgets.js';
+import { PaatiBubble, art, card, celebrate, header, starRow } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
 import { RESULT_LINES } from '../content.js';
 import { COLOR, pick } from '../theme.js';
@@ -26,7 +26,7 @@ export class ResultScene extends BaseScene {
     const L = pick({ leafY: 250, leaf: 420, muruku: 210, starsY: 418 }, { leafY: 226, leaf: 360, muruku: 180, starsY: 378 });
     art(this, 320, L.leafY, 'banana-leaf', L.leaf);
     paintMuruku(this, muruku, 320, L.leafY - 6, L.muruku);
-    if (r.stars === 3) this.time.delayedCall(300, () => sparkle(this, 320, L.leafY, { radius: 160, count: 20 }));
+    if (r.stars >= 2) this.time.delayedCall(300, () => celebrate(this, r.stars === 3 ? [[200, 200], [440, 140], [320, 260]] : [[240, 190], [400, 170]]));
     starRow(this, 320, L.starsY, r.stars, 48);
     let ly = L.starsY + 34;
     const words = this.text(320, ly, line.words, 'h4', { origin: [0.5, 0] });
@@ -73,7 +73,7 @@ export class ResultScene extends BaseScene {
           this.go('Store', { mode: 'free' });
         },
       });
-      new Button(this, 1100, 664, { label: 'Finish', variant: 'outline', width: 260, onClick: () => this.go('Finale', { mode: 'goodbye' }) });
+      new Button(this, 1100, 664, { label: 'Finish', variant: 'outline', width: 260, onClick: () => this.finishGame() });
     } else {
       new Button(this, 1080, 664, { label: 'Next', width: 300, onClick: () => this.advance() });
     }

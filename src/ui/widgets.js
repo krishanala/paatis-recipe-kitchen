@@ -254,12 +254,92 @@ export function sparkle(scene, x, y, { count = 14, radius = 80, depth = 600 } = 
   }
 }
 
+// ---- Firecrackers: rockets that whoosh up and burst into colour ----------------------------------
+
+const BURST_PALETTES = [
+  [COLOR.rani500, COLOR.marigold500, COLOR.yellow500],
+  [COLOR.green600, COLOR.yellow500, COLOR.marigold500],
+  [COLOR.primary500, COLOR.rani500, COLOR.yellow300],
+  [COLOR.marigold500, 0xe53935, COLOR.yellow300],
+];
+
+function sparkTexture(scene) {
+  if (scene.textures.exists('spark')) return;
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  g.fillStyle(0xffffff, 1);
+  g.fillCircle(16, 16, 16);
+  g.generateTexture('spark', 32, 32);
+  g.destroy();
+}
+
+function burstAt(scene, x, y, depth) {
+  const tint = BURST_PALETTES[Math.floor(Math.random() * BURST_PALETTES.length)];
+  const burst = scene.add
+    .particles(0, 0, 'spark', {
+      speed: { min: 150, max: 360 },
+      angle: { min: 0, max: 360 },
+      lifespan: { min: 650, max: 1050 },
+      gravityY: 260,
+      scale: { start: 0.42, end: 0 },
+      alpha: { start: 1, end: 0 },
+      tint,
+      emitting: false,
+    })
+    .setDepth(depth);
+  burst.explode(44, x, y);
+  // A second, smaller crackle of glitter a moment later.
+  scene.time.delayedCall(200, () => burst.active && burst.explode(16, x, y));
+  scene.time.delayedCall(1500, () => burst.destroy());
+}
+
+// Launch one rocket from the bottom of the screen to (x, y), where it bursts.
+export function rocket(scene, x, y, { depth = 800 } = {}) {
+  if (settings.reduceMotion) return;
+  sparkTexture(scene);
+  const head = scene.add.circle(x + Phaser.Math.Between(-30, 30), 740, 5, COLOR.yellow300).setDepth(depth);
+  const trail = scene.add
+    .particles(0, 0, 'spark', {
+      follow: head,
+      speed: { min: 8, max: 30 },
+      lifespan: 360,
+      scale: { start: 0.2, end: 0 },
+      alpha: { start: 0.9, end: 0 },
+      tint: [COLOR.yellow300, COLOR.marigold500],
+      frequency: 16,
+      quantity: 2,
+    })
+    .setDepth(depth - 1);
+  scene.tweens.add({
+    targets: head,
+    x,
+    y,
+    duration: 520,
+    ease: 'Cubic.Out',
+    onComplete: () => {
+      head.destroy();
+      trail.stop();
+      burstAt(scene, x, y, depth);
+      scene.time.delayedCall(500, () => trail.destroy());
+    },
+  });
+}
+
+// A short celebration: three rockets across the sky, a beat apart. Nothing when Reduce motion is on.
+export function celebrate(scene, spots = [[300, 210], [640, 150], [980, 220]]) {
+  if (settings.reduceMotion) return;
+  spots.forEach(([x, y], i) => scene.time.delayedCall(i * 170, () => rocket(scene, x, y)));
+}
+
+// Rockets every so often across the visible sky (Finale).
 export function fireworks(scene, { top = 120, bottom = 420 } = {}) {
   if (settings.reduceMotion) return null;
   return scene.time.addEvent({
-    delay: 900,
+    delay: 1100,
     loop: true,
-    callback: () => sparkle(scene, 120 + Math.random() * 1040, top + Math.random() * (bottom - top), { count: 22, radius: 110, depth: -1 }),
+    callback: () => {
+      const { left, right } = scene.viewBounds?.() ?? { left: 0, right: STAGE.width };
+      rocket(scene, left + 80 + Math.random() * (right - left - 160), top + Math.random() * (bottom - top), { depth: 2 });
+    },
   });
 }
 

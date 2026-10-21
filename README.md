@@ -10,7 +10,7 @@
 
 ## Status
 
-This is a **playable starter build**. You can play the whole journey (Title → Welcome → 4 chapters → Finale → free kitchen) with touch, mouse or keyboard. However:
+This is a **playable starter build**. You can play the whole journey (Title → Welcome → 4 chapters → Finale → free kitchen → a note for someone you miss → goodbye) with touch, mouse or keyboard. However:
 
 - Paati's stories, the quiz questions and the facts are **drafts** waiting for review by Tamil-speaking home cooks.
 - The recipe card shows Paati's order but **no amounts**, which must come from a trusted family recipe.
@@ -51,7 +51,7 @@ src/
   scoring.js          dough 40 / twist 30 / fry 30 → stars, with one-line reasons
   draw.js             draws the player's own spiral as their muruku
   ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet
-  scenes/             Title, Story, Quiz, Store, Cook (6 steps), Result, Finale
+  scenes/             Title, Story, Quiz, Store, Cook (6 steps), Result, Note, Finale
 assets/
   paati/              Paati's illustrated poses (welcome, teaching, proud, sharing) + round avatar; originals in source/
   art/                placeholder SVG art (press, pan, jars, diyas, kolam, garland…)
@@ -84,6 +84,8 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **21 Oct 2026, firecrackers:** A right answer sends up firecrackers: rockets with sparkling trails that burst into colour (`rocket` and `celebrate` in `src/ui/widgets.js`). A two- or three-star muruku gets them too, and the Finale sky has them all the time. Reduce motion turns them off.
+- **21 Oct 2026, a note for someone you miss:** Before Paati's goodbye, a new screen (`src/scenes/NoteScene.js`) explains that the day before Deepavali, many families set out the favourite foods of loved ones who have passed away, as a way of saying "I remember you". The player can write a note on parchment, roll it up, tie it with a string, and send it off with a pigeon, or skip it. The note is **never saved or sent**: it exists only on that screen, and the screen says so. The parchment, scroll and pigeon are generated art (`assets/art/parchment.svg`, `scroll-roll.svg`, `pigeon-body.svg`, `pigeon-wing.svg`), and the handwriting uses the Kalam font. The wording needs cultural review ([quiz research](docs/quiz-research.md#remembering-loved-ones-the-note-screen)).
 - **21 Oct 2026, live:** The repo was made public so the game could be hosted for free on GitHub Pages.
 - **20–21 Oct 2026, renamed:** The game is now **Paati's Recipe**, and the first screen opens with a "Happy Deepavali!" banner. The "Starter build" note was removed from the Title screen. The repo and web address keep the name `paatis-recipe-kitchen`.
 - **20 Oct 2026, festive glow:** Following the user's mood references, the off-white screens gained warm Deepavali light: hanging marigold garlands, soft bokeh, gold firework sparkles, glowing lamps, and a golden lotus diya (`assets/art/lotus-diya.svg`, generated) at the heart of the kolam. The references themselves are not used in the game, because two of them are watermarked stock images. The Title screen no longer has body text; the stories explain the game.

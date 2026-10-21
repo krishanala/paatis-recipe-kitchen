@@ -91,7 +91,7 @@ export class FinaleScene extends BaseScene {
         this.go('Store', { mode: 'free' });
       },
     });
-    new Button(this, 1090, 650, { label: 'Finish', variant: 'outline', width: 240, onClick: () => this.go('Finale', { mode: 'goodbye' }) });
+    new Button(this, 1090, 650, { label: 'Finish', variant: 'outline', width: 240, onClick: () => this.finishGame() });
   }
 
   // Keep the four side strands at the screen edges, however wide the view is.

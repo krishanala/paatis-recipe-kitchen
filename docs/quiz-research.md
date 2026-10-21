@@ -85,6 +85,17 @@ Questions in the same **group** are never asked together. The three Deepavali-mo
 | The Golden Temple in Amritsar is lit with lamps for Bandi Chhor Divas. | [Read The Spirit](https://readthespirit.com/religious-holidays-festivals/?p=4548) |
 | Many families wear bright new clothes and visit their elders for blessings. | [Hindutone: Diwali in Chennai](https://hindutone.com/festivals/diwali-celebrations-in-chennai-tamil-nadu-india-2026-a-complete-guide/) |
 
+## Remembering loved ones (the Note screen)
+
+Not a quiz question. This is the fact Paati shares before the player writes a note for someone they miss.
+
+| Fact | Sources |
+|---|---|
+| The day before Deepavali, many families set out the favourite foods of loved ones who have passed away, as a way of saying "I remember you". | [Goya: the remembrance offering in the Tamil community](https://www.goya.in/blog/padayal-in-the-tamil-community); [Goya: in the Tamil Singapore community](https://www.goya.in/blog/padayal-in-the-tamil-singapore-community); [HinduPad](https://hindupad.com/padayal/); [TheSmartLocal: Deepavali celebrations](https://thesmartlocal.com/read/deepavali-celebrations/) |
+| Some families also see Deepavali's lamps and fireworks as lighting the way for the ancestors as they return. Not used in the game, but it fits the firecrackers. | [Malay Mail, 20 Oct 2025](https://malaymail.com/news/life/2025/10/20/not-just-for-merry-making-fireworks-on-deepavali-is-actually-a-traditional-hindu-farewell-ritual-for-ancestors/195108) |
+
+The game uses no Tamil word for the offering, and it doesn't describe the ritual in detail (new clothes, prayers, who eats the food afterwards), because practice varies a lot between families.
+
 ## Left out on purpose
 
 - **Health claims about diyas** ("ghee lamps purify the air"). Sources gave no evidence.
@@ -104,3 +115,4 @@ Please check these closely:
 5. **Rice as "plenty".** Is this the right way to describe the blessing for children?
 6. **Urad dal "makes muruku light".** This comes from the brief and needs a home cook's confirmation.
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
+8. **The remembrance offering** (Note screen). Is "many families set out the favourite foods of loved ones who have passed away" fair across the families you know? Is the pigeon (rather than, say, a lamp) a kind way to show the note going to them? And is the closing line, "Wherever they are, they know you remember them", gentle enough for a child who has lost someone recently?

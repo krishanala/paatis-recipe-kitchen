@@ -28,8 +28,9 @@ flowchart TD
     FK --> K2["5 · Cook<br/>shorter hints"]
     K2 --> R2["6 · Result<br/>Make another · Finish"]
     R2 -- Make another --> FK
-    R2 -- Finish --> G["7 · Finale<br/>Paati's goodbye"]
-    F -- Finish --> G
+    R2 -- Finish --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
+    F -- Finish --> N
+    N -- Continue or Skip --> G["7 · Finale<br/>Paati's goodbye"]
 ```
 
 ## Rules that shape the flow
@@ -43,6 +44,8 @@ flowchart TD
 | Every muruku is served: no fail state, no timers | Cook → Result |
 | In the free kitchen the Store is always full, and there is no quiz, shop or points | Free kitchen |
 | Help opens settings from the header on every screen, and from the Title | All screens |
+| A right answer sends up firecrackers (two or three stars do too) | Quiz, Result |
+| The note for someone you miss comes once, before the goodbye, and can be skipped. It is never saved or sent | Note |
 
 ## Edge cases to design for
 
@@ -55,4 +58,6 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. On the Note screen, the scroll rolls, is tied and leaves at once, without the pigeon's flight |
+| Player tries to roll up an empty note | Paati asks for a few words first; just a name is enough |
+| A phone keyboard opens over the note | The game waits until typing ends before it re-fits the screen, and the fields stay at 16 px or larger so phones don't zoom in |

@@ -11,6 +11,12 @@ function isShown(obj) {
   return true;
 }
 
+// Keys typed into a text field (the note at the end) are the field's own.
+function isTyping(e) {
+  const t = e.target;
+  return Boolean(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable));
+}
+
 export class FocusManager {
   constructor(scene) {
     this.scene = scene;
@@ -89,6 +95,7 @@ export class FocusManager {
   }
 
   onDown(e) {
+    if (isTyping(e)) return;
     if (e.key === 'Tab') {
       e.preventDefault();
       this.move(e.shiftKey ? -1 : 1);
@@ -100,6 +107,7 @@ export class FocusManager {
   }
 
   onUp(e) {
+    if (isTyping(e)) return;
     if (ACTIVATE.has(e.key) && this.current?.active) this.current.keyPress(false);
   }
 }

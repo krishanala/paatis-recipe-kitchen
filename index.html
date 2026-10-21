@@ -16,7 +16,7 @@
     <meta name="apple-mobile-web-app-title" content="Paati's Recipe" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kalam&display=swap" rel="stylesheet" />
     <style>
       html,
       body {
@@ -80,6 +80,46 @@
       @media (orientation: portrait) and (pointer: coarse) and (max-width: 1000px) {
         #rotate { display: flex; }
         #game { visibility: hidden; }
+      }
+      /* The remembrance note: text fields laid over the parchment on the canvas (NoteScene places them). */
+      .note-field {
+        position: fixed;
+        z-index: 5;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0 0.3em;
+        border: 0;
+        border-bottom: 2px dashed rgba(122, 74, 40, 0.45);
+        border-radius: 0;
+        background: transparent;
+        color: #4a2a14;
+        caret-color: #c2410c;
+        font-family: Kalam, "Segoe Print", "Bradley Hand", cursive;
+        line-height: 1.4;
+        outline: none;
+        resize: none;
+        appearance: none;
+        -webkit-appearance: none;
+        touch-action: manipulation;
+      }
+      textarea.note-field {
+        padding: 0.2em 0.4em;
+        border: 2px dashed rgba(122, 74, 40, 0.3);
+        border-radius: 12px;
+        overflow: hidden auto;
+      }
+      @keyframes note-in {
+        from { opacity: 0; }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .note-field { animation: note-in 0.36s ease-out; }
+      }
+      .note-field::placeholder {
+        color: rgba(74, 42, 20, 0.42);
+      }
+      .note-field:focus {
+        border-color: #f77700;
+        border-style: solid;
       }
       noscript {
         display: block;

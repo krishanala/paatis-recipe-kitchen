@@ -2,7 +2,7 @@ import { RES, STAGE, MOOD, css, rgb } from '../theme.js';
 import { FocusManager } from '../ui/focus.js';
 import { makeText } from '../ui/text.js';
 import { SettingsSheet } from '../ui/SettingsSheet.js';
-import { settings } from '../state.js';
+import { progress, settings } from '../state.js';
 import { nextStep } from '../flow.js';
 
 // Shared setup for every screen: mood colours, camera zoom for sharp rendering, keyboard focus,
@@ -88,6 +88,12 @@ export class BaseScene extends Phaser.Scene {
   advance() {
     const step = nextStep();
     this.go(step.scene, step.data);
+  }
+
+  // Finish the game: the remembrance note first (once), then Paati's goodbye.
+  finishGame() {
+    if (progress.noteSent) this.go('Finale', { mode: 'goodbye' });
+    else this.go('Note');
   }
 
   toTitle() {

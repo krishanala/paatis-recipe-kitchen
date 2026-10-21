@@ -402,6 +402,20 @@ export const RECAP = [
   { title: 'Together', text: 'It takes many hands and keeps for weeks, so families make it together and share the jars.' },
 ];
 
+// The remembrance note at the very end (NoteScene). The day before Deepavali, many families set out the favourite
+// foods of loved ones who have passed away (docs/quiz-research.md → "Remembering loved ones").
+export const NOTE = {
+  intro: 'The day before Deepavali, many families set out the favourite foods of loved ones who have passed away.',
+  ask: 'It is a way of saying: I remember you. Is there someone you miss? Write them a note.',
+  empty: 'Write a few words first, dear. Even just their name is enough.',
+  rolling: 'Roll it up from the bottom, nice and snug.',
+  tie: 'Now tie it with a string, so your words stay safe inside.',
+  send: 'Our pigeon will carry it to them.',
+  sent: 'It is on its way. Wherever they are, they know you remember them.',
+  privacy: 'Your note is not saved or sent anywhere.',
+  signoff: 'I remember you.',
+};
+
 export const FINALE = {
   offer: 'Will you offer your muruku to Paati?',
   thanks: 'Now we can share this with the whole street. Thank you for cooking with me, dear.',

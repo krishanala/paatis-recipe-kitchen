@@ -43,6 +43,7 @@ function freshProgress() {
     freeKitchen: false,
     plate: 0, // muruku made in the free kitchen
     factIndex: 0,
+    noteSent: false, // the remembrance note at the end has gone with the pigeon
   };
 }
 

@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, ProgressBar, art, card, chip, header, sparkle } from '../ui/widgets.js';
+import { PaatiBubble, ProgressBar, art, card, celebrate, chip, header, sparkle } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
 import { CHAPTERS, REWARDS, ingredient } from '../content.js';
 import { pickQuiz } from '../quiz.js';
@@ -275,6 +275,7 @@ export class QuizScene extends BaseScene {
   complete(why, firstTry) {
     this.answered = true;
     this.say(why, 'success');
+    celebrate(this);
     const first = (progress.firstTry[this.chapterId] ??= []);
     first[this.index] = firstTry;
     this.bar.set(this.index + 1);
