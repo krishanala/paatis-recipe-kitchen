@@ -116,3 +116,4 @@ Please check these closely:
 6. **Urad dal "makes muruku light".** This comes from the brief and needs a home cook's confirmation.
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
 8. **The remembrance offering** (Note screen). Is "many families set out the favourite foods of loved ones who have passed away" fair across the families you know? Is the pigeon (rather than, say, a lamp) a kind way to show the note going to them? And is the closing line, "Wherever they are, they know you remember them", gentle enough for anyone who has lost someone recently, young or old?
+9. **Paati's humour** (stories, store, kitchen, results). The jokes are on Paati, the food or the moment, never on the player or the tradition. Do any land wrong in your families, or read as unkind to grandparents? For example: "Shoes off, appetite on.", "Older cooks, call your common sense.", "Nobody can un-water dough." and "Most of them were me."

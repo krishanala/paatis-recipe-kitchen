@@ -2,7 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
 import { PaatiBubble, chip, header, ingredientArt, sparkle, tooltip } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
-import { INGREDIENTS } from '../content.js';
+import { INGREDIENTS, STORE_LINES } from '../content.js';
 import { freeKitchenFacts } from '../quiz.js';
 import { COLOR } from '../theme.js';
 import { progress, settings } from '../state.js';
@@ -34,13 +34,13 @@ export class StoreScene extends BaseScene {
     if (free) {
       const facts = freeKitchenFacts();
       const fact = facts[progress.factIndex % facts.length];
-      bubble.say(`Did you know? ${fact}`, 'info');
+      bubble.say(STORE_LINES.fact(fact), 'info');
     } else if (this.mode === 'cook') {
-      bubble.say('Everything we need is here. Shall we start cooking?');
+      bubble.say(STORE_LINES.cook);
     } else if (count < 6) {
-      bubble.say(`Look, ${count} of 6 on the shelves already! Tap a container to hear what it does.`);
+      bubble.say(STORE_LINES.some(count));
     } else {
-      bubble.say('All six are here! Tap any of them to hear what it does.', 'success');
+      bubble.say(STORE_LINES.all, 'success');
     }
     bubble.setY(Math.min(584, 712 - bubble.bubbleHeight));
 

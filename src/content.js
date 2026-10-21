@@ -28,50 +28,50 @@ export const STORIES = {
     paati: PAATI.proud,
     done: 'Let us begin',
     lines: [
-      'Come in, dear, the kitchen is ready.',
-      'I am Paati. Paati means grandmother.',
-      'Today I will tell you about Deepavali, and we will make muruku together.',
-      'Answer my questions and you will fill my store with ingredients. Then we cook!',
+      'Come in, come in. Shoes off, appetite on.',
+      'I am Paati. It means grandmother, and yes, I am the boss of this kitchen.',
+      'Today you learn about Deepavali, and then we make muruku together. Real muruku. No shortcuts.',
+      'Answer my questions and you fill my store. Fill my store and we cook. That is the deal.',
     ],
   },
   ch1: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Deepavali is the festival of lights. Let me tell you some things many people do not know.',
-    outro: 'Did you catch all of that? Let us see what you remember!',
+    intro: 'Deepavali is the festival of lights. Let me tell you the parts most people skip.',
+    outro: 'That was a lot, I know. Let us see how much stayed in.',
   },
   ch2: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Now, muruku! It is crunchy, a little salty, and shaped like a spiral.',
-    outro: 'Now, my muruku questions. Each right answer puts an ingredient in my store.',
+    intro: 'Now, muruku. Crunchy, a little salty, and twisted like it is keeping a secret.',
+    outro: 'Now my muruku questions. Every right answer puts an ingredient on my shelf.',
   },
   ch3: {
     paati: PAATI.teaching,
     done: 'Go to the Store',
     lines: [
-      'Our store is full. Now we cook!',
-      'Rice flour gives the crunch, urad dal flour makes it light, ghee makes it rich and spices give the taste.',
-      'Then we fill the wooden press and twist the dough into a spiral over hot oil.',
-      'We fry it until it is golden. In real life, hot oil can burn, so take great care. Younger cooks, ask an adult to help.',
+      'The store is full. Now the fun part: we cook.',
+      'Rice flour for crunch, urad dal flour to keep it light, ghee to make it rich, and spices to make it sing.',
+      'Then into the wooden press, and we twist a spiral straight into the hot oil.',
+      'We fry it until it is golden. Hot oil does not forgive, so younger cooks, call an adult. Older cooks, call your common sense.',
     ],
   },
   ch4: {
     paati: PAATI.celebrating,
     done: 'Start the quiz',
-    intro: 'Look at your muruku! You made it with your own hands.',
-    outro: 'Now my last two questions, and then we celebrate.',
+    intro: 'Look at your muruku! Made with your own two hands. I will try not to cry.',
+    outro: 'Two last questions, and then we celebrate. I saved the good ones.',
   },
 };
 
 // The six ingredients. `art` is a file in assets/art. Order matches the Store shelves.
 export const INGREDIENTS = [
-  { id: 'riceFlour', name: 'Rice flour', art: 'rice-flour', artScale: 1.25, note: 'Rice flour gives muruku its crunch.', colour: 0xfffdf7 },
-  { id: 'uradFlour', name: 'Urad dal flour', art: 'urad-dal', artScale: 1.25, note: 'Urad dal flour adds flavour and makes it light.', colour: 0xf1e2c0 },
-  { id: 'flour', name: 'Flour', art: 'flour-tin', note: 'A little flour helps the dough bind and stay soft.', colour: 0xf7f0e2 },
-  { id: 'spices', name: 'Spices', art: 'spice-tin', note: 'Spices give the taste. Many families add sesame seeds too.', colour: 0xc8552a },
-  { id: 'ghee', name: 'Ghee', art: 'ghee-jar', note: 'Ghee makes the muruku richer.', colour: 0xf2c14e },
-  { id: 'water', name: 'Water', art: 'jar-clay', note: 'Water brings the dough together.', colour: 0x8cc4ea },
+  { id: 'riceFlour', name: 'Rice flour', art: 'rice-flour', artScale: 1.25, note: 'Rice flour is the crunch. No crunch, no muruku.', colour: 0xfffdf7 },
+  { id: 'uradFlour', name: 'Urad dal flour', art: 'urad-dal', artScale: 1.25, note: 'Urad dal flour makes it light and tasty.', colour: 0xf1e2c0 },
+  { id: 'flour', name: 'Flour', art: 'flour-tin', note: 'A little flour helps the dough hold together.', colour: 0xf7f0e2 },
+  { id: 'spices', name: 'Spices', art: 'spice-tin', note: 'Spices bring the taste. Many add sesame too.', colour: 0xc8552a },
+  { id: 'ghee', name: 'Ghee', art: 'ghee-jar', note: 'Ghee makes it rich. Ghee makes everything rich.', colour: 0xf2c14e },
+  { id: 'water', name: 'Water', art: 'jar-clay', note: 'Water brings it all together, slowly.', colour: 0x8cc4ea },
 ];
 
 export const ingredient = (id) => INGREDIENTS.find((i) => i.id === id);
@@ -376,14 +376,70 @@ export const STEPS = [
   { id: 'fry', title: 'Fry', chip: 'Fry', full: 'Watch the colour. Flip it once, then lift it out when it is golden.', short: 'Flip once. Lift when golden.' },
 ];
 
+// What Paati says in the quiz, the store and the kitchen. Kitchen lines are [full, short]: the free kitchen uses the
+// short one. Functions fill in names. Every line goes through the voice-over hook (src/voice.js), so recordings can
+// be added later; the speech bubble always shows the words.
+const ORDINAL = ['first', 'second', 'third', 'fourth'];
+export const QUIZ_LINES = {
+  prompts: {
+    choice: 'Take your time, dear. One answer. No pressure. Well, a little pressure.',
+    truefalse: 'True, or not? Think back to my story.',
+    picture: 'Look closely. One of these is the one.',
+    order: 'Tap them in order, first to last. No skipping ahead.',
+  },
+  next: 'Here comes the next one.',
+  orderWrong: (i) => `Patience, dear. Which comes ${ORDINAL[i]}?`,
+  orderRight: (i) => `Good. And ${ORDINAL[i]}?`,
+  tryAgain: 'Go on, have another look. Second guesses are allowed in my kitchen.',
+};
+
+export const STORE_LINES = {
+  cook: 'Everything we need is right here. Roll up your sleeves.',
+  some: (count) => `${count} of 6 on my shelves already. Not bad! Tap one to hear what it does.`,
+  all: 'All six! My shelves have never looked so proud. Tap any of them to hear what it does.',
+  fact: (fact) => `Did you know? ${fact}`,
+};
+
+export const COOK_LINES = {
+  addStart: ['Let us start. Rice flour goes in first. It is the crunch, and the crunch is everything.', 'Rice flour first.'],
+  addWrong: (expected) => [`Not yet, dear. The ${expected.name.toLowerCase()} comes first. ${expected.note}`, `${expected.name} comes next.`],
+  addNext: (added, next) => [`${added.note} Next, the ${next.name.toLowerCase()}.`, `Next: ${next.name.toLowerCase()}.`],
+  allIn: ['All in! It looks like snowfall. Now we bring it together with water.', 'All in!'],
+  waterStart: ['Now water. Hold to pour, and let go in the green. Slowly, dear. Nobody can un-water dough.', 'Hold to pour. Stop in the green.'],
+  // While pouring, Paati keeps up.
+  pourGoing: ['Keep going…', 'Keep going…'],
+  pourAlmost: ['Almost… almost…', 'Almost…'],
+  pourStop: ['Stop! Just right.', 'Stop! Just right.'],
+  pourTooMuch: ['Too much! Let go, let go!', 'Too much!'],
+  // When the pour stops.
+  waterLow: ['A little more, dear. This is muruku, not sand.', 'A little more.'],
+  waterRight: ['Just right. Press Done pouring before you get ideas.', 'Just right.'],
+  waterHigh: ['That is not dough, dear, that is soup. Never mind, we will knead it in.', 'That is a lot of water.'],
+  kneadStart: ['Now knead. Rub the dough round and round in the bowl. Put some love into it.', 'Rub in circles.'],
+  kneadDone: ['Soft like an earlobe. Go on, check yours. I will wait.', 'Soft and smooth.'],
+  fillStart: ['Into the press it goes. Drag the dough into the wooden press.', 'Dough into the press.'],
+  plunger: ['Now drag the plunger on top. Gently, it is older than you.', 'Plunger on top.'],
+  plates: ['Now the plate. Which one makes muruku? Drag it under the press.', 'Drag the right plate under the press.'],
+  plateWrong: ['Lovely snack, wrong day. Muruku needs ridges.', 'Not that one. Muruku needs ridges.'],
+  plateRight: ['That is the one. The star plate gives muruku its ridges. Very professional.', 'Star plate on.'],
+  twistStart: ['The oil is hot, so we keep our distance. Press and hold Hold to twist, beside the pot, or draw the spiral with your finger.', 'Hold the button, or draw a spiral.'],
+  twistMore: ['Ooh, lovely. Keep going, or press Done twisting once your spiral is closed.', 'Done when it is closed.'],
+  fryStart: ['Now we fry. Watch the colour, flip it once, and lift it out when it is golden. No wandering off.', 'Flip once. Lift when golden.'],
+  flipNow: ['Golden underneath. Flip it now, before it gets a tan!', 'Flip now!'],
+  flipped: ['Beautiful flip. Now keep an eye on the other side.', 'Flipped!'],
+  liftNow: ['Golden all over. Lift it out now!', 'Lift it out!'],
+  darkUnder: ['It is getting dark underneath. Flip it, flip it!', 'Getting dark!'],
+  darkTop: ['It is getting dark, dear. Lift it out, quickly!', 'Getting dark!'],
+};
+
 // The recipe card shows Paati's order now. The real scoop amounts must come from a trusted family recipe
 // (open question 5) — placeholder ratios must not ship.
 export const RECIPE_NOTE = 'Amounts will come from Paati\'s family recipe.';
 
 export const RESULT_LINES = {
-  3: { words: 'Perfect muruku', tone: 'success', line: 'Very good! Even I could not do better.' },
-  2: { words: 'Very good muruku', tone: 'success', line: 'Lovely! A little more practice and it will be perfect.' },
-  1: { words: 'A good start', tone: 'warning', line: 'Every muruku teaches us something. Let us try again together.' },
+  3: { words: 'Perfect muruku', tone: 'success', line: 'Do not tell anyone, but that is better than mine.' },
+  2: { words: 'Very good muruku', tone: 'success', line: 'Lovely! A little more practice and I will have to watch my back.' },
+  1: { words: 'A good start', tone: 'warning', line: 'Every great cook has made a muruku like this. Most of them were me.' },
 };
 
 // Shown between muruku in the free kitchen. Never a quiz. src/quiz.js adds the bank's facts that were not asked.
@@ -418,7 +474,7 @@ export const NOTE = {
 
 export const FINALE = {
   offer: 'Will you offer your muruku to Paati?',
-  thanks: 'Now we can share this with the whole street. Thank you for cooking with me, dear.',
+  thanks: 'Now the whole street gets a taste. Thank you for cooking with me, dear.',
   // Bonus for your heart: the page before the note for someone you miss.
   bonusRibbon: 'Bonus for your heart',
   bonusTitle: 'A note for someone you miss',
@@ -426,7 +482,7 @@ export const FINALE = {
   // The last page: more muruku, or finish.
   choiceRibbon: 'Well done, dear!',
   choiceTitle: 'Make more muruku?',
-  choiceText: 'In the free kitchen the store is always full, and I will tell you something new each time.',
-  goodbye: 'Thank you, dear. Come back any time. Happy Deepavali!',
+  choiceText: 'In the free kitchen the store is always full, and I always have one more story.',
+  goodbye: 'Come back any time, dear. The kitchen is always open. Happy Deepavali!',
   safety: 'May contain sesame. Younger cooks need an adult near hot oil.',
 };

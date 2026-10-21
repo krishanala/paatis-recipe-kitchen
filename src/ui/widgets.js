@@ -2,6 +2,7 @@ import { BLEED, BUTTON_HEIGHT, COLOR, STAGE, css } from '../theme.js';
 import { fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { settings, progress } from '../state.js';
+import { speak } from '../voice.js';
 
 export const HEADER_H = 84;
 
@@ -131,6 +132,7 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
   }
 
   say(str, tone = 'plain') {
+    speak(str);
     const t = TONES[tone];
     let y = 18;
     if (t.label) {

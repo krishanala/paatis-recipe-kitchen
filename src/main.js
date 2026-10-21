@@ -8,6 +8,7 @@ import { CookScene } from './scenes/CookScene.js';
 import { ResultScene } from './scenes/ResultScene.js';
 import { FinaleScene } from './scenes/FinaleScene.js';
 import { NoteScene } from './scenes/NoteScene.js';
+import { loadVoice, voiceScript } from './voice.js';
 
 // Phaser measures text when it is created, so wait (briefly) for the fonts to load first: Inter, EB Garamond for
 // the game's name, Poppins for the Play button, and Kalam for handwriting.
@@ -44,5 +45,9 @@ window.addEventListener('resize', () => {
 });
 document.addEventListener('focusout', () => setTimeout(refit, 150));
 
-// Handy in the browser console while developing.
+// Recorded voice-over, when there is any (src/voice.js). Captions work without it.
+loadVoice();
+
+// Handy in the browser console while developing. muruku.voiceScript() lists every line Paati says, for recording.
 window.muruku = game;
+game.voiceScript = voiceScript;

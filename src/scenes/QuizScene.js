@@ -2,14 +2,13 @@ import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
 import { PaatiBubble, ProgressBar, art, card, celebrate, chip, header, ingredientArt, sparkle } from '../ui/widgets.js';
 import { makeText } from '../ui/text.js';
-import { CHAPTERS, REWARDS, ingredient } from '../content.js';
+import { CHAPTERS, QUIZ_LINES, REWARDS, ingredient } from '../content.js';
 import { pickQuiz } from '../quiz.js';
 import { BUTTON_HEIGHT, COLOR, MIN_HIT, pick } from '../theme.js';
 import { progress, settings, markChapterDone } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
 const LETTERS = ['A', 'B', 'C'];
-const ORDINALS = ['first', 'second', 'third', 'fourth'];
 // A small label over the question says how to answer, for the formats other than plain 3-choice questions.
 const EYEBROWS = { truefalse: 'TRUE OR NOT?', picture: 'TAP THE PICTURE', order: 'PUT THEM IN ORDER' };
 
@@ -45,6 +44,8 @@ export class QuizScene extends BaseScene {
 
     this.storeChip = null;
     this.next = new Button(this, 1060, 650, { label: 'Next', width: 320, onClick: () => this.onNext() });
+    // After a wrong answer the choices pause on Paati's hint until Try again.
+    this.retry = new Button(this, 1060, 650, { label: 'Try again', width: 320, onClick: () => this.tryAgain() }).setVisible(false);
     this.side = [];
     this.showQuestion();
   }
@@ -55,6 +56,7 @@ export class QuizScene extends BaseScene {
     this.answered = false;
     this.tries = 0;
     this.mistakes = 0;
+    this.retry?.setVisible(false);
     this.counter.setText(`Question ${this.index + 1} of ${this.questions.length}`);
     const eyebrow = EYEBROWS[type] ?? '';
     this.eyebrow.setText(eyebrow).setVisible(Boolean(eyebrow));
@@ -64,13 +66,7 @@ export class QuizScene extends BaseScene {
     const build = { truefalse: this.buildTrueFalse, picture: this.buildPictures, order: this.buildOrder }[type] ?? this.buildChoices;
     const bottom = build.call(this, q, top);
     this.bubbleTop = bottom + 16;
-    const prompts = {
-      choice: 'Take your time, dear. Choose one answer.',
-      truefalse: 'Is it true, or not? Think back to my story.',
-      picture: 'Look carefully, then tap the right picture.',
-      order: 'Tap them in the right order, starting with the first.',
-    };
-    this.say(this.index === 0 || type !== 'choice' ? prompts[type] : 'Here is the next one.');
+    this.say(this.index === 0 || type !== 'choice' ? QUIZ_LINES.prompts[type] : QUIZ_LINES.next);
     this.next.setVisible(false);
     this.updateStoreChip();
     this.showSide();
@@ -183,7 +179,7 @@ export class QuizScene extends BaseScene {
     if (this.answered || btn.placed) return;
     if (btn.orderIndex !== this.orderNext) {
       this.mistakes++;
-      this.say(q.hint ?? `Not that one yet, dear. Which comes ${ORDINALS[this.orderNext]}?`, 'warning');
+      this.say(q.hint ?? QUIZ_LINES.orderWrong(this.orderNext), 'warning');
       if (!settings.reduceMotion) this.tweens.add({ targets: btn, x: btn.x + 8, duration: 60, yoyo: true, repeat: 2 });
       return;
     }
@@ -193,7 +189,7 @@ export class QuizScene extends BaseScene {
     btn.drawBadge(true);
     this.orderNext++;
     if (this.orderNext < q.items.length) {
-      this.say(`Yes! Now, what comes ${ORDINALS[this.orderNext]}?`, 'info');
+      this.say(QUIZ_LINES.orderRight(this.orderNext), 'info');
       return;
     }
     this.complete(q.why, this.mistakes === 0);
@@ -262,8 +258,11 @@ export class QuizScene extends BaseScene {
       btn.setLook('setAside');
       btn.pic?.setAlpha(0.4);
       btn.caption?.setAlpha(0.5);
+      if (!settings.reduceMotion) this.tweens.add({ targets: btn, x: btn.x + 8, duration: 50, yoyo: true, repeat: 3, ease: 'Sine.InOut' });
       this.say(choice.why, 'warning');
-      this.focusNextUsable();
+      this.answers.forEach((b) => b.look !== 'setAside' && b.setEnabled(false));
+      this.retry.setVisible(true);
+      if (this.focus.visible) this.focus.focus(this.retry);
       return;
     }
     btn.setLook('correct');
@@ -271,9 +270,18 @@ export class QuizScene extends BaseScene {
     this.complete(choice.why, this.tries === 1);
   }
 
+  // Back to the choices that are left; the wrong ones stay dimmed, so the right answer is always within reach.
+  tryAgain() {
+    this.retry.setVisible(false);
+    this.answers.forEach((b) => b.look !== 'setAside' && b.setEnabled(true));
+    this.say(QUIZ_LINES.tryAgain, 'info');
+    this.focusNextUsable();
+  }
+
   // The question is answered: Paati explains, the bar fills, the ingredient (if any) flies to the Store.
   complete(why, firstTry) {
     this.answered = true;
+    this.retry.setVisible(false);
     this.say(why, 'success');
     celebrate(this);
     const first = (progress.firstTry[this.chapterId] ??= []);

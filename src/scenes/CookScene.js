@@ -1,8 +1,8 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
 import { PaatiBubble, art, card, header, ingredientArt, sparkle, toran } from '../ui/widgets.js';
-import { makeText } from '../ui/text.js';
-import { ADD_ORDER, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
+import { BUTTON_FONT, makeText } from '../ui/text.js';
+import { ADD_ORDER, COOK_LINES as LINES, QUIZ_LINES, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, COMPACT, lerpColor, pick } from '../theme.js';
 import { NoteSheet } from '../ui/NoteSheet.js';
 import { progress, settings, markChapterDone } from '../state.js';
@@ -58,6 +58,7 @@ export class CookScene extends BaseScene {
     this.bowlObjs = [];
     this.chips = [];
     this.pressTop = null;
+    this.nudging = null; // the scene object is reused between visits
     // The card shows the full instruction, except in the free kitchen (short hints) and on phones, where the
     // full steps open in a pop-up because they don't fit the card.
     this.showFull = !this.free && !COMPACT;
@@ -132,6 +133,11 @@ export class CookScene extends BaseScene {
   keep(obj) {
     if (obj) this.stepObjs.push(obj);
     return obj;
+  }
+
+  // One of Paati's kitchen lines ([full, short], from COOK_LINES).
+  line([full, short], tone = 'plain') {
+    this.say(full, short, tone);
   }
 
   say(full, short = full, tone = 'plain') {
@@ -480,7 +486,7 @@ export class CookScene extends BaseScene {
       const token = this.draggable(520 + i * 150, TOKENS.y, 140, 132, [img, label], BOWL, BOWL.r + 40, (b) => this.tryAdd(b));
       token.ing = ing;
     });
-    this.say('Let us start. Rice flour goes in first, for the crunch.', 'Rice flour first.');
+    this.line(LINES.addStart);
   }
 
   tryAdd(token) {
@@ -488,16 +494,15 @@ export class CookScene extends BaseScene {
     if (token.ing.id !== expected.id) {
       this.cook.addMistakes++;
       this.sendHome(token);
-      this.say(`First the ${expected.name.toLowerCase()}, dear. ${expected.note}`, `${expected.name} comes next.`, 'warning');
+      this.line(LINES.addWrong(expected), 'warning');
       return;
     }
     const index = this.addIndex++;
     this.flyInto(token, { x: BOWL.x, y: this.heapTop().y - 100 }, 0.4, () => this.addToBowl(token.ing, index));
     if (this.addIndex < ADD_ORDER.length) {
-      const next = ingredient(ADD_ORDER[this.addIndex]);
-      this.say(`${token.ing.note} Next, the ${next.name.toLowerCase()}.`, `Next: ${next.name.toLowerCase()}.`);
+      this.line(LINES.addNext(token.ing, ingredient(ADD_ORDER[this.addIndex])));
     } else {
-      this.say('All in! Now we bring it together with water.', 'All in!', 'success');
+      this.line(LINES.allIn, 'success');
       this.showNext('Next step', () => this.goStep(1));
     }
   }
@@ -523,16 +528,24 @@ export class CookScene extends BaseScene {
     this.keep(makeText(this, M.x - 12, (zoneTop + zoneBottom) / 2, 'Just right', 'b3', { weight: 700, color: COLOR.green700, origin: [1, 0.5] }));
     this.keep(makeText(this, M.x + M.w / 2, M.top - 10, 'Water', 'b3', { weight: 700, color: COLOR.grey600, origin: [0.5, 1] }));
 
+    // The meter: water rises; the green zone glows while the level is in it, and past it the water turns amber.
     const drawMeter = () => {
+      const w = this.cook.water;
+      const inZone = w >= WATER_ZONE[0] && w <= WATER_ZONE[1];
+      const over = w > WATER_ZONE[1];
       meter.clear();
       meter.fillStyle(COLOR.white, 1);
       meter.fillRoundedRect(M.x, M.top, M.w, M.h, 14);
-      const level = M.h * this.cook.water;
+      if (inZone) {
+        meter.fillStyle(COLOR.green600, 0.18);
+        meter.fillRect(M.x - 10, zoneTop - 6, M.w + 20, zoneBottom - zoneTop + 12);
+      }
+      const level = M.h * w;
       if (level > 0) {
-        meter.fillStyle(0x4a9fe0, 0.9);
+        meter.fillStyle(over ? COLOR.warning600 : 0x4a9fe0, 0.9);
         meter.fillRect(M.x + 4, M.top + M.h - level, M.w - 8, Math.max(0, level - 4));
       }
-      meter.lineStyle(3, COLOR.green600, 1);
+      meter.lineStyle(inZone ? 5 : 3, COLOR.green600, 1);
       meter.strokeRect(M.x - 4, zoneTop, M.w + 8, zoneBottom - zoneTop);
       meter.lineStyle(2, COLOR.grey300, 1);
       meter.strokeRoundedRect(M.x, M.top, M.w, M.h, 14);
@@ -565,6 +578,9 @@ export class CookScene extends BaseScene {
       splash.clear();
       tilt(false);
       this.waterFeedback();
+      // Pouring again picks up from where the level is now.
+      stage = stages.findIndex((st) => this.cook.water < st.at);
+      if (stage < 0) stage = stages.length;
     };
     this.holdButton('Hold to pour', start, stop);
     this.pointerDown = (p) => {
@@ -572,6 +588,16 @@ export class CookScene extends BaseScene {
     };
     this.pointerUp = stop;
     let t = 0;
+    // Paati keeps up while you pour: each stage is said once, as the level passes it.
+    const [lo, hi] = WATER_ZONE;
+    const stages = [
+      { at: 0.08, line: LINES.pourGoing, tone: 'plain' },
+      { at: lo - 0.1, line: LINES.pourAlmost, tone: 'info' },
+      { at: lo, line: LINES.pourStop, tone: 'success', buzz: true },
+      { at: hi + 0.02, line: LINES.pourTooMuch, tone: 'warning' },
+    ];
+    let stage = stages.findIndex((st) => this.cook.water < st.at);
+    if (stage < 0) stage = stages.length;
     this.tick = (dt) => {
       if (!this.pouring) return;
       t += dt;
@@ -581,10 +607,17 @@ export class CookScene extends BaseScene {
       this.mix.water = this.cook.water;
       this.paintMix();
       drawMeter();
+      while (stage < stages.length && this.cook.water >= stages[stage].at) {
+        const st = stages[stage++];
+        if (stage < stages.length && this.cook.water >= stages[stage].at) continue;
+        this.line(st.line, st.tone);
+        // A tiny buzz on phones that can, at just right.
+        if (st.buzz) navigator.vibrate?.(30);
+      }
       this.drawStream(stream, splash, spout(), this.heapTop(10), t);
       if (this.cook.water > 0.05 && !this.nextBtn.enabled) this.nextBtn.setEnabled(true);
     };
-    this.say('Now water. Hold to pour, and let go in the green zone.', 'Hold to pour. Stop in the green.');
+    this.line(LINES.waterStart);
     this.showNext('Done pouring', () => this.goStep(2), false);
   }
 
@@ -621,9 +654,9 @@ export class CookScene extends BaseScene {
   waterFeedback() {
     const [lo, hi] = WATER_ZONE;
     const w = this.cook.water;
-    if (w < lo) this.say('A little more water, dear. Hold again.', 'A little more.', 'info');
-    else if (w <= hi) this.say('That is just right. Press Done pouring.', 'Just right.', 'success');
-    else this.say('Oh, that is a lot of water. It is alright, we will knead it in.', 'That is a lot of water.', 'warning');
+    if (w < lo) this.line(LINES.waterLow, 'info');
+    else if (w <= hi) this.line(LINES.waterRight, 'success');
+    else this.line(LINES.waterHigh, 'warning');
   }
 
   // ---- step 3: knead -------------------------------------------------------------------------------
@@ -674,7 +707,7 @@ export class CookScene extends BaseScene {
       if (p >= 1) {
         this.kneading = this.autoKnead = false;
         sparkle(this, BOWL.x, this.heapTop().y + 20);
-        this.say('Soft like an earlobe. Perfect.', 'Soft and smooth.', 'success');
+        this.line(LINES.kneadDone, 'success');
         this.showNext('Next step', () => this.goStep(3));
       }
     };
@@ -701,7 +734,7 @@ export class CookScene extends BaseScene {
     this.tick = (dt) => {
       if (this.autoKnead) knead(((dt / 1000) * Math.PI * 2) / 0.9);
     };
-    this.say('Now knead. Rub the dough round and round in the bowl.', 'Rub in circles.');
+    this.line(LINES.kneadStart);
   }
 
   // ---- step 4: fill the press ----------------------------------------------------------------------
@@ -721,7 +754,7 @@ export class CookScene extends BaseScene {
 
     // 3 · Drag the star plate under the press. The arrow starts from the row, so it doesn't give the answer away.
     const plates = () => {
-      this.say('Now choose the plate. Which one makes muruku? Drag it under the press.', 'Drag the right plate under the press.');
+      this.line(LINES.plates);
       const rowY = pick(520, 470);
       const arrow = this.dragArrow({ x: 500 + 2 * 118 + 50, y: rowY + 20 }, { x: plateSpot.x - 52, y: plateSpot.y + 10 }, { bend: 1, lift: 26 });
       const kinds = [
@@ -734,10 +767,19 @@ export class CookScene extends BaseScene {
         const label = makeText(this, 0, 46, name, 'b3', { weight: 600, origin: 0.5 });
         const b = this.draggable(500 + i * 118, rowY, 108, 124, [img, label], plateSpot, 90, () => {
           if (key !== 'plate-star') {
+            // Set that plate aside, and pause the others on Paati's hint until Try again.
             b.setEnabled(false);
+            b.wrong = true;
             img.setAlpha(0.4);
             this.sendHome(b);
-            this.say('That plate makes a different snack. For muruku we use the star plate.', 'Not that one: the star plate.', 'info');
+            if (!settings.reduceMotion) this.time.delayedCall(280, () => b.active && this.tweens.add({ targets: b, x: b.home.x + 8, duration: 50, yoyo: true, repeat: 3 }));
+            this.line(LINES.plateWrong, 'info');
+            buttons.forEach((other) => other.setEnabled(false));
+            this.showNext('Try again', () => {
+              this.nextBtn.setVisible(false);
+              buttons.forEach((other) => !other.wrong && other.setEnabled(true));
+              this.say(QUIZ_LINES.tryAgain, QUIZ_LINES.tryAgain, 'info');
+            });
             return;
           }
           arrow.destroy();
@@ -745,7 +787,7 @@ export class CookScene extends BaseScene {
           this.flyInto(b, plateSpot, 0.6, () => {
             this.keep(art(this, plateSpot.x, plateSpot.y + 4, 'plate-star', 56));
           });
-          this.say('That is the one. The star plate gives muruku its ridges.', 'Star plate on.', 'success');
+          this.line(LINES.plateRight, 'success');
           this.showNext('Next step', () => this.goStep(4));
         });
         this.followArrow(b, arrow);
@@ -755,7 +797,7 @@ export class CookScene extends BaseScene {
 
     // 2 · Drag the plunger on top.
     const plunger = () => {
-      this.say('Now drag the plunger on top of the press.', 'Plunger on top.');
+      this.line(LINES.plunger);
       const img = art(this, 0, -8, 'press-plunger', 80 * s);
       const label = makeText(this, 0, 54, 'Plunger', 'b3', { weight: 600, origin: 0.5 });
       const arrow = this.dragArrow({ x: 560 + 66, y: itemY - 30 }, { x: plungerSpot.x - 44, y: plungerSpot.y - 46 });
@@ -789,7 +831,7 @@ export class CookScene extends BaseScene {
       });
     });
     this.followArrow(dough, arrow);
-    this.say('Into the press it goes. Drag the dough into the wooden press.', 'Dough into the press.');
+    this.line(LINES.fillStart);
   }
 
   // A dashed arrow arching from an item to where it goes, marked "Drag", with a dot gliding along it to show the
@@ -964,7 +1006,7 @@ export class CookScene extends BaseScene {
       const r2 = 8 + b * this.autoTheta;
       this.addSample(r2 * Math.cos(this.autoTheta), r2 * Math.sin(this.autoTheta));
     };
-    this.say('Careful, the oil is hot. Press and hold Hold to twist, beside the pot, and watch your spiral grow. You can draw it with your finger too.', 'Hold the button, or draw a spiral.');
+    this.line(LINES.twistStart);
     this.showNext('Done twisting', () => this.finishTwist(), false);
   }
 
@@ -993,7 +1035,7 @@ export class CookScene extends BaseScene {
     if (this.samples.length > 20) {
       this.nextBtn.setEnabled(true);
       again.setVisible(true);
-      this.say('Lovely. Keep going, or press Done twisting when your spiral is closed.', 'Done when it is closed.');
+      this.line(LINES.twistMore);
     }
   }
 
@@ -1089,12 +1131,16 @@ export class CookScene extends BaseScene {
     };
     const liftY = 652 - BUTTON_HEIGHT.giant / 2 - 14 - BUTTON_HEIGHT.large / 2;
     const liftNow = this.keep(new Button(this, 1080, liftY, { label: 'Lift out', size: 'large', variant: 'outline', width: 300, onClick: lift }));
+    const cue = this.keep(this.cueBadge());
     this.showNext('Flip', () => {
       fry.flipped = true;
       fry.warned = false;
+      fry.cued = false;
+      cue.hide();
+      this.stopNudge();
       liftNow.setVisible(false);
       if (!settings.reduceMotion) this.tweens.add({ targets: this.muruku, scaleY: 0, duration: 90, yoyo: true });
-      this.say('Good flip! Now watch the other side.', 'Flipped!', 'success');
+      this.line(LINES.flipped, 'success');
       this.showNext('Lift out', lift);
       repaint();
     });
@@ -1108,12 +1154,67 @@ export class CookScene extends BaseScene {
         fry.since = 0;
         repaint();
       }
+      // Golden: time to flip (or, after the flip, to lift it out).
+      if (!fry.cued && fry[key] >= GOLDEN_ZONE[0]) {
+        fry.cued = true;
+        const line = fry.flipped ? LINES.liftNow : LINES.flipNow;
+        cue.show(line[1]);
+        this.nudge(this.nextBtn);
+        this.line(line, 'success');
+      }
       if (!fry.warned && fry[key] > GOLDEN_ZONE[1] + 0.05) {
         fry.warned = true;
-        this.say(fry.flipped ? 'It is getting dark, dear. Lift it out!' : 'It is getting dark underneath. Flip it!', 'Getting dark!', 'info');
+        this.line(fry.flipped ? LINES.darkTop : LINES.darkUnder, 'info');
       }
     };
-    this.say('Now we fry. Watch the colour, flip it once, then lift it out when it is golden.', 'Flip once. Lift when golden.');
+    this.line(LINES.fryStart);
+  }
+
+  // A big marigold badge beside the pot ("Flip now!", "Lift it out!"), pointing at it, pulsing unless Reduce
+  // motion is on.
+  cueBadge() {
+    const w = pick(220, 250);
+    const h = pick(64, 76);
+    const badge = this.add.container(PAN.x + PAN.width / 2 + 30 + w / 2, PAN.y - 70).setDepth(20).setVisible(false);
+    const g = this.add.graphics();
+    g.fillStyle(0x000000, 0.16);
+    g.fillRoundedRect(-w / 2, -h / 2 + 4, w, h, h / 2);
+    g.fillStyle(COLOR.buttonFill, 1);
+    g.fillRoundedRect(-w / 2, -h / 2, w, h, h / 2);
+    g.fillTriangle(-w / 2 - 16, 0, -w / 2 + 4, -14, -w / 2 + 4, 14);
+    g.lineStyle(2, COLOR.yellow300, 1);
+    g.strokeRoundedRect(-w / 2 + 4, -h / 2 + 4, w - 8, h - 8, (h - 8) / 2);
+    const label = makeText(this, 0, 0, '', 'h5', { weight: 700, color: COLOR.offWhite, origin: 0.5 }).setFontFamily(BUTTON_FONT);
+    badge.add([g, label]);
+    let pulse = null;
+    badge.show = (str) => {
+      label.setText(str);
+      badge.setVisible(true).setScale(1);
+      if (settings.reduceMotion) return;
+      pulse?.remove();
+      pulse = this.tweens.add({ targets: badge, scale: { from: 0.9, to: 1.08 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+    };
+    badge.hide = () => {
+      pulse?.remove();
+      pulse = null;
+      badge.setVisible(false);
+    };
+    badge.once('destroy', () => pulse?.remove());
+    return badge;
+  }
+
+  // Make a button gently pulse to draw the eye, until stopNudge().
+  nudge(btn) {
+    this.stopNudge();
+    if (settings.reduceMotion) return;
+    this.nudging = { btn, tween: this.tweens.add({ targets: btn, scale: { from: 1, to: 1.06 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.InOut' }) };
+  }
+
+  stopNudge() {
+    if (!this.nudging) return;
+    this.nudging.tween.remove();
+    this.nudging.btn.setScale(1);
+    this.nudging = null;
   }
 
   finish(fry, colour) {

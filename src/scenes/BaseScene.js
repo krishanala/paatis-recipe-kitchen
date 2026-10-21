@@ -4,6 +4,7 @@ import { makeText } from '../ui/text.js';
 import { SettingsSheet } from '../ui/SettingsSheet.js';
 import { progress, settings } from '../state.js';
 import { nextStep } from '../flow.js';
+import { hush } from '../voice.js';
 
 // Shared setup for every screen: mood colours, camera zoom for sharp rendering, keyboard focus,
 // fades between screens and the Help & settings sheet.
@@ -74,6 +75,7 @@ export class BaseScene extends Phaser.Scene {
   go(key, data = {}) {
     if (this.leaving) return;
     this.leaving = true;
+    hush();
     this.input.enabled = false;
     const start = () => this.scene.start(key, data);
     if (settings.reduceMotion) {

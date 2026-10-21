@@ -55,9 +55,9 @@ flowchart TD
 | Case | Expected behaviour |
 |---|---|
 | Player taps Back mid-chapter | Returns to Title. Play reads Continue and resumes at the start of the current screen (progress is kept for the session; saving between visits is open question 7) |
-| Player answers wrong repeatedly | Each wrong choice is dimmed after Paati's explanation, so the right answer is always reached in at most 3 taps |
+| Player answers wrong repeatedly | Each wrong choice is dimmed after Paati's hint, and the choices pause until Try again. The wrong ones stay dimmed, so the right answer is always within reach |
 | Player adds an ingredient in the wrong order | Paati gently names the right one; the ingredient goes back to the shelf and the order score drops |
-| Player pours too much water | Water can't be taken out. The dough score drops and Paati says why on the Result screen |
+| Player pours too much water | Paati calls "Too much!" as it passes the green zone, and the water in the meter turns amber. Water can't be taken out. The dough score drops and Paati says why on the Result screen |
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
