@@ -22,11 +22,12 @@ export class Button extends Phaser.GameObjects.Container {
       inset = 76, // left-aligned labels start this far in from the left edge
       labelColor, // overrides the variant's text colour in every state
       font, // overrides the label's font family
+      fills, // filled variant: { base, hover, press } colours instead of the Marigold ones
       onClick,
       onHoldStart,
       onHoldEnd,
     } = opts;
-    Object.assign(this, { variant, dark, icon, labelColor, onClick, onHoldStart, onHoldEnd });
+    Object.assign(this, { variant, dark, icon, labelColor, fills, onClick, onHoldStart, onHoldEnd });
     this.bh = height ?? BUTTON_HEIGHT[size] ?? BUTTON_HEIGHT.giant;
     this.bw = width ?? (variant === 'icon' ? this.bh : 280);
     this.br = radius ?? (variant === 'icon' ? this.bh / 2 : RADIUS.button);
@@ -163,7 +164,7 @@ export class Button extends Phaser.GameObjects.Container {
     switch (this.variant) {
       case 'filled':
         return {
-          fill: pressed ? COLOR.marigoldPress : hover ? COLOR.marigoldHover : COLOR.marigold500,
+          fill: pressed ? (this.fills?.press ?? COLOR.marigoldPress) : hover ? (this.fills?.hover ?? COLOR.marigoldHover) : (this.fills?.base ?? COLOR.marigold500),
           fillAlpha: this.enabled ? 1 : 0.35,
           text: COLOR.grey900,
           shadow: this.enabled,
