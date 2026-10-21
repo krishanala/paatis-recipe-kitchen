@@ -717,54 +717,60 @@ export class CookScene extends BaseScene {
     const plateSpot = at(130, 236);
     const press = this.keep(art(this, PRESS.x, PRESS.y, 'press-empty', PRESS.width));
     const doughInPress = this.keep(this.add.graphics());
+    const itemY = pick(380, 350);
 
+    // 3 · Drag the star plate under the press. The arrow starts from the row, so it doesn't give the answer away.
     const plates = () => {
-      this.say('Now choose the plate. Which one makes muruku?', 'Choose the plate.');
+      this.say('Now choose the plate. Which one makes muruku? Drag it under the press.', 'Drag the right plate under the press.');
+      const rowY = pick(520, 470);
+      const arrow = this.dragArrow({ x: 500 + 2 * 118 + 50, y: rowY + 20 }, { x: plateSpot.x - 52, y: plateSpot.y + 10 }, { bend: 1, lift: 26 });
       const kinds = [
         ['plate-round', 'Round'],
         ['plate-star', 'Star'],
         ['plate-ribbon', 'Ribbon'],
       ];
-      kinds.forEach(([key, name], i) => {
+      const buttons = kinds.map(([key, name], i) => {
         const img = art(this, 0, -12, key, 72);
         const label = makeText(this, 0, 46, name, 'b3', { weight: 600, origin: 0.5 });
-        const b = this.keep(
-          new Button(this, 500 + i * 118, pick(520, 470), {
-            variant: 'bare',
-            width: 108,
-            height: 124,
-            content: [img, label],
-            onClick: () => {
-              if (key !== 'plate-star') {
-                b.setEnabled(false);
-                img.setAlpha(0.4);
-                this.say('That plate makes a different snack. For muruku we use the star plate.', 'Not that one: the star plate.', 'info');
-                return;
-              }
-              this.flyInto(b, plateSpot, 0.6, () => {
-                this.keep(art(this, plateSpot.x, plateSpot.y + 4, 'plate-star', 56));
-              });
-              this.say('That is the one. The star plate gives muruku its ridges.', 'Star plate on.', 'success');
-              this.showNext('Next step', () => this.goStep(4));
-            },
-          }),
-        );
+        const b = this.draggable(500 + i * 118, rowY, 108, 124, [img, label], plateSpot, 90, () => {
+          if (key !== 'plate-star') {
+            b.setEnabled(false);
+            img.setAlpha(0.4);
+            this.sendHome(b);
+            this.say('That plate makes a different snack. For muruku we use the star plate.', 'Not that one: the star plate.', 'info');
+            return;
+          }
+          arrow.destroy();
+          buttons.forEach((other) => other !== b && other.setEnabled(false));
+          this.flyInto(b, plateSpot, 0.6, () => {
+            this.keep(art(this, plateSpot.x, plateSpot.y + 4, 'plate-star', 56));
+          });
+          this.say('That is the one. The star plate gives muruku its ridges.', 'Star plate on.', 'success');
+          this.showNext('Next step', () => this.goStep(4));
+        });
+        this.followArrow(b, arrow);
+        return b;
       });
     };
 
+    // 2 · Drag the plunger on top.
     const plunger = () => {
-      this.say('Now fit the plunger on top.', 'Plunger on.');
+      this.say('Now drag the plunger on top of the press.', 'Plunger on top.');
       const img = art(this, 0, -8, 'press-plunger', 80 * s);
       const label = makeText(this, 0, 54, 'Plunger', 'b3', { weight: 600, origin: 0.5 });
-      this.draggable(560, pick(380, 350), 130, 140, [img, label], plungerSpot, 100, (b) =>
-        this.flyInto(b, plungerSpot, 1, () => {
+      const arrow = this.dragArrow({ x: 560 + 66, y: itemY - 30 }, { x: plungerSpot.x - 44, y: plungerSpot.y - 46 });
+      const b = this.draggable(560, itemY, 130, 140, [img, label], plungerSpot, 100, (btn) => {
+        arrow.destroy();
+        this.flyInto(btn, plungerSpot, 1, () => {
           press.setTexture('press-filled');
           doughInPress.clear();
           plates();
-        }),
-      );
+        });
+      });
+      this.followArrow(b, arrow);
     };
 
+    // 1 · Drag the dough into the press.
     const ballG = this.add.graphics();
     ballG.fillStyle(lerpColor(DOUGH, 0x8a6d3b, 0.15), 1);
     ballG.fillCircle(3, 4, 42);
@@ -773,14 +779,68 @@ export class CookScene extends BaseScene {
     ballG.fillStyle(0xffffff, 0.45);
     ballG.fillCircle(-14, -14, 12);
     const ballLabel = makeText(this, 0, 60, 'Dough', 'b3', { weight: 600, origin: 0.5 });
-    this.draggable(560, pick(380, 350), 130, 150, [ballG, ballLabel], mouth, 100, (b) =>
+    const arrow = this.dragArrow({ x: 560 + 66, y: itemY - 24 }, { x: mouth.x - 46, y: mouth.y - 30 });
+    const dough = this.draggable(560, itemY, 130, 150, [ballG, ballLabel], mouth, 100, (b) => {
+      arrow.destroy();
       this.flyInto(b, mouth, 0.5, () => {
         doughInPress.fillStyle(0xf6e7c6, 1);
         doughInPress.fillEllipse(mouth.x, mouth.y, 72 * s, 13 * s);
         plunger();
-      }),
-    );
+      });
+    });
+    this.followArrow(dough, arrow);
     this.say('Into the press it goes. Drag the dough into the wooden press.', 'Dough into the press.');
+  }
+
+  // A dashed arrow arching from an item to where it goes, marked "Drag", with a dot gliding along it to show the
+  // move. bend −1 arches over the top, 1 dips underneath; lift is how far. Reduce motion keeps the arrow, without the dot.
+  dragArrow(from, to, { bend = -1, lift = 60 + Math.abs(to.x - from.x) * 0.12 } = {}) {
+    const V = (p) => new Phaser.Math.Vector2(p.x, p.y);
+    const mid = { x: (from.x + to.x) / 2, y: (bend < 0 ? Math.min(from.y, to.y) : Math.max(from.y, to.y)) + bend * lift };
+    const curve = new Phaser.Curves.QuadraticBezier(V(from), V(mid), V(to));
+    const pts = curve.getSpacedPoints(36);
+    const g = this.add.graphics();
+    const colour = COLOR.buttonFill;
+    g.lineStyle(5, colour, 0.9);
+    for (let i = 0; i < pts.length - 3; i += 2) g.lineBetween(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
+    // The arrowhead, pointing along the curve's last stretch.
+    const end = pts[pts.length - 1];
+    const before = pts[pts.length - 3];
+    const a = Math.atan2(end.y - before.y, end.x - before.x);
+    const head = (da, r) => ({ x: end.x - Math.cos(a + da) * r, y: end.y - Math.sin(a + da) * r });
+    const l = head(0.5, 20);
+    const r = head(-0.5, 20);
+    g.fillStyle(colour, 1);
+    g.fillTriangle(end.x + Math.cos(a) * 4, end.y + Math.sin(a) * 4, l.x, l.y, r.x, r.y);
+    const apex = curve.getPoint(0.5);
+    const tag = makeText(this, apex.x, apex.y + (bend < 0 ? -10 : 10), 'Drag', 'b3', { weight: 700, color: colour, origin: [0.5, bend < 0 ? 1 : 0] });
+    const parts = [g, tag];
+    if (!settings.reduceMotion) {
+      const dot = this.add.circle(from.x, from.y, 8, colour).setStrokeStyle(3, COLOR.white);
+      parts.push(dot);
+      const glide = this.tweens.addCounter({
+        from: 0,
+        to: 1,
+        duration: 1300,
+        repeat: -1,
+        repeatDelay: 350,
+        ease: 'Sine.InOut',
+        onUpdate: (tw) => {
+          const t = tw.getValue();
+          const p = curve.getPoint(t);
+          dot.setPosition(p.x, p.y).setAlpha(t < 0.85 ? 1 : (1 - t) / 0.15);
+        },
+      });
+      dot.once('destroy', () => glide.remove());
+    }
+    const arrow = this.keep(this.add.container(0, 0, parts).setDepth(3));
+    return arrow;
+  }
+
+  // The arrow dims while its item is being dragged, and comes back if the item goes home.
+  followArrow(item, arrow) {
+    item.on('dragstart', () => arrow.active && arrow.setAlpha(0.25));
+    item.on('dragend', () => this.time.delayedCall(300, () => arrow.active && arrow.setAlpha(1)));
   }
 
   // ---- the pot of oil (steps 5–6) -------------------------------------------------------------------
