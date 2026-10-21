@@ -6,6 +6,14 @@
     <title>Paati's Recipe</title>
     <meta name="description" content="Learn about Deepavali with Paati, earn the ingredients, then make your own muruku." />
     <link rel="icon" href="assets/art/diya.svg" type="image/svg+xml" />
+    <!-- Add to Home screen: opens full screen and sideways, with Paati as the icon. -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/paati/icon-192.png" />
+    <meta name="theme-color" content="#fffbf5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Paati's Recipe" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -23,6 +31,7 @@
         height: 100%;
         height: 100dvh; /* follows mobile browser toolbars */
         touch-action: none;
+        background: #fffbf5; /* also the full-screen backdrop; each screen sets its own colour */
       }
       /* The kitchen is landscape. On a phone or small tablet held upright, ask for a turn. */
       #rotate {

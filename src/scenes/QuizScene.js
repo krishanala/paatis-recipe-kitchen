@@ -4,15 +4,19 @@ import { PaatiBubble, ProgressBar, art, card, chip, header, sparkle } from '../u
 import { makeText } from '../ui/text.js';
 import { CHAPTERS, REWARDS, ingredient } from '../content.js';
 import { pickQuiz } from '../quiz.js';
-import { BUTTON_HEIGHT, COLOR, MIN_HIT } from '../theme.js';
+import { BUTTON_HEIGHT, COLOR, MIN_HIT, pick } from '../theme.js';
 import { progress, settings, markChapterDone } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
 const LETTERS = ['A', 'B', 'C'];
+const ORDINALS = ['first', 'second', 'third', 'fourth'];
+// A small label over the question says how to answer, for the formats other than plain 3-choice questions.
+const EYEBROWS = { truefalse: 'TRUE OR NOT?', picture: 'TAP THE PICTURE', order: 'PUT THEM IN ORDER' };
 
-// Screen 3 · Quiz: 3 choices per question, drawn from the chapter's bank (src/quiz.js) so they match Paati's story.
-// A wrong answer is set aside with a kind explanation and the player tries again. In chapters 1 and 2 each right
-// answer earns an ingredient, which flies to the Store.
+// Screen 3 · Quiz, drawn from the chapter's bank (src/quiz.js) so it matches Paati's story. Four formats keep it
+// lively: 3 choices, true or not, tap the picture, and put in order. A wrong answer is set aside (or, in order
+// questions, gently corrected) and the player tries again. In chapters 1 and 2 each right answer earns an
+// ingredient, which flies to the Store.
 export class QuizScene extends BaseScene {
   constructor() {
     super('Quiz');
@@ -33,7 +37,9 @@ export class QuizScene extends BaseScene {
     this.bar = new ProgressBar(this, barX, 112 + this.counter.height / 2 - 6, 760 - barX, this.questions.length);
     this.bar.value = this.index;
     this.bar.draw(this.index);
-    this.question = this.text(80, 112 + this.counter.height + 12, '', 'h5', { width: 680 });
+    this.questionY = 112 + this.counter.height + 12;
+    this.eyebrow = this.text(80, this.questionY, '', 'b3', { weight: 700, color: 0xb35600 });
+    this.question = this.text(80, this.questionY, '', 'h5', { width: 680 });
     this.bubble = new PaatiBubble(this, 80, 528, 680);
     this.answers = [];
 
@@ -45,15 +51,34 @@ export class QuizScene extends BaseScene {
 
   showQuestion() {
     const q = this.questions[this.index];
+    const type = q.type ?? 'choice';
     this.answered = false;
     this.tries = 0;
+    this.mistakes = 0;
     this.counter.setText(`Question ${this.index + 1} of ${this.questions.length}`);
-    this.question.setText(q.q);
+    const eyebrow = EYEBROWS[type] ?? '';
+    this.eyebrow.setText(eyebrow).setVisible(Boolean(eyebrow));
+    this.question.setY(eyebrow ? this.questionY + this.eyebrow.height + 4 : this.questionY).setText(q.q);
     this.answers.forEach((b) => b.destroy());
-    // Answers stack under the question; on phones they are taller and spaced so touch areas don't overlap.
     const top = this.question.y + this.question.height + 18;
+    const build = { truefalse: this.buildTrueFalse, picture: this.buildPictures, order: this.buildOrder }[type] ?? this.buildChoices;
+    const bottom = build.call(this, q, top);
+    this.bubbleTop = bottom + 16;
+    const prompts = {
+      choice: 'Take your time, dear. Choose one answer.',
+      truefalse: 'Is it true, or not? Think back to my story.',
+      picture: 'Look carefully, then tap the right picture.',
+      order: 'Tap them in the right order, starting with the first.',
+    };
+    this.say(this.index === 0 || type !== 'choice' ? prompts[type] : 'Here is the next one.');
+    this.next.setVisible(false);
+    this.updateStoreChip();
+    this.showSide();
+  }
+
+  // Three answers stacked under the question; on phones they are taller and spaced so touch areas don't overlap.
+  buildChoices(q, top) {
     const step = Math.max(BUTTON_HEIGHT.large + 14, MIN_HIT + 2);
-    this.bubbleTop = top + (q.choices.length - 1) * step + BUTTON_HEIGHT.large + 16;
     this.answers = q.choices.map((choice, i) => {
       const badge = this.add.graphics();
       badge.fillStyle(this.dark ? COLOR.white : COLOR.indigo900, this.dark ? 0.16 : 0.08);
@@ -69,10 +94,109 @@ export class QuizScene extends BaseScene {
         onClick: (btn) => this.choose(btn, choice),
       });
     });
-    this.say(this.index === 0 ? 'Take your time, dear. Choose one answer.' : 'Here is the next one.');
-    this.next.setVisible(false);
-    this.updateStoreChip();
-    this.showSide();
+    return top + (q.choices.length - 1) * step + BUTTON_HEIGHT.large;
+  }
+
+  // True or not: two big buttons side by side.
+  buildTrueFalse(q, top) {
+    const h = BUTTON_HEIGHT.giant;
+    this.answers = q.choices.map(
+      (choice, i) =>
+        new Button(this, 250 + i * 340, top + h / 2, {
+          label: choice.text,
+          size: 'giant',
+          variant: 'outline',
+          width: 320,
+          onClick: (btn) => this.choose(btn, choice),
+        }),
+    );
+    return top + h;
+  }
+
+  // Tap the picture: three cards, each with a drawing and a short caption.
+  buildPictures(q, top) {
+    const h = pick(196, 206);
+    this.answers = q.choices.map((choice, i) => {
+      const img = art(this, 0, -22, choice.art, pick(104, 96));
+      if (img.displayHeight > h - 70) img.setScale(img.scale * ((h - 70) / img.displayHeight));
+      const caption = makeText(this, 0, h / 2 - 24, choice.text, 'b1', { weight: 600, origin: 0.5 });
+      const btn = new Button(this, 185 + i * 235, top + h / 2, {
+        variant: 'outline',
+        width: 210,
+        height: h,
+        radius: 24,
+        content: [img, caption],
+        onClick: (b) => this.choose(b, choice),
+      });
+      btn.pic = img;
+      btn.caption = caption;
+      return btn;
+    });
+    return top + h;
+  }
+
+  // Put in order: the items appear shuffled; tap them first to last. Each right tap gets its number.
+  buildOrder(q, top) {
+    const n = q.items.length;
+    const cols = n > 3 ? 2 : 1;
+    const w = cols === 2 ? 330 : 680;
+    const badgeX = -w / 2 + (cols === 2 ? 32 : 40);
+    const step = Math.max(BUTTON_HEIGHT.large + 14, MIN_HIT + 2);
+    let order = Phaser.Utils.Array.Shuffle(q.items.map((text, i) => ({ text, i })));
+    if (order.every((o, k) => o.i === k)) order = [...order.slice(1), order[0]];
+    this.orderNext = 0;
+    this.answers = order.map((item, k) => {
+      const badge = this.add.graphics();
+      const number = makeText(this, badgeX, 0, '', 'b1', { weight: 700, color: COLOR.white, origin: 0.5 });
+      const drawBadge = (placed) => {
+        badge.clear();
+        if (placed) {
+          badge.fillStyle(COLOR.green600, 1);
+          badge.fillCircle(badgeX, 0, 18);
+        } else {
+          badge.lineStyle(2, COLOR.grey300, 1);
+          badge.strokeCircle(badgeX, 0, 16);
+        }
+      };
+      drawBadge(false);
+      const col = k % cols;
+      const row = Math.floor(k / cols);
+      const x = cols === 2 ? 80 + w / 2 + col * (w + 20) : 420;
+      const btn = new Button(this, x, top + BUTTON_HEIGHT.large / 2 + row * step, {
+        label: item.text,
+        size: 'large',
+        variant: 'outline',
+        width: w,
+        align: 'left',
+        inset: cols === 2 ? 58 : 76,
+        content: [badge, number],
+        onClick: (b) => this.place(b, q),
+      });
+      Object.assign(btn, { orderIndex: item.i, drawBadge, number });
+      return btn;
+    });
+    const rows = Math.ceil(n / cols);
+    return top + (rows - 1) * step + BUTTON_HEIGHT.large;
+  }
+
+  place(btn, q) {
+    if (this.answered || btn.placed) return;
+    if (btn.orderIndex !== this.orderNext) {
+      this.mistakes++;
+      this.say(q.hint ?? `Not that one yet, dear. Which comes ${ORDINALS[this.orderNext]}?`, 'warning');
+      if (!settings.reduceMotion) this.tweens.add({ targets: btn, x: btn.x + 8, duration: 60, yoyo: true, repeat: 2 });
+      return;
+    }
+    btn.placed = true;
+    btn.setLook('correct');
+    btn.number.setText(String(this.orderNext + 1));
+    btn.drawBadge(true);
+    this.orderNext++;
+    if (this.orderNext < q.items.length) {
+      this.say(`Yes! Now, what comes ${ORDINALS[this.orderNext]}?`, 'info');
+      return;
+    }
+    this.complete(q.why, this.mistakes === 0);
   }
 
   // The right-hand card: the ingredient this question earns, or (chapter 4) the player's muruku.
@@ -136,16 +260,23 @@ export class QuizScene extends BaseScene {
     this.tries++;
     if (!choice.correct) {
       btn.setLook('setAside');
+      btn.pic?.setAlpha(0.4);
+      btn.caption?.setAlpha(0.5);
       this.say(choice.why, 'warning');
       this.focusNextUsable();
       return;
     }
-    this.answered = true;
     btn.setLook('correct');
     this.answers.forEach((b) => b !== btn && b.look !== 'setAside' && b.setEnabled(false));
-    this.say(choice.why, 'success');
+    this.complete(choice.why, this.tries === 1);
+  }
+
+  // The question is answered: Paati explains, the bar fills, the ingredient (if any) flies to the Store.
+  complete(why, firstTry) {
+    this.answered = true;
+    this.say(why, 'success');
     const first = (progress.firstTry[this.chapterId] ??= []);
-    first[this.index] = this.tries === 1;
+    first[this.index] = firstTry;
     this.bar.set(this.index + 1);
 
     const reward = this.rewards[this.index];
@@ -187,7 +318,7 @@ export class QuizScene extends BaseScene {
 
   focusNextUsable() {
     if (!this.focus.visible) return;
-    const next = this.answers.find((b) => b.enabled);
+    const next = this.answers.find((b) => b.enabled && !b.placed);
     if (next) this.focus.focus(next);
   }
 

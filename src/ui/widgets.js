@@ -1,4 +1,4 @@
-import { COLOR, STAGE, css } from '../theme.js';
+import { BLEED, COLOR, STAGE, css } from '../theme.js';
 import { makeText } from './text.js';
 import { Button } from './Button.js';
 import { settings, progress } from '../state.js';
@@ -36,8 +36,8 @@ export function header(scene, { title, onBack }) {
   const dark = scene.dark;
   const g = scene.add.graphics();
   g.fillStyle(dark ? 0x000000 : COLOR.white, dark ? 0.2 : 0.85);
-  g.fillRect(0, 0, STAGE.width, HEADER_H);
-  silkTrim(scene, HEADER_H, scene.mood.band);
+  g.fillRect(-BLEED, 0, STAGE.width + 2 * BLEED, HEADER_H);
+  silkTrim(scene, HEADER_H, scene.mood.band, -BLEED, STAGE.width + 2 * BLEED);
   new Button(scene, 50, HEADER_H / 2, { variant: 'icon', icon: 'back', onClick: onBack ?? (() => scene.toTitle()) });
   makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h5', { dark, origin: 0.5 });
   diyaRow(scene, 1010, HEADER_H / 2, progress.chaptersDone.length);
@@ -265,18 +265,20 @@ export function fireworks(scene, { top = 120, bottom = 420 } = {}) {
 
 // The festive doorway valance across the top (Title and Finale): mango leaves hanging from a chain with brass bells,
 // a dense band of marigolds, and marigold swags with short rose drops between them.
-export function garland(scene, { width = STAGE.width } = {}) {
+export function garland(scene, { x0 = -BLEED, x1 = STAGE.width + BLEED } = {}) {
   const rnd = new Phaser.Math.RandomDataGenerator(['valance']);
   const objs = [];
   const chainY = 12;
   const chain = scene.add.graphics();
   chain.lineStyle(2, 0xb8860b, 1);
-  chain.lineBetween(0, chainY, width, chainY);
+  chain.lineBetween(x0, chainY, x1, chainY);
   objs.push(chain);
-  for (let x = 10; x < width; x += 23) {
+  for (let x = x0 + 10; x < x1; x += 23) {
     objs.push(art(scene, x, chainY - 2, 'mango-leaf', 24).setOrigin(0.5, 0).setAngle(rnd.realInRange(-9, 9)));
   }
-  const anchors = [0, 1, 2, 3, 4, 5].map((k) => (width * k) / 5);
+  // Swag anchors every 256 px, lined up with the stage edges, reaching into the extra width on wide screens.
+  const anchors = [];
+  for (let x = Math.floor(x0 / 256) * 256; x <= x1 + 255; x += 256) anchors.push(x);
   // Swags of orange marigolds, sagging between the anchors.
   anchors.slice(0, -1).forEach((a, k) => {
     const b = anchors[k + 1];
@@ -290,7 +292,7 @@ export function garland(scene, { width = STAGE.width } = {}) {
     }
   });
   // The straight band along the chain, mostly yellow.
-  for (let x = 6, i = 0; x < width + 12; x += 17, i++) objs.push(flowerAt(scene, x, chainY, 22, 'YYYO'[i % 4], rnd));
+  for (let x = x0 + 6, i = 0; x < x1 + 12; x += 17, i++) objs.push(flowerAt(scene, x, chainY, 22, 'YYYO'[i % 4], rnd));
   // Short drops with a rose at each inner anchor, and brass bells.
   anchors.slice(1, -1).forEach((ax, k) => {
     objs.push(marigoldStrand(scene, ax, chainY + 4, 44, { size: 20, pattern: 'YO', tassel: false, seed: 900 + k }));
@@ -302,7 +304,7 @@ export function garland(scene, { width = STAGE.width } = {}) {
 }
 
 // Mango-leaf toran: glossy leaves hanging from a string with small marigolds, above the kitchen on the Cook screen.
-export function toran(scene, y, x0 = 0, x1 = STAGE.width) {
+export function toran(scene, y, x0 = -BLEED, x1 = STAGE.width + BLEED) {
   const rnd = new Phaser.Math.RandomDataGenerator(['toran']);
   const string = scene.add.graphics();
   string.lineStyle(2, 0xb8860b, 1);
@@ -347,7 +349,7 @@ export function lampGlow(scene, x, y, r) {
 }
 
 // Warm bokeh: soft discs of lamp light scattered over an area (seeded, so every visit looks the same).
-export function bokeh(scene, count, { area = [0, 96, STAGE.width, STAGE.height], seed = 'bokeh', strength = 1 } = {}) {
+export function bokeh(scene, count, { area = [-BLEED, 96, STAGE.width + BLEED, STAGE.height], seed = 'bokeh', strength = 1 } = {}) {
   const rnd = new Phaser.Math.RandomDataGenerator([seed]);
   const g = scene.add.graphics();
   const colours = [COLOR.yellow300, COLOR.marigold500, COLOR.yellow500, COLOR.yellow300, COLOR.rani500];

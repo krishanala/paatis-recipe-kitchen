@@ -19,6 +19,7 @@ export class Button extends Phaser.GameObjects.Container {
       icon,
       content,
       align = 'center',
+      inset = 76, // left-aligned labels start this far in from the left edge
       onClick,
       onHoldStart,
       onHoldEnd,
@@ -41,9 +42,9 @@ export class Button extends Phaser.GameObjects.Container {
     if (label) {
       const role = size === 'giant' ? 'h5' : size === 'large' ? 's1' : 'b1';
       const left = align === 'left';
-      this.label = makeText(scene, left ? -this.bw / 2 + 76 : 0, 0, label, role, {
+      this.label = makeText(scene, left ? -this.bw / 2 + inset : 0, 0, label, role, {
         weight: 600,
-        width: this.bw - (left ? 100 : 32),
+        width: this.bw - (left ? inset + 22 : 32),
         align: left ? 'left' : 'center',
         origin: [left ? 0 : 0.5, 0.5],
       });
@@ -237,6 +238,22 @@ export class Button extends Phaser.GameObjects.Container {
         g.lineTo(5, 12);
         g.strokePath();
         break;
+      case 'fullscreen':
+      case 'fullscreen-exit': {
+        // Four corner brackets, pointing out (enter) or in (exit).
+        const s = 12;
+        const k = this.icon === 'fullscreen' ? 1 : -1;
+        for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+          const cx = sx * s;
+          const cy = sy * s;
+          g.beginPath();
+          g.moveTo(cx, cy - sy * 7 * k);
+          g.lineTo(cx, cy);
+          g.lineTo(cx - sx * 7 * k, cy);
+          g.strokePath();
+        }
+        break;
+      }
       case 'close':
         g.lineBetween(-10, -10, 10, 10);
         g.lineBetween(10, -10, -10, 10);

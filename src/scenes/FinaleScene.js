@@ -24,13 +24,15 @@ export class FinaleScene extends BaseScene {
 
   offer() {
     const objs = [];
+    const strands = hangingGarlands(this, [
+      [22, 14, 290],
+      [56, 14, 196, 'alt'],
+      [1224, 14, 196, 'alt'],
+      [1258, 14, 290],
+    ]);
+    this.pinToEdges(strands);
     objs.push(
-      ...hangingGarlands(this, [
-        [22, 14, 290],
-        [56, 14, 196, 'alt'],
-        [1224, 14, 196, 'alt'],
-        [1258, 14, 290],
-      ]),
+      ...strands,
       burst(this, 640, 300, 40),
       burst(this, 1120, 200, 50, COLOR.marigold500),
     );
@@ -92,14 +94,23 @@ export class FinaleScene extends BaseScene {
     new Button(this, 1090, 650, { label: 'Finish', variant: 'outline', width: 240, onClick: () => this.go('Finale', { mode: 'goodbye' }) });
   }
 
+  // Keep the four side strands at the screen edges, however wide the view is.
+  pinToEdges(strands) {
+    this.onView(({ left, right }) => {
+      [left + 22, left + 56, right - 56, right - 22].forEach((x, i) => strands[i]?.active && (strands[i].x = x));
+    });
+  }
+
   goodbye() {
     fireworks(this);
-    hangingGarlands(this, [
-      [22, 14, 330],
-      [56, 14, 220, 'alt'],
-      [1224, 14, 220, 'alt'],
-      [1258, 14, 330],
-    ]);
+    this.pinToEdges(
+      hangingGarlands(this, [
+        [22, 14, 330],
+        [56, 14, 220, 'alt'],
+        [1224, 14, 220, 'alt'],
+        [1258, 14, 330],
+      ]),
+    );
     burst(this, 300, 200, 50, COLOR.marigold500);
     burst(this, 980, 190, 56);
     // Golden lotus diyas glow in both bottom corners.

@@ -34,6 +34,8 @@ Then open <http://localhost:8000>. The script turns off browser caching, so a no
 - The stage is designed at **1280 × 720** (landscape) and scales to fit any screen.
   - It draws at the size it actually shows (`RES` in `src/theme.js`), so it stays sharp on large retina monitors and saves memory on phones.
   - On phones (`COMPACT`), small text grows by up to 35%, buttons get taller, and every touch area is at least 88 stage pixels, which shows as about 46 px. Layouts stack by their real height, so the larger text fits.
+  - On wide screens (most phones held sideways) the view stretches to the screen's full width, up to 2.4:1. The content stays in the middle 1280, and the extra width shows more background. It adapts live when the window changes shape.
+  - On phones and tablets, **Play** also switches to full screen so the browser's bars don't shrink the game. There's a **Full screen** button on the Title screen and in Help & settings, wherever the browser supports it. iPhones don't support web full screen, but **Add to Home Screen** opens the game full screen and sideways (`manifest.webmanifest`, with Paati as the icon).
   - A phone or small tablet held upright shows a "please turn your device sideways" message instead of a tiny letterboxed game.
   - Tested at 667 × 375 and 844 × 390 (phones sideways), 375 × 812 (phone upright), 768 × 1024, 1280 × 720, and 1920 × 1080.
 - Inter (Google Fonts) is used for all interface text. Design tokens follow the brief's design system, with Marigold for the one main action, gold highlights, indigo as an accent, and no red anywhere.
@@ -64,6 +66,7 @@ paper-whats-left.md   to-do list from the earlier Paper design pass
 
 Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content.js).
 
+- **Formats:** questions come in four formats: 3 choices, **True or not?**, **Tap the picture** and **Put in order**. Each chapter mixes them.
 - **Question banks (`QUIZ_BANK`):** Each chapter has a bank of questions, and every question carries a `teach` line. Paati's story for the chapter is her intro, then the `teach` line of each question she is about to ask, then her outro. So every answer is explained before it's asked.
 - **Which questions are asked:** `core` questions are asked every time; the rest are picked at random, so replays bring new facts.
 - **Choices:** Each question has exactly three choices, and each choice has its own `why`, which is what Paati says after the player picks it.

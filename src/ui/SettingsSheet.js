@@ -1,4 +1,4 @@
-import { BUTTON_HEIGHT, COLOR, MIN_HIT, STAGE } from '../theme.js';
+import { BLEED, BUTTON_HEIGHT, COLOR, MIN_HIT, STAGE } from '../theme.js';
 import { settings, saveSettings, resetProgress } from '../state.js';
 import { makeText } from './text.js';
 import { Button } from './Button.js';
@@ -12,7 +12,7 @@ const TEXT_SIZES = [
 
 // A toggle row: label (and an optional hint) on the left, switch on the right, with On/Off in words so colour
 // is not the only signal.
-function toggleRow(scene, x, y, w, h, label, key, { hint, onChange } = {}) {
+function toggleRow(scene, x, y, w, h, label, key, { hint, onChange, get = () => settings[key], set } = {}) {
   const sw = scene.add.graphics();
   const state = makeText(scene, w / 2 - 96, 0, '', 'b1', { weight: 600, origin: [1, 0.5] });
   const text = makeText(scene, -w / 2 + 20, 0, label, 's1', { origin: [0, 0.5] });
@@ -24,7 +24,7 @@ function toggleRow(scene, x, y, w, h, label, key, { hint, onChange } = {}) {
     content.push(sub);
   }
   const draw = () => {
-    const on = settings[key];
+    const on = get();
     sw.clear();
     sw.fillStyle(on ? COLOR.green600 : COLOR.grey300, 1);
     sw.fillRoundedRect(w / 2 - 84, -18, 64, 36, 18);
@@ -40,8 +40,11 @@ function toggleRow(scene, x, y, w, h, label, key, { hint, onChange } = {}) {
     dark: false,
     content,
     onClick: () => {
-      settings[key] = !settings[key];
-      saveSettings();
+      if (set) set(!get());
+      else {
+        settings[key] = !settings[key];
+        saveSettings();
+      }
       draw();
       onChange?.();
     },
@@ -91,6 +94,15 @@ export class SettingsSheet {
 
     add(toggleRow(scene, cx, row(), rowW, rowH, 'Sound', 'sound', { onChange: () => scene.events.emit('settings-changed') }));
     add(toggleRow(scene, cx, row(), rowW, rowH, 'Reduce motion', 'reduceMotion', { hint: 'No sparkles or fireworks' }));
+    if (scene.canFullscreen?.()) {
+      add(
+        toggleRow(scene, cx, row(), rowW, rowH, 'Full screen', null, {
+          hint: 'Hides the browser bars',
+          get: () => scene.scale.isFullscreen,
+          set: () => scene.toggleFullscreen(),
+        }),
+      );
+    }
 
     const sizeY = row();
     labelWithNote(scene, x + 60, sizeY, 'Text size', 'Applies from the next screen').forEach(add);
@@ -142,7 +154,7 @@ export class SettingsSheet {
     const trim = silkTrim(scene, 14, COLOR.marigold500, x + 28, W - 56);
     const sheet = scene.add.container(0, top, [panel, block, trim, ...parts]);
 
-    const shade = scene.add.rectangle(cx, STAGE.height / 2, STAGE.width, STAGE.height, 0x0b0f2a, 0.55).setInteractive();
+    const shade = scene.add.rectangle(cx, STAGE.height / 2, STAGE.width + 2 * BLEED, STAGE.height, 0x0b0f2a, 0.55).setInteractive();
     shade.on('pointerup', () => this.close());
     this.root = scene.add.container(0, 0, [shade, sheet]).setDepth(1000);
     this.escape = () => this.close();

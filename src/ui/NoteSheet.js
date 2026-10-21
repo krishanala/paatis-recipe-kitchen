@@ -1,4 +1,4 @@
-import { COLOR, STAGE } from '../theme.js';
+import { BLEED, COLOR, STAGE } from '../theme.js';
 import { settings } from '../state.js';
 import { makeText } from './text.js';
 import { Button } from './Button.js';
@@ -12,7 +12,7 @@ export class NoteSheet {
     scene.focus.pushLayer();
     const W = 760;
     const x = (STAGE.width - W) / 2;
-    const shade = scene.add.rectangle(STAGE.width / 2, STAGE.height / 2, STAGE.width, STAGE.height, 0x0b0f2a, 0.45).setInteractive();
+    const shade = scene.add.rectangle(STAGE.width / 2, STAGE.height / 2, STAGE.width + 2 * BLEED, STAGE.height, 0x0b0f2a, 0.45).setInteractive();
     shade.on('pointerup', () => this.close());
 
     const parts = [];

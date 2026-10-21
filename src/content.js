@@ -80,8 +80,11 @@ export const ingredient = (id) => INGREDIENTS.find((i) => i.id === id);
 export const ADD_ORDER = ['riceFlour', 'uradFlour', 'flour', 'spices', 'ghee'];
 
 // The quiz bank. Paati teaches every answer in her story first (`teach`), then asks (`q`).
-// Each chapter asks `ask` questions: the `core` ones every time, the rest picked at random, so a replay brings
-// new facts. Every question has exactly 3 choices; `why` is what Paati says after that choice.
+// Each chapter asks `ask` questions: the `core` ones every time, the rest picked at random (mixing formats, and
+// never two from the same `group`), so a replay brings new facts.
+// Formats (`type`): 'choice' (default, 3 choices), 'truefalse' (True / Not true), 'picture' (3 choices with `art`),
+// 'order' (`items` listed in the right order; the game shuffles them). `why` is what Paati says after a choice,
+// or after an order question is complete.
 // Sources and reviewer notes for every fact: docs/quiz-research.md. All of it needs the cultural review.
 export const QUIZ_BANK = {
   ch1: {
@@ -110,16 +113,17 @@ export const QUIZ_BANK = {
       },
       {
         id: 'new-moon',
+        type: 'truefalse',
         teach: 'Deepavali comes on a night with no moon at all, the darkest night of the month. That is why every little lamp shines so bright.',
-        q: 'What is special about the sky on Deepavali night?',
+        q: 'Deepavali comes on a night with a big, bright full moon.',
         choices: [
-          { text: 'There is no moon', correct: true, why: 'Yes! On the darkest night, our lamps light up the whole street.' },
-          { text: 'There is a giant full moon', why: 'Not quite. It is the opposite: the moon hides that night.' },
-          { text: 'The sun stays up all night', why: 'Ha! The sun goes to sleep, and the moon hides too.' },
+          { text: 'True', why: 'Not quite! The moon hides on Deepavali night. That is why every lamp matters so much.' },
+          { text: 'Not true', correct: true, why: 'Right! There is no moon at all. On the darkest night, our lamps light up the whole street.' },
         ],
       },
       {
         id: 'oil-bath',
+        group: 'morning',
         teach: 'In many Tamil homes, Deepavali begins before sunrise with a warm oil bath. Families call it a Ganga bath, as special as a dip in the holy Ganga river.',
         q: 'How do many Tamil families start Deepavali morning?',
         choices: [
@@ -130,6 +134,7 @@ export const QUIZ_BANK = {
       },
       {
         id: 'medicine',
+        group: 'morning',
         teach: 'After the bath, many Tamil families eat a spoonful of Deepavali medicine, made with ginger, pepper and herbs. It gets tummies ready for all the sweets!',
         q: 'Why do many families eat a herbal paste on Deepavali morning?',
         choices: [
@@ -137,6 +142,15 @@ export const QUIZ_BANK = {
           { text: 'To make their hair grow longer', why: 'Not for hair, dear. It is for the tummy, before all the sweets.' },
           { text: 'To stay awake all night', why: 'Not that one. Think about all the sweets and snacks coming that day.' },
         ],
+      },
+      {
+        id: 'morning-order',
+        type: 'order',
+        group: 'morning',
+        teach: 'In many Tamil homes, Deepavali morning goes like this: a warm oil bath before sunrise, then a spoonful of Deepavali medicine, then new clothes and blessings from the elders.',
+        q: 'Put a Tamil Deepavali morning in order.',
+        items: ['Oil bath before sunrise', 'Deepavali medicine', 'New clothes and blessings'],
+        why: 'Perfect! Bath, medicine, then new clothes and blessings. Now the day can begin!',
       },
       {
         id: 'narakasura',
@@ -160,12 +174,12 @@ export const QUIZ_BANK = {
       },
       {
         id: 'faiths',
+        type: 'truefalse',
         teach: 'Deepavali is not only a Hindu festival. Jains remember Mahavira, and Sikhs celebrate Bandi Chhor Divas, the day Guru Hargobind was set free.',
-        q: 'Who else celebrates at Deepavali time?',
+        q: 'Only Hindus celebrate at Deepavali time.',
         choices: [
-          { text: 'Jains and Sikhs', correct: true, why: 'Yes. Many people, many stories, and the same lights.' },
-          { text: 'Only kings and queens', why: 'Not only kings! Many people celebrate. Which two did I name?' },
-          { text: 'Nobody else at all', why: 'Oh, many more do! I told you about two of them.' },
+          { text: 'True', why: 'Not quite, dear. Jains and Sikhs celebrate too, each with their own story.' },
+          { text: 'Not true', correct: true, why: 'Right! Jains remember Mahavira, and Sikhs celebrate Bandi Chhor Divas. Many people, the same lights.' },
         ],
       },
       {
@@ -186,6 +200,17 @@ export const QUIZ_BANK = {
           { text: 'A tiny dab of turmeric', correct: true, why: 'Yes. A little turmeric is a blessing for the new clothes.' },
           { text: 'A shiny sticker', why: 'Not a sticker. It is a yellow spice, as a blessing.' },
           { text: 'A little bell', why: 'Ha! No bells on clothes. It is a dab of a yellow spice.' },
+        ],
+      },
+      {
+        id: 'spot-diya',
+        type: 'picture',
+        teach: 'A diya is a little clay lamp with oil and a cotton wick. Rows of diyas glow in doorways and windows on Deepavali.',
+        q: 'Which one is a diya?',
+        choices: [
+          { art: 'jar-clay', text: 'Clay pot', why: 'That is a clay pot for water. A diya is small, with a flame on top.' },
+          { art: 'diya', text: 'Little lamp', correct: true, why: 'Yes! A little clay lamp with a glowing flame. That is a diya.' },
+          { art: 'muruku-golden', text: 'Muruku', why: 'Ha! That one you can eat. Look for the little lamp with a flame.' },
         ],
       },
     ],
@@ -237,12 +262,12 @@ export const QUIZ_BANK = {
       },
       {
         id: 'hand',
+        type: 'truefalse',
         teach: 'Some grandmothers twist muruku by hand, with no press at all! It is called hand muruku, and it takes years of practice.',
-        q: 'How is hand muruku made?',
+        q: 'Some muruku is twisted by hand, with no press at all.',
         choices: [
-          { text: 'Twisted by hand, with no press', correct: true, why: 'Yes! Only practised hands can do it. One day you will too.' },
-          { text: 'By a robot', why: 'Ha! No robots in my kitchen. It is made by hand.' },
-          { text: 'It grows on a tree', why: 'Not on a tree, dear. Clever hands twist it.' },
+          { text: 'True', correct: true, why: 'True! It is called hand muruku. Only practised hands can do it. One day you will too.' },
+          { text: 'Not true', why: 'It is true, dear! Skilled hands can twist muruku with no press at all.' },
         ],
       },
       {
@@ -264,6 +289,25 @@ export const QUIZ_BANK = {
           { text: 'Only on the Moon', why: 'Ha! Not the Moon. It travelled across the sea with Tamil families.' },
           { text: 'Nowhere else at all', why: 'Oh, it travelled far! I named many countries.' },
         ],
+      },
+      {
+        id: 'star-plate',
+        type: 'picture',
+        teach: 'Inside the wooden press goes the star plate. Its star-shaped hole gives every muruku its ridges.',
+        q: 'Which plate makes muruku?',
+        choices: [
+          { art: 'plate-round', text: 'Round hole', why: 'That one makes a smooth, thin snack. Muruku needs the star shape.' },
+          { art: 'plate-star', text: 'Star hole', correct: true, why: 'Yes! The star hole gives muruku its ridges. You will use it when we cook.' },
+          { art: 'plate-ribbon', text: 'Flat slit', why: 'That one makes flat ribbons. Muruku needs the star shape.' },
+        ],
+      },
+      {
+        id: 'make-order',
+        type: 'order',
+        teach: 'Making muruku has four big steps: mix the flours, knead a soft dough, twist it through the press, and fry it until golden.',
+        q: 'Put the muruku steps in order.',
+        items: ['Mix the flours', 'Knead the dough', 'Twist the spiral', 'Fry until golden'],
+        why: 'That is the recipe! Mix, knead, twist, fry. You are ready for my kitchen.',
       },
     ],
   },
@@ -293,12 +337,12 @@ export const QUIZ_BANK = {
       },
       {
         id: 'keeps',
+        type: 'truefalse',
         teach: 'After frying, muruku has almost no water left. In a tightly closed jar it stays crunchy for weeks, so it can be made early and shared for days.',
-        q: 'Why can muruku be made days before Deepavali?',
+        q: 'Muruku goes soft after one day, so it cannot be made early.',
         choices: [
-          { text: 'It stays crunchy for weeks in a jar', correct: true, why: 'Yes! Close the jar tight and it stays crunchy, ready to share.' },
-          { text: 'It grows bigger every day', why: 'Ha! It does not grow. It just stays crunchy for a long time.' },
-          { text: 'It is only eaten next year', why: 'Not next year! It stays crunchy for weeks, so we share it all festival.' },
+          { text: 'True', why: 'Not true, dear! In a closed jar it stays crunchy for weeks.' },
+          { text: 'Not true', correct: true, why: 'Right! It stays crunchy for weeks, so we make it early and share it all festival.' },
         ],
       },
       {

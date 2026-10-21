@@ -13,6 +13,18 @@ export const RES = Math.min(2.5, Math.max(1, Math.ceil((window.devicePixelRatio 
 
 // Phones show the stage at about half size, so small text and buttons grow there to stay readable and tappable.
 export const COMPACT = FIT < 0.65;
+
+// The stage is designed at 1280×720. On wider screens (most phones held sideways) the view grows wider, up to 2.4:1,
+// so the scene fills the screen edge to edge: content stays in the middle 1280 and the extra width shows more
+// background and decoration. BLEED is how far backgrounds reach past the stage edges to cover that.
+export const MAX_ASPECT = 2.4;
+export const BLEED = 260;
+export function viewWidth() {
+  const w = window.innerWidth || STAGE.width;
+  const h = window.innerHeight || STAGE.height;
+  const aspect = Math.max(w, h) / Math.min(w, h);
+  return Math.round(STAGE.height * Math.min(MAX_ASPECT, Math.max(16 / 9, aspect)));
+}
 export const pick = (normal, compact) => (COMPACT ? compact : normal);
 
 export const COLOR = {

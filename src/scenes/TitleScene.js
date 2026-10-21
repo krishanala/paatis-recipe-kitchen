@@ -4,7 +4,7 @@ import { art, bokeh, burst, doorstepKolam, garland, glow, hangingGarlands, paati
 import { settings, saveSettings, progress } from '../state.js';
 import { resumeStep } from '../flow.js';
 import { PAATI } from '../content.js';
-import { BUTTON_HEIGHT, COLOR } from '../theme.js';
+import { BLEED, BUTTON_HEIGHT, COLOR } from '../theme.js';
 
 // Screen 1 · Title: Happy Deepavali, the game name, Paati inviting the player in, Play, Sound, Help.
 export class TitleScene extends BaseScene {
@@ -16,21 +16,24 @@ export class TitleScene extends BaseScene {
     this.setStage('festive');
 
     // Warm festive light: bokeh, a golden sunburst behind Paati and firework sparkles in the sky.
-    bokeh(this, 10, { area: [0, 90, 620, 700], seed: 'title-left', strength: 0.7 });
-    bokeh(this, 24, { area: [620, 90, 1280, 700], seed: 'title-right' });
+    bokeh(this, 14, { area: [-BLEED, 90, 620, 700], seed: 'title-left', strength: 0.7 });
+    bokeh(this, 30, { area: [620, 90, 1280 + BLEED, 700], seed: 'title-right' });
     glow(this, 930, 330, 300);
     burst(this, 720, 150, 44);
     burst(this, 1160, 172, 58, COLOR.marigold500);
     burst(this, 1214, 440, 38);
     burst(this, 652, 520, 30, COLOR.marigold500);
     garland(this);
-    // Marigold strands hang down both sides like a festive doorway.
-    hangingGarlands(this, [
+    // Marigold strands hang down both sides like a festive doorway, pinned to the screen edges.
+    const strands = hangingGarlands(this, [
       [22, 14, 330],
       [56, 14, 220, 'alt'],
       [1224, 14, 220, 'alt'],
       [1258, 14, 330],
     ]);
+    this.onView(({ left, right }) => {
+      [left + 22, left + 56, right - 56, right - 22].forEach((x, i) => (strands[i].x = x));
+    });
     twinkles(this, [
       [700, 150, 12],
       [1180, 140, 14],
@@ -64,6 +67,8 @@ export class TitleScene extends BaseScene {
       label: started ? 'Continue' : 'Play',
       width: 300,
       onClick: () => {
+        // On phones and tablets, Play also goes full screen so the browser's bars don't shrink the game.
+        if (window.matchMedia('(pointer: coarse)').matches && this.canFullscreen() && !this.scale.isFullscreen) this.toggleFullscreen();
         const step = resumeStep();
         this.go(step.scene, step.data);
       },
@@ -83,6 +88,19 @@ export class TitleScene extends BaseScene {
     const helpX = iconX + BUTTON_HEIGHT.icon + 30;
     new Button(this, helpX, rowY, { variant: 'icon', icon: 'help', onClick: () => this.openSettings() });
     this.text(helpX, labelY, 'Help', 'b3', { origin: [0.5, 0], color: COLOR.grey600 });
+    if (this.canFullscreen()) {
+      const fsX = helpX + BUTTON_HEIGHT.icon + 46;
+      const fs = new Button(this, fsX, rowY, { variant: 'icon', icon: 'fullscreen', onClick: () => this.toggleFullscreen() });
+      this.text(fsX, labelY, 'Full screen', 'b3', { origin: [0.5, 0], color: COLOR.grey600 });
+      const sync = () => fs.setIcon(this.scale.isFullscreen ? 'fullscreen-exit' : 'fullscreen');
+      this.scale.on('enterfullscreen', sync);
+      this.scale.on('leavefullscreen', sync);
+      this.events.once('shutdown', () => {
+        this.scale.off('enterfullscreen', sync);
+        this.scale.off('leavefullscreen', sync);
+      });
+      sync();
+    }
     this.soundButton = sound;
     this.refreshSound();
     this.events.on('settings-closed', () => this.refreshSound());
