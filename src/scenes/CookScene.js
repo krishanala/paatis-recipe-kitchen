@@ -369,7 +369,7 @@ export class CookScene extends BaseScene {
     return this.keep(
       new Button(this, at.x, at.y, {
         label,
-        size: 'large',
+        size: at.size ?? 'large',
         variant: 'outline',
         width: at.width,
         onHoldStart: onStart,
@@ -426,7 +426,8 @@ export class CookScene extends BaseScene {
   // The heap's size and shape right now: flour piles to a soft peak, dough slumps rounder.
   heapShape() {
     const wet = Math.min(1, this.mix.water / 0.6);
-    return { rx: 132 * BS, h: HEAP_H * this.mix.level * (1 - 0.18 * wet), k: 1.3 - 0.65 * wet, wet };
+    const kneaded = this.mix.kneaded ?? 0;
+    return { rx: 132 * BS, h: HEAP_H * this.mix.level * (1 - 0.18 * wet), k: 1.3 - 0.65 * wet - 0.2 * kneaded * wet, wet };
   }
 
   // Everything in the bowl: flour heaps (each flour its own little heap on top), spices, ghee, then as water goes
@@ -494,6 +495,22 @@ export class CookScene extends BaseScene {
         g.fillCircle(p.x + 2 * BS, p.y + 2 * BS, r);
         g.fillStyle(lerpColor(colour, 0xffffff, 0.3), 1);
         g.fillCircle(p.x, p.y, r);
+      }
+    }
+    if (wet > 0.15 && m.kneaded > 0 && m.kneaded < 1) {
+      const strength = Math.sin(Math.PI * m.kneaded);
+      const cx = -6 * BS;
+      const cy = 2 * BS - h * 0.5;
+      g.lineStyle(4 * BS, lerpColor(colour, 0x8a6d3b, 0.38), 0.85 * strength);
+      for (let j = 0; j < 3; j++) {
+        const rr = rx * (0.18 + 0.17 * j);
+        const from = (m.swirl ?? 0) + j * 1.3;
+        const pts = [];
+        for (let k = 0; k <= 16; k++) {
+          const a = from + (2.2 * k) / 16;
+          pts.push({ x: cx + rr * Math.cos(a), y: cy + rr * 0.3 * Math.sin(a) });
+        }
+        g.strokePoints(pts, false);
       }
     }
     if (m.water > WATER_ZONE[1]) {
@@ -804,6 +821,7 @@ export class CookScene extends BaseScene {
     this.autoKnead = false;
     this.mix.water = this.cook.water;
     this.mix.kneaded = 0;
+    this.mix.swirl = 0;
     this.paintMix();
     // A ring around the bowl fills as you knead.
     const ring = this.keep(this.add.graphics());
@@ -828,16 +846,45 @@ export class CookScene extends BaseScene {
       }
     };
     drawRing();
+    // Until the first touch, a marigold dot circles the bowl to show the move, leaving a fading trail.
+    let guide = null;
+    if (!settings.reduceMotion) {
+      const dot = this.keep(this.add.graphics().setDepth(6));
+      let a0 = -Math.PI / 2;
+      const spin = this.time.addEvent({
+        delay: 16,
+        loop: true,
+        callback: () => {
+          a0 += 0.05;
+          dot.clear();
+          for (let k = 8; k >= 0; k--) {
+            const a = a0 - k * 0.09;
+            dot.fillStyle(COLOR.buttonFill, k ? 0.5 - k * 0.05 : 1);
+            dot.fillCircle(E.x + E.rx * Math.cos(a), E.y + E.ry * Math.sin(a), k ? 9 - k * 0.6 : 12);
+          }
+          dot.lineStyle(3, COLOR.white, 1);
+          dot.strokeCircle(E.x + E.rx * Math.cos(a0), E.y + E.ry * Math.sin(a0), 12);
+        },
+      });
+      guide = { stop: () => (spin.remove(), dot.destroy()) };
+      this.keep({ destroy: () => spin.remove() });
+    }
+    const stopGuide = () => {
+      guide?.stop();
+      guide = null;
+    };
     let shown = 0;
-    const knead = (da) => {
+    // da: how far round (always counts), turn: which way (the swirls follow it).
+    const knead = (da, turn = da) => {
       if (this.kneaded >= NEED) return;
       this.kneaded += da * (this.tips.knead ? 1.6 : 1);
+      this.mix.swirl += turn;
       drawRing();
       const p = Math.min(1, this.kneaded / NEED);
+      this.mix.kneaded = p;
+      this.paintMix();
       if (p - shown >= 0.08 || p >= 1) {
         shown = p;
-        this.mix.kneaded = p;
-        this.paintMix();
         if (!settings.reduceMotion) this.tweens.add({ targets: this.contents, scaleX: 1.05, scaleY: 0.93, duration: 90, yoyo: true });
       }
       if (p >= 1) {
@@ -850,22 +897,29 @@ export class CookScene extends BaseScene {
     const inRing = (p) => ((p.x - E.x) / (E.rx + 30)) ** 2 + ((p.y - E.y) / (E.ry + 30)) ** 2 <= 1;
     this.pointerDown = (p) => {
       if (!inRing(p)) return;
+      stopGuide();
       this.kneading = true;
       this.lastAngle = Math.atan2(p.y - E.y, p.x - E.x);
     };
     this.pointerMove = (p) => {
       if (!this.kneading || Math.hypot(p.x - E.x, p.y - E.y) < 12) return;
       const a = Math.atan2(p.y - E.y, p.x - E.x);
-      knead(Math.abs(wrapAngle(a - this.lastAngle)));
+      const turn = wrapAngle(a - this.lastAngle);
+      knead(Math.abs(turn), turn);
       this.lastAngle = a;
     };
     this.pointerUp = () => {
       this.kneading = false;
     };
+    // Rubbing in circles is the main way; holding is there for anyone who can't draw circles.
     this.holdButton(
-      'Hold to knead',
-      () => (this.autoKnead = true),
+      'Or hold to knead',
+      () => {
+        stopGuide();
+        this.autoKnead = true;
+      },
       () => (this.autoKnead = false),
+      { ...ALT_BUTTON, size: 'medium', width: pick(240, 300) },
     );
     this.tick = (dt) => {
       if (this.autoKnead) knead(((dt / 1000) * Math.PI * 2) / 0.9);

@@ -20,47 +20,58 @@ export const PAATI = {
   celebrating: 'paati-sharing', // holding a plate of sweets to share
 };
 
-// Paati's short stories. `paati` is the full-body pose shown beside the story.
-// Chapters 1, 2 and 4 are a two-line hook (intro, outro) that sets the scene without giving any answers away:
-// Paati asks first and explains after (QUIZ_BANK). src/quiz.js puts them together.
+// Paati's short stories: two or three lines each. `paati` is the full-body pose shown beside the story.
+// `act` is a line where Paati asks the player to tap something (`kind`): Next waits until it's done, then the
+// story carries on. The stories set the scene without giving any quiz answers away: Paati asks first and
+// explains after (QUIZ_BANK).
 export const STORIES = {
   welcome: {
     paati: PAATI.proud,
     done: 'Let us begin',
     lines: [
-      'Come in, come in. Shoes off, appetite on.',
-      'I am Paati. It means grandmother, and yes, I am the boss of this kitchen.',
-      'Today you learn about Deepavali, and then we make muruku together. Real muruku. No shortcuts.',
-      'Answer my questions and you fill my store. Fill my store and we cook. That is the deal.',
+      'Come in, come in. Shoes off, appetite on. I am Paati, which means grandmother, and yes, I am the boss of this kitchen.',
+      'First, a kolam at the door, so every guest knows they are welcome. Tap the doorstep, dear.',
+      'Beautiful. Answer my questions, fill my store, and then we cook. That is the deal.',
     ],
+    act: { at: 1, kind: 'kolam', tap: 'Tap the doorstep' },
   },
   ch1: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Deepavali! New clothes, kolams at the door, and far too many sweets. But how much do you really know?',
-    outro: 'Let us find out. I ask, you answer, and then I tell you the story behind it.',
+    lines: [
+      'Deepavali! New clothes, kolams at the door, and far too many sweets.',
+      'But first, my lamps. Light them for me, dear: tap each one.',
+      'Lovely. Now, how much do you really know? I ask, you answer, then I tell you the story behind it.',
+    ],
+    act: { at: 1, kind: 'diyas', tap: 'Tap each lamp' },
   },
   ch2: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Now, muruku. Crunchy, a little salty, and impossible to eat just one.',
-    outro: 'My muruku questions. Every right answer puts an ingredient on my shelf. No pressure.',
+    lines: [
+      'Now, muruku. Crunchy, a little salty, and impossible to eat just one.',
+      'Go on, have a bite. Tap it. Paati will not tell anyone.',
+      'Hear that crunch? Now my questions. Every right answer puts an ingredient on my shelf.',
+    ],
+    act: { at: 1, kind: 'crunch', tap: 'Tap to take a bite' },
   },
   ch3: {
     paati: PAATI.teaching,
     done: 'Go to the Store',
     lines: [
-      'The store is full. Now the fun part: we cook.',
-      'Rice flour for crunch, urad dal flour to keep it light, ghee to make it rich, and spices to make it sing.',
-      'Then into the wooden press, and we twist a spiral straight into the hot oil.',
-      'We fry it until it is golden. Hot oil does not forgive, so younger cooks, call an adult. Older cooks, call your common sense.',
+      'The store is full. Now the fun part: we cook. I will ask you a few things as we go.',
+      'Hot oil does not forgive, so younger cooks, call an adult. Older cooks, call your common sense.',
     ],
   },
   ch4: {
     paati: PAATI.celebrating,
     done: 'Start the quiz',
-    intro: 'Look at your muruku! Made with your own two hands. I will try not to cry.',
-    outro: 'Two last questions, and then we celebrate. I saved the good ones.',
+    lines: [
+      'Look at your muruku! Made with your own two hands. I will try not to cry.',
+      'Careful, it is still warm. Blow on it for me: tap it.',
+      'Perfect. Two last questions, and then we celebrate. I saved the good ones.',
+    ],
+    act: { at: 1, kind: 'cool', tap: 'Tap to blow' },
   },
 };
 
@@ -535,6 +546,9 @@ export const NOTE = {
 export const FINALE = {
   offer: 'Will you offer your muruku to Paati?',
   thanks: 'Now the whole street gets a taste. Thank you for cooking with me, dear.',
+  // After the offering: tap each jar to pass it on.
+  share: 'Now we share. Tap each jar to pass it on.',
+  shareLines: ['One for the neighbours.', 'One for the cousins.', 'And a few crumbs for the ants. Now everyone is fed.'],
   // Bonus for your heart: the page before the note for someone you miss.
   bonusRibbon: 'Bonus for your heart',
   bonusTitle: 'A note for someone you miss',

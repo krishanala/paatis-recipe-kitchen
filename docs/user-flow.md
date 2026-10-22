@@ -41,6 +41,8 @@ flowchart TD
 | Rule | Where it applies |
 |---|---|
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
+| Stories are two or three lines; most have one thing to tap (kolam, lamps, a bite, cooling), and Next waits for it | Story |
+| After the offering, the player taps three jars to share them before What you learned | Finale |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
 | Paati asks first and explains after. Stories are short hooks that don't give answers away | Story, Quiz |

@@ -49,7 +49,8 @@ export class FinaleScene extends BaseScene {
       burst(this, 640, 300, 40),
       burst(this, 1120, 200, 50, COLOR.marigold500),
     );
-    objs.push(this.text(640, 130, FINALE.offer, 'h3', { origin: [0.5, 0] }));
+    const heading = this.text(640, 130, FINALE.offer, 'h3', { origin: [0.5, 0], width: 1100, align: 'center' });
+    objs.push(heading);
     objs.push(glow(this, 900, 430, 240));
     objs.push(paati(this, 900, 712, PAATI.welcome, 540));
     const gift = [art(this, 380, 400, 'banana-leaf', 360)];
@@ -62,15 +63,49 @@ export class FinaleScene extends BaseScene {
       onClick: () => {
         offer.setEnabled(false);
         const done = () => {
-          objs.forEach((o) => o.destroy());
           offer.destroy();
-          this.recap();
+          this.shareJars(heading, () => {
+            objs.forEach((o) => o.destroy());
+            this.recap();
+          });
         };
         if (settings.reduceMotion) return done();
         sparkle(this, 900, 360, { radius: 140, count: 24 });
         this.tweens.add({ targets: gift, x: '+=420', y: '-=20', alpha: 0, duration: 700, ease: 'Cubic.In', onComplete: done });
       },
     });
+  }
+
+  // After the offering, three jars to pass on: tap each one and it goes off down the street.
+  shareJars(heading, onDone) {
+    heading.setText(FINALE.share);
+    let shared = 0;
+    const jars = [290, 390, 490].map((x, i) => {
+      const img = art(this, 0, 0, 'jar-clay', 96);
+      const jar = new Button(this, x, 430, {
+        variant: 'bare',
+        width: 104,
+        height: 130,
+        content: [img],
+        onClick: () => {
+          jar.setEnabled(false);
+          heading.setText(FINALE.shareLines[shared] ?? '');
+          shared++;
+          const last = shared === jars.length;
+          const leave = () => {
+            jar.destroy();
+            if (last) this.time.delayedCall(settings.reduceMotion ? 900 : 1300, onDone);
+          };
+          if (settings.reduceMotion) return leave();
+          sparkle(this, x, 400, { radius: 60, count: 10 });
+          const { right } = this.viewBounds();
+          this.tweens.add({ targets: jar, x: right + 120, y: 360 + i * 30, angle: 20, duration: 900, ease: 'Cubic.In', onComplete: leave });
+        },
+      });
+      if (!settings.reduceMotion) this.tweens.add({ targets: jar, y: { from: 470, to: 430 }, alpha: { from: 0, to: 1 }, duration: 360, delay: i * 120, ease: 'Back.Out' });
+      return jar;
+    });
+    if (this.focus.visible) this.focus.focus(jars[0]);
   }
 
   // What you learned: a heading, Paati's thanks, then one box per thing learned, side by side. Next moves on.

@@ -48,12 +48,11 @@ export function voiceScript() {
   const lines = [];
   const add = (where, text) => text && lines.push({ where, key: lineKey(text), text });
   for (const [id, story] of Object.entries(STORIES)) {
-    (story.lines ?? [story.intro, story.outro]).forEach((t) => add(`story ${id}`, t));
+    story.lines.forEach((t) => add(`story ${id}`, t));
   }
   const facts = [...EXTRA_FACTS];
   for (const [ch, bank] of Object.entries(QUIZ_BANK)) {
     for (const q of bank.questions) {
-      add(`story ${ch}`, q.teach);
       facts.push(q.teach);
       add(`quiz ${q.id}`, q.why);
       add(`quiz ${q.id}`, q.hint);
