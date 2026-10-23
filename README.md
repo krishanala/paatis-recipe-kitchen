@@ -85,7 +85,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 ## Design decisions since the brief
 
 - **22–23 Oct 2026, polish phase 3:** Stories are now two or three lines. The welcome and chapter 1 stories have **one thing to tap**, and Next waits until it's done. (Biting the muruku in chapter 2 and cooling it in chapter 4 were tried, then taken out on 23 Oct.) The things to tap:
-  - **Welcome:** a doorstep, where a kolam draws itself, dot by dot.
+  - **Welcome:** a gold scratch card to rub off with your finger, revealing the kolam underneath (from 23 Oct; a tap doesn't reveal it, and Enter scratches it for keyboard players).
   - **Chapter 1:** five lamps to light.
   - **Finale:** after offering your muruku to Paati, three jars to pass on: to the neighbours, the cousins, and the ants.
 

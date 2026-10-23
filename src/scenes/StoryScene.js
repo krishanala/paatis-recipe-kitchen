@@ -4,7 +4,7 @@ import { PaatiBubble, art, bokeh, glow, header, lampGlow, paati, sparkle } from 
 import { BUTTON_FONT, makeText } from '../ui/text.js';
 import { CHAPTERS, STORIES } from '../content.js';
 import { storyLines } from '../quiz.js';
-import { COLOR, pick } from '../theme.js';
+import { COLOR, RES, pick } from '../theme.js';
 import { progress, settings } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
@@ -12,7 +12,7 @@ import { paintMuruku } from '../draw.js';
 const OBJ = { x: 670, y: pick(560, 585) };
 
 // Screen 2 · Paati's story: two or three short lines that open each chapter. Most stories have one "act": a line
-// where Paati asks the player to tap something (draw the kolam, light the lamps).
+// where Paati asks the player to do something (scratch off the card over the kolam, light the lamps).
 // Next waits until it's done, then the story carries on.
 export class StoryScene extends BaseScene {
   constructor() {
@@ -84,6 +84,7 @@ export class StoryScene extends BaseScene {
     const label = makeText(this, 0, 0, this.act.tap, 'b1', { weight: 600, color: COLOR.offWhite, origin: 0.5 }).setFontFamily(BUTTON_FONT);
     const w = label.width + 40;
     const h = label.height + 18;
+    y = Math.min(y, 712 - h / 2); // always on screen, however big the text
     const g = this.add.graphics();
     g.fillStyle(COLOR.buttonFill, 1);
     g.fillRoundedRect(-w / 2, -h / 2, w, h, h / 2);
@@ -91,84 +92,163 @@ export class StoryScene extends BaseScene {
     if (!settings.reduceMotion) this.tweens.add({ targets: this.hint, scale: { from: 0.94, to: 1.04 }, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
   }
 
-  // A bare button over the thing to tap, so it works with touch, mouse and the keyboard.
-  tapArea(x, y, w, h, onTap) {
-    const b = new Button(this, x, y, { variant: 'bare', width: w, height: h, onClick: onTap });
-    b.setEnabled(false);
-    return b;
-  }
-
-  // ---- Welcome: tap the doorstep and a kolam draws itself, dot by dot -----------------------------------
+  // ---- Welcome: scratch off a gold card to find the kolam underneath --------------------------------------
 
   kolam() {
     const { x, y } = OBJ;
-    const slab = this.add.graphics();
-    slab.fillStyle(0x000000, 0.06);
-    slab.fillRoundedRect(x - 150, y - 86, 300, 180, 26);
-    slab.fillStyle(0xf3e6cc, 1);
-    slab.fillRoundedRect(x - 150, y - 90, 300, 180, 26);
-    slab.lineStyle(2, 0xd8c29a, 1);
-    slab.strokeRoundedRect(x - 150, y - 90, 300, 180, 26);
+    const W = 300;
+    const H = 180;
+    // The kolam, drawn straight on the page: a 5 × 5 grid of dots turned on its side, a loop round each dot, and a
+    // border round them all.
     const g = this.add.graphics();
-    // A 5 × 5 grid of dots turned on its side, with a loop drawn round each dot and a border round them all.
     const step = 24;
-    const dots = [];
+    const corners = [[x, y - step * 2.6], [x + step * 4.2, y], [x, y + step * 2.6], [x - step * 4.2, y]];
     for (let i = -2; i <= 2; i++) {
-      for (let j = -2; j <= 2; j++) dots.push({ x: x + (i - j) * step * 0.95, y: y + (i + j) * step * 0.55 });
-    }
-    const draw = (shown, loops, border) => {
-      g.clear();
-      dots.slice(0, shown).forEach((d) => {
+      for (let j = -2; j <= 2; j++) {
+        const dx = x + (i - j) * step * 0.95;
+        const dy = y + (i + j) * step * 0.55;
+        g.lineStyle(3, (i + j) % 2 ? COLOR.marigold500 : COLOR.rani500, 1);
+        g.strokeCircle(dx, dy, 11);
         g.fillStyle(COLOR.indigo900, 1);
-        g.fillCircle(d.x, d.y, 3);
-      });
-      dots.forEach((d, k) => {
-        const t = Phaser.Math.Clamp(loops * dots.length - k, 0, 1);
-        if (t <= 0) return;
-        g.lineStyle(3, k % 2 ? COLOR.marigold500 : COLOR.rani500, 1);
-        g.beginPath();
-        g.arc(d.x, d.y, 11, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * t);
-        g.strokePath();
-      });
-      if (border > 0) {
-        const pts = [
-          { x, y: y - step * 2.6 },
-          { x: x + step * 4.2, y },
-          { x, y: y + step * 2.6 },
-          { x: x - step * 4.2, y },
-        ];
-        g.lineStyle(3, COLOR.indigo900, 1);
-        for (let i = 0; i < 4; i++) {
-          const a = pts[i];
-          const b = pts[(i + 1) % 4];
-          const t = Phaser.Math.Clamp(border * 4 - i, 0, 1);
-          if (t > 0) g.lineBetween(a.x, a.y, a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
+        g.fillCircle(dx, dy, 3);
+      }
+    }
+    g.lineStyle(3, COLOR.indigo900, 1);
+    corners.forEach(([ax, ay], i) => g.lineBetween(ax, ay, corners[(i + 1) % 4][0], corners[(i + 1) % 4][1]));
+
+    // Over it, a gold scratch card, drawn into a texture so it can be rubbed away. Its depth is a darker bottom
+    // edge on the card itself (a shadow underneath would show through the scratches).
+    const R = RES;
+    const foil = this.add.renderTexture(x, y, Math.round(W * R), Math.round(H * R)).setScale(1 / R).setDepth(2);
+    const paint = this.make.graphics({ x: 0, y: 0 }, false);
+    paint.fillStyle(0xa8711f, 1);
+    paint.fillRoundedRect(0, 0, W * R, H * R, 26 * R);
+    paint.fillStyle(0xc98d2e, 1);
+    paint.fillRoundedRect(0, 0, W * R, (H - 5) * R, 26 * R);
+    paint.fillStyle(0xf0c35a, 1);
+    paint.fillRoundedRect(5 * R, 5 * R, (W - 10) * R, (H - 15) * R, 22 * R);
+    // Diagonal sheen bands and a scatter of glints, like foil.
+    paint.fillStyle(0xfbe3a0, 0.55);
+    for (const bx of [40, 130, 210]) paint.fillPoints([{ x: bx * R, y: 6 * R }, { x: (bx + 34) * R, y: 6 * R }, { x: (bx - 46) * R, y: (H - 6) * R }, { x: (bx - 80) * R, y: (H - 6) * R }], true);
+    const rnd = new Phaser.Math.RandomDataGenerator(['foil']);
+    paint.fillStyle(0xffffff, 0.7);
+    for (let k = 0; k < 40; k++) paint.fillCircle(rnd.between(14, W - 14) * R, rnd.between(14, H - 14) * R, rnd.realInRange(0.8, 2) * R);
+    foil.draw(paint);
+    paint.destroy();
+    const label = this.make.text({ x: (W / 2) * R, y: (H / 2) * R, text: 'Scratch here', style: { fontFamily: BUTTON_FONT, fontSize: `${Math.round(30 * R)}px`, fontStyle: '700', color: '#7a3e12' }, add: false }).setOrigin(0.5);
+    foil.draw(label);
+    label.destroy();
+
+    // Rubbing erases a round brush along the finger's path; a coarse grid tracks how much is uncovered.
+    const brushR = 24;
+    const brush = this.make.graphics({ x: 0, y: 0 }, false);
+    brush.fillStyle(0xffffff, 1);
+    brush.fillCircle(0, 0, brushR * R);
+    const COLS = 15;
+    const ROWS = 9;
+    const cleared = new Set();
+    let active = false;
+    let down = false;
+    let last = null;
+    let done = false;
+    const eraseAt = (l) => {
+      foil.erase(brush, l.x * R, l.y * R);
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          const cx = ((c + 0.5) * W) / COLS;
+          const cy = ((r + 0.5) * H) / ROWS;
+          if (Math.hypot(cx - l.x, cy - l.y) < brushR) cleared.add(c * ROWS + r);
         }
       }
     };
-    const area = this.tapArea(x, y, 300, 180, () => {
-      area.setEnabled(false);
-      const finish = () => {
-        draw(dots.length, 1, 1);
-        [[x, y - step * 2.6], [x + step * 4.2, y], [x, y + step * 2.6], [x - step * 4.2, y]].forEach(([fx, fy], i) =>
-          art(this, fx, fy, i % 2 ? 'marigold-yellow' : 'marigold-orange', 26),
-        );
+    const finish = () => {
+      if (done) return;
+      done = true;
+      active = false;
+      proxy.enabled = false;
+      ring.clear();
+      const reveal = () => {
+        foil.destroy();
+        brush.destroy();
+        corners.forEach(([fx, fy], i) => art(this, fx, fy, i % 2 ? 'marigold-yellow' : 'marigold-orange', 26));
         sparkle(this, x, y, { radius: 120, count: 18 });
         this.actDone();
       };
+      if (settings.reduceMotion) return reveal();
+      this.tweens.add({ targets: foil, alpha: 0, duration: 350, onComplete: reveal });
+    };
+    const scratchTo = (l) => {
+      if (done) return;
+      if (last) {
+        const d = Math.hypot(l.x - last.x, l.y - last.y);
+        const n = Math.max(1, Math.ceil(d / (brushR * 0.4)));
+        for (let k = 1; k <= n; k++) eraseAt({ x: last.x + ((l.x - last.x) * k) / n, y: last.y + ((l.y - last.y) * k) / n });
+      } else {
+        eraseAt(l);
+      }
+      last = l;
+      // Most of it scratched: the rest falls away.
+      if (cleared.size >= COLS * ROWS * 0.6) finish();
+    };
+    const toLocal = (p) => {
+      const w = this.cameras.main.getWorldPoint(p.x, p.y);
+      return { x: w.x - (x - W / 2), y: w.y - (y - H / 2) };
+    };
+    const over = (l) => l.x >= -10 && l.y >= -10 && l.x <= W + 10 && l.y <= H + 10;
+    this.input.on('pointerdown', (p) => {
+      if (!active) return;
+      const l = toLocal(p);
+      if (!over(l)) return;
+      down = true;
+      last = null;
+      scratchTo(l);
+    });
+    this.input.on('pointermove', (p) => {
+      if (active && down) scratchTo(toLocal(p));
+    });
+    this.input.on('pointerup', () => {
+      down = false;
+      last = null;
+    });
+
+    // Keyboard players focus the card and press Enter or Space: Paati's hand scratches it for them.
+    const ring = this.add.graphics().setDepth(3);
+    const proxy = this.add.zone(x, y, W, H);
+    proxy.enabled = false;
+    proxy.setFocused = (on) => {
+      ring.clear();
+      if (on && this.focus.visible && !done) {
+        ring.lineStyle(4, COLOR.primary500, 1);
+        ring.strokeRoundedRect(x - W / 2 - 8, y - H / 2 - 8, W + 16, H + 16, 32);
+      }
+    };
+    proxy.keyPress = (pressed) => {
+      if (pressed || !proxy.enabled || done) return;
       if (settings.reduceMotion) return finish();
+      // A zigzag across the card, row by row.
+      const rows = [24, 62, 100, 138, 168];
       this.tweens.addCounter({
         from: 0,
-        to: 3,
-        duration: 2400,
+        to: rows.length,
+        duration: 1300,
         onUpdate: (tw) => {
-          const v = tw.getValue();
-          draw(Math.min(dots.length, Math.floor(v * dots.length)), Phaser.Math.Clamp(v - 1, 0, 1), Phaser.Math.Clamp(v - 2, 0, 1));
+          const v = Math.min(rows.length - 0.001, tw.getValue());
+          const row = Math.floor(v);
+          const t = v - row;
+          scratchTo({ x: row % 2 ? W - 10 - t * (W - 20) : 10 + t * (W - 20), y: rows[row] });
         },
         onComplete: finish,
       });
-    });
-    return { start: () => this.startTap(area) };
+    };
+    this.focus.add(proxy);
+    return {
+      // The card says "Scratch here" itself, so there's no separate hint.
+      start: () => {
+        active = true;
+        proxy.enabled = true;
+        if (this.focus.visible) this.focus.focus(proxy);
+      },
+    };
   }
 
   startTap(...areas) {

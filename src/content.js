@@ -30,10 +30,10 @@ export const STORIES = {
     done: 'Let us begin',
     lines: [
       'Come in, come in. Shoes off, appetite on. I am Paati, which means grandmother, and yes, I am the boss of this kitchen.',
-      'First, a kolam at the door, so every guest knows they are welcome. Tap the doorstep, dear.',
+      'First, a kolam at the door, so every guest knows they are welcome. Scratch the gold to find it, dear.',
       'Beautiful. Answer my questions, fill my store, and then we cook. That is the deal.',
     ],
-    act: { at: 1, kind: 'kolam', tap: 'Tap the doorstep' },
+    act: { at: 1, kind: 'kolam' },
   },
   ch1: {
     paati: PAATI.teaching,
