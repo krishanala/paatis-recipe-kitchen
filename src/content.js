@@ -20,30 +20,24 @@ export const PAATI = {
   celebrating: 'paati-sharing', // holding a plate of sweets to share
 };
 
-// Paati's short stories: two or three lines each. `paati` is the full-body pose shown beside the story.
-// `act` is a line where Paati asks the player to tap something (`kind`): Next waits until it's done, then the
-// story carries on. The stories set the scene without giving any quiz answers away: Paati asks first and
-// explains after (QUIZ_BANK).
+// Paati's short stories: two lines each. `paati` is the full-body pose shown beside the story. The stories set
+// the scene without giving any quiz answers away: Paati asks first and explains after (QUIZ_BANK).
 export const STORIES = {
   welcome: {
     paati: PAATI.proud,
     done: 'Let us begin',
     lines: [
       'Come in, come in. Shoes off, appetite on. I am Paati, which means grandmother, and yes, I am the boss of this kitchen.',
-      'First, a kolam at the door, so every guest knows they are welcome. Scratch the gold to find it, dear.',
-      'Beautiful. Answer my questions, fill my store, and then we cook. That is the deal.',
+      'Answer my questions, fill my store, and then we cook. That is the deal.',
     ],
-    act: { at: 1, kind: 'kolam' },
   },
   ch1: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
     lines: [
       'Deepavali! New clothes, kolams at the door, and far too many sweets.',
-      'But first, my lamps. Light them for me, dear: tap each one.',
-      'Lovely. Now, how much do you really know? I ask, you answer, then I tell you the story behind it.',
+      'So, how much do you really know? I ask, you answer, then I tell you the story behind it.',
     ],
-    act: { at: 1, kind: 'diyas', tap: 'Tap each lamp' },
   },
   ch2: {
     paati: PAATI.teaching,
