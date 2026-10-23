@@ -84,11 +84,9 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
-- **22 Oct 2026, polish phase 3:** Stories are now two or three lines, and most have **one thing to tap**. Next waits until it's done. The things to tap:
+- **22–23 Oct 2026, polish phase 3:** Stories are now two or three lines. The welcome and chapter 1 stories have **one thing to tap**, and Next waits until it's done. (Biting the muruku in chapter 2 and cooling it in chapter 4 were tried, then taken out on 23 Oct.) The things to tap:
   - **Welcome:** a doorstep, where a kolam draws itself, dot by dot.
   - **Chapter 1:** five lamps to light.
-  - **Chapter 2:** a muruku to bite, three crunchy bites.
-  - **Chapter 4:** your warm muruku to blow on until the steam is gone.
   - **Finale:** after offering your muruku to Paati, three jars to pass on: to the neighbours, the cousins, and the ants.
 
   The sharing jars moved from the chapter 4 story to the Finale so they don't give away the "Who is muruku shared with?" answer. All the tappables are buttons, so they work with the keyboard too. **Kneading** now leads with the real circular gesture: a marigold dot circles the bowl until you touch it, swirl marks follow your finger, and the dough rounds off into a smooth, shiny ball. "Or hold to knead" stays as the smaller alternative.

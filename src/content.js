@@ -50,10 +50,8 @@ export const STORIES = {
     done: 'Start the quiz',
     lines: [
       'Now, muruku. Crunchy, a little salty, and impossible to eat just one.',
-      'Go on, have a bite. Tap it. Paati will not tell anyone.',
-      'Hear that crunch? Now my questions. Every right answer puts an ingredient on my shelf.',
+      'Now my questions. Every right answer puts an ingredient on my shelf.',
     ],
-    act: { at: 1, kind: 'crunch', tap: 'Tap to take a bite' },
   },
   ch3: {
     paati: PAATI.teaching,
@@ -68,10 +66,8 @@ export const STORIES = {
     done: 'Start the quiz',
     lines: [
       'Look at your muruku! Made with your own two hands. I will try not to cry.',
-      'Careful, it is still warm. Blow on it for me: tap it.',
-      'Perfect. Two last questions, and then we celebrate. I saved the good ones.',
+      'Two last questions, and then we celebrate. I saved the good ones.',
     ],
-    act: { at: 1, kind: 'cool', tap: 'Tap to blow' },
   },
 };
 

@@ -4,7 +4,7 @@ import { PaatiBubble, art, bokeh, glow, header, lampGlow, paati, sparkle } from 
 import { BUTTON_FONT, makeText } from '../ui/text.js';
 import { CHAPTERS, STORIES } from '../content.js';
 import { storyLines } from '../quiz.js';
-import { COLOR, RES, pick } from '../theme.js';
+import { COLOR, pick } from '../theme.js';
 import { progress, settings } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
@@ -12,7 +12,7 @@ import { paintMuruku } from '../draw.js';
 const OBJ = { x: 670, y: pick(560, 585) };
 
 // Screen 2 · Paati's story: two or three short lines that open each chapter. Most stories have one "act": a line
-// where Paati asks the player to tap something (draw the kolam, light the lamps, bite the muruku, cool it down).
+// where Paati asks the player to tap something (draw the kolam, light the lamps).
 // Next waits until it's done, then the story carries on.
 export class StoryScene extends BaseScene {
   constructor() {
@@ -209,99 +209,20 @@ export class StoryScene extends BaseScene {
     return { start: () => this.startTap(...lamps) };
   }
 
-  // ---- Chapter 2: bite the muruku (three crunchy bites) ---------------------------------------------------
-
-  crunch() {
-    const { x, y } = OBJ;
-    art(this, x, y + 12, 'banana-leaf', 240);
-    // The muruku is drawn into a texture so bites can be taken out of it.
-    const size = 150;
-    const px = Math.round(size * RES);
-    const rt = this.add.renderTexture(x, y, px, px).setScale(1 / RES);
-    const img = this.make.image({ x: px / 2, y: px / 2, key: 'muruku-golden', add: false });
-    img.setScale(px / img.width);
-    rt.draw(img);
-    const bites = [-0.7, 2.6, 1.1];
-    let taken = 0;
-    const area = this.tapArea(x, y, 190, 170, () => {
-      const a = bites[taken++];
-      const bx = px / 2 + Math.cos(a) * px * 0.42;
-      const by = px / 2 + Math.sin(a) * px * 0.42;
-      const eraser = this.make.graphics({}, false);
-      eraser.fillStyle(0xffffff, 1);
-      for (const [dx, dy, r] of [[0, 0, 0.17], [-0.1, 0.06, 0.12], [0.1, -0.06, 0.12]]) eraser.fillCircle(bx + dx * px, by + dy * px, r * px);
-      rt.erase(eraser);
-      eraser.destroy();
-      this.crumbs(x + (bx - px / 2) / RES, y + (by - px / 2) / RES);
-      if (taken === bites.length) {
-        area.setEnabled(false);
-        this.actDone();
-      }
-    });
-    return { start: () => this.startTap(area) };
-  }
-
-  // Crumbs fall and a "Crunch!" pops up where the bite was.
-  crumbs(x, y) {
-    const word = makeText(this, x, y - 20, 'Crunch!', 'h5', { weight: 700, color: 0xb35600, origin: 0.5 }).setFontFamily(BUTTON_FONT).setDepth(6);
-    if (settings.reduceMotion) {
-      this.time.delayedCall(500, () => word.destroy());
-      return;
-    }
-    this.tweens.add({ targets: word, y: y - 70, alpha: { from: 1, to: 0 }, scale: { from: 0.8, to: 1.2 }, duration: 700, ease: 'Cubic.Out', onComplete: () => word.destroy() });
-    for (let i = 0; i < 9; i++) {
-      const c = this.add.circle(x, y, Phaser.Math.Between(2, 5), Phaser.Utils.Array.GetRandom([0xc98a3c, 0xe0aa55, 0xa86a28])).setDepth(6);
-      this.tweens.add({ targets: c, x: x + Phaser.Math.Between(-40, 40), y: y + Phaser.Math.Between(30, 70), alpha: 0, duration: 600, ease: 'Quad.In', onComplete: () => c.destroy() });
-    }
-  }
-
-  // ---- Chapter 4: blow on the warm muruku until the steam is gone ---------------------------------------
-
-  cool() {
-    const { x, y } = OBJ;
-    art(this, x, y + 12, 'banana-leaf', 240);
-    if (progress.lastMuruku) paintMuruku(this, progress.lastMuruku, x, y, 120);
-    else art(this, x, y, 'muruku-golden', 120);
-    // Three wisps of steam rise from it, over and over.
-    const wisps = [-36, 0, 36].map((dx, i) => {
-      const g = this.add.graphics({ x: x + dx, y: y - 50 });
-      g.lineStyle(5, COLOR.white, 0.85);
-      g.beginPath();
-      for (let k = 0; k <= 12; k++) {
-        const t = k / 12;
-        const px = Math.sin(t * Math.PI * 2 + i) * 8;
-        const py = -t * 70;
-        if (k === 0) g.moveTo(px, py);
-        else g.lineTo(px, py);
-      }
-      g.strokePath();
-      if (!settings.reduceMotion) {
-        g.rise = this.tweens.add({ targets: g, y: { from: y - 40, to: y - 70 }, alpha: { from: 0.9, to: 0.2 }, duration: 1100 + i * 150, repeat: -1, ease: 'Sine.Out' });
-      }
-      return g;
-    });
-    let blown = 0;
-    const area = this.tapArea(x, y - 20, 200, 200, () => {
-      const g = wisps[blown++];
-      g.rise?.remove();
-      if (settings.reduceMotion) g.destroy();
-      else this.tweens.add({ targets: g, x: g.x + 90, alpha: 0, duration: 420, ease: 'Cubic.Out', onComplete: () => g.destroy() });
-      if (blown === wisps.length) {
-        area.setEnabled(false);
-        sparkle(this, x, y, { radius: 70, count: 10 });
-        this.actDone();
-      }
-    });
-    return { start: () => this.startTap(area) };
-  }
-
   // Mood props per chapter (brief → "The Deepavali layer"). Kept away from text. Chapters with an act build
   // their own props.
   decorate(id) {
-    if (id === 'ch3') {
+    if (id === 'ch2') {
+      art(this, OBJ.x, OBJ.y + 12, 'banana-leaf', 240);
+      art(this, OBJ.x, OBJ.y, 'muruku-golden', 150);
+    } else if (id === 'ch3') {
       art(this, 660, 560, 'press-filled', 200);
     } else if (id === 'ch4') {
+      // The player's own muruku, on a banana leaf.
       art(this, 640, 360, 'petals', 1280).setAlpha(0.3);
+      art(this, OBJ.x, OBJ.y + 12, 'banana-leaf', 240);
+      if (progress.lastMuruku) paintMuruku(this, progress.lastMuruku, OBJ.x, OBJ.y, 120);
+      else art(this, OBJ.x, OBJ.y, 'muruku-golden', 120);
     }
   }
 }
