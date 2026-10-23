@@ -553,6 +553,6 @@ export const FINALE = {
   choiceRibbon: 'Well done, dear!',
   choiceTitle: 'Make more muruku?',
   choiceText: 'In the free kitchen the store is always full, and I always have one more story.',
-  goodbye: 'Come back any time, dear. The kitchen is always open. Happy Deepavali!',
+  goodbye: 'Come back any time, dear. The kitchen is always open.',
   safety: 'May contain sesame. Younger cooks need an adult near hot oil.',
 };

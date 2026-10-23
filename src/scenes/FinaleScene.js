@@ -287,16 +287,17 @@ export class FinaleScene extends BaseScene {
     );
     burst(this, 300, 200, 50, COLOR.marigold500);
     burst(this, 980, 190, 56);
-    // Golden lotus diyas glow in both bottom corners.
-    art(this, 190, 704, 'lotus-diya', 240).setOrigin(0.5, 1);
-    art(this, 1090, 704, 'lotus-diya', 240).setOrigin(0.5, 1);
-    this.text(640, 120, 'Happy Deepavali!', 'h2', { origin: [0.5, 0] });
-    glow(this, 640, 370, 220);
-    paati(this, 640, 526, PAATI.proud, 340);
-    this.text(640, 536, FINALE.goodbye, 's1', { origin: [0.5, 0], width: 760, align: 'center' });
-    const made = (progress.lastMuruku ? 1 : 0) + progress.plate;
-    this.text(640, 576, `You made ${made} muruku with Paati.`, 'b1', { origin: [0.5, 0], color: COLOR.grey600 });
-    new Button(this, 640, 660, {
+    // Golden lotus diyas glow in both bottom corners, pinned to the screen edges so text never runs into them.
+    const diyas = [art(this, 0, 704, 'lotus-diya', 240).setOrigin(0.5, 1), art(this, 0, 704, 'lotus-diya', 240).setOrigin(0.5, 1)];
+    this.onView(({ left, right }) => {
+      diyas[0].x = left + 170;
+      diyas[1].x = right - 170;
+    });
+
+    // Stacked by real heights from the bottom up, so nothing overlaps whatever the text size:
+    // Play again, the muruku count, Paati's goodbye, then Paati fills the space under the heading.
+    const head = raisedTitle(this, 640, 104, 'Happy Deepavali!', { size: fontSize('h1'), width: 1000, align: 'center', origin: [0.5, 0] });
+    const again = new Button(this, 640, 660, {
       label: 'Play again',
       width: 320,
       onClick: () => {
@@ -304,5 +305,13 @@ export class FinaleScene extends BaseScene {
         this.go('Title');
       },
     });
+    const count = (progress.lastMuruku ? 1 : 0) + progress.plate;
+    const made = this.text(640, again.y - again.bh / 2 - 16, `You made ${count} muruku with Paati.`, 'b1', { origin: [0.5, 1], color: COLOR.grey600 });
+    const line = this.text(640, made.y - made.height - 6, FINALE.goodbye, 's1', { origin: [0.5, 1], width: 760, align: 'center' });
+    const bottom = line.y - line.height - 12;
+    const top = head.y + head.textHeight + 10;
+    const h = Math.min(340, bottom - top);
+    glow(this, 640, bottom - h * 0.52, h * 0.64).setDepth(-1);
+    paati(this, 640, bottom, PAATI.proud, h);
   }
 }
