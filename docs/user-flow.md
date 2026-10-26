@@ -23,7 +23,7 @@ flowchart TD
 
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
-    Q4 --> F["7 · Finale<br/>offer muruku · What you learned (3 boxes) · Next"]
+    Q4 --> F["7 · Finale<br/>offer muruku to Paati"]
     F --> B["7 · Bonus for your heart<br/>welcome-page style"]
     B -- Write a note --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
     B -- Skip --> C["7 · Last page<br/>Make more muruku · Finish"]
@@ -44,7 +44,6 @@ flowchart TD
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Stories are two short lines each, read with Next | Story |
 | Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
-| After the offering, the player taps three jars to share them before What you learned | Finale |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
 | Paati asks first and explains after. Stories are short hooks that don't give answers away | Story, Quiz |
@@ -54,7 +53,7 @@ flowchart TD
 | In the free kitchen the Store is always full, and there is no quiz, shop or points | Free kitchen |
 | Help opens settings from the header on every screen, and from the Title | All screens |
 | A right answer sends up firecrackers (two or three stars do too) | Quiz, Result |
-| The note for someone you miss comes once, after What you learned, and can be skipped. It is never saved or sent | Bonus, Note |
+| The note for someone you miss comes once, right after the offering, and can be skipped. It is never saved or sent | Bonus, Note |
 
 ## Edge cases to design for
 

@@ -525,12 +525,6 @@ export const EXTRA_FACTS = [
   'Many families wear bright new clothes on Deepavali and visit their elders for blessings.',
 ];
 
-export const RECAP = [
-  { title: 'Deepavali', text: 'A row of lights on the darkest night: lamps, kolam, and sharing with everyone, even the ants.' },
-  { title: 'Muruku', text: 'Its name means twisted. Rice flour gives the crunch, because rice grows all over Tamil Nadu.' },
-  { title: 'Together', text: 'It takes many hands and keeps for weeks, so families make it together and share the jars.' },
-];
-
 // The remembrance note at the very end (NoteScene). The day before Deepavali, many families set out the favourite
 // foods of loved ones who have passed away (docs/quiz-research.md → "Remembering loved ones").
 export const NOTE = {
@@ -547,10 +541,6 @@ export const NOTE = {
 
 export const FINALE = {
   offer: 'Will you offer your muruku to Paati?',
-  thanks: 'Now the whole street gets a taste. Thank you for cooking with me, dear.',
-  // After the offering: tap each jar to pass it on.
-  share: 'Now we share. Tap each jar to pass it on.',
-  shareLines: ['One for the neighbours.', 'One for the cousins.', 'And a few crumbs for the ants. Now everyone is fed.'],
   // Bonus for your heart: the page before the note for someone you miss.
   bonusRibbon: 'Bonus for your heart',
   bonusTitle: 'A note for someone you miss',
@@ -560,5 +550,4 @@ export const FINALE = {
   choiceTitle: 'Make more muruku?',
   choiceText: 'In the free kitchen the store is always full, and I always have one more story.',
   goodbye: 'Come back any time, dear. The kitchen is always open.',
-  safety: 'May contain sesame. Younger cooks need an adult near hot oil.',
 };
