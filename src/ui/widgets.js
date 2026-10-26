@@ -47,8 +47,15 @@ export function header(scene, { title, onBack }) {
   g.fillRect(-BLEED, 0, STAGE.width + 2 * BLEED, HEADER_H);
   silkTrim(scene, HEADER_H, scene.mood.band, -BLEED, STAGE.width + 2 * BLEED);
   new Button(scene, 50, HEADER_H / 2, { variant: 'icon', icon: 'back', onClick: onBack ?? (() => scene.toTitle()) });
-  makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h5', { dark, origin: 0.5 });
-  diyaRow(scene, 920, HEADER_H / 2, progress.chaptersDone.length);
+  // The title is centred, but a long one moves left to clear the chapter diyas, and gets smaller only if it still
+  // doesn't fit between them and the back button.
+  const diyasX = 920;
+  const room = [50 + BUTTON_HEIGHT.giant / 2 + 20, diyasX - 18 - 20];
+  const t = makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h5', { dark, origin: 0.5 });
+  const fit = room[1] - room[0];
+  if (t.width > fit) t.setFontSize(Math.floor((fontSize('h5') * fit) / t.width));
+  t.setX(Math.min(STAGE.width / 2, room[1] - t.width / 2));
+  diyaRow(scene, diyasX, HEADER_H / 2, progress.chaptersDone.length);
   const helpX = STAGE.width - 50;
   if (scene.canFullscreen?.()) {
     // Icon buttons are drawn at the default (giant) height, and are as wide as they are tall.
