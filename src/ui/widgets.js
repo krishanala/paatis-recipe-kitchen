@@ -14,7 +14,7 @@ export function art(scene, x, y, key, width) {
 }
 
 // An ingredient's art for a slot of the given width. The illustrated ones are wider than they are tall,
-// so `artScale` draws them a little larger to look the same size as the jars and tins.
+// so `artScale` draws them a little larger to look the same size as the water jar.
 export function ingredientArt(scene, x, y, ing, width) {
   return art(scene, x, y, ing.art, width * (ing.artScale ?? 1));
 }

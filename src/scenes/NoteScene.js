@@ -39,17 +39,12 @@ export class NoteScene extends BaseScene {
     this.lamp(412, 672, 60);
     this.bubble = new PaatiBubble(this, 40, 116, 520, { avatar: false }).setDepth(15).say(NOTE.intro);
 
-    // Right: the favourite foods set out on a banana leaf between two lamps, until the parchment takes its place.
+    // Right: the favourite foods set out on a banana leaf (the user's illustration) between two lamps, until the
+    // parchment takes its place.
     this.offering = this.add.container(0, 0, [
-      art(this, 860, 410, 'banana-leaf', 460).setAngle(-4),
-      art(this, 772, 404, 'muruku-golden', 128),
-      art(this, 930, 388, 'muruku-golden', 120),
-      art(this, 860, 456, 'muruku-golden', 108),
-      ...[[690, 330, 'marigold-orange'], [1010, 316, 'marigold-yellow'], [1040, 486, 'marigold-orange'], [700, 500, 'marigold-yellow']].map(([x, y, k]) => art(this, x, y, k, 30)),
-      art(this, 1062, 402, 'rose', 20),
-      art(this, 660, 418, 'rose', 20),
-      ...this.lamp(590, 520, 76),
-      ...this.lamp(1130, 520, 76),
+      art(this, 860, 400, 'food-leaf', 480),
+      ...this.lamp(590, 540, 76),
+      ...this.lamp(1130, 540, 76),
     ]);
     this.actions([{ label: 'Next', onClick: () => this.writePage() }]);
 

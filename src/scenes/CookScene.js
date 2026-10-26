@@ -33,7 +33,7 @@ const RICE = 0xfbf7ee; // rice flour on its own
 const FLOUR = 0xf4ead2; // the flours mixed
 const DOUGH = 0xe9d3a3;
 const ALT_BUTTON = pick({ x: 525, y: 540, width: 240 }, { x: 525, y: 500, width: 240 }); // tap-and-hold alternatives
-const TOKENS = pick({ y: 262, art: 78, label: 46 }, { y: 222, art: 64, label: 38 }); // ingredient row in step 1
+const TOKENS = pick({ y: 262, art: 78, label: 46, badge: -52 }, { y: 246, art: 64, label: 38, badge: -48 }); // ingredient row in step 1, clear of the step tabs
 const CARD = pick({ y: 196, h: 384 }, { y: 196, h: 324 });
 const BUBBLE_TOP = 596; // the bubble sits here, or higher when a long line needs the room
 const NOZZLE = { idle: 0.35, pressing: 0.55 }; // the press nozzle over the oil, see-through
@@ -629,10 +629,10 @@ export class CookScene extends BaseScene {
       if (this.tips.add) {
         const badge = this.add.graphics();
         badge.fillStyle(COLOR.buttonFill, 1);
-        badge.fillCircle(-50, -52, 16);
+        badge.fillCircle(-50, TOKENS.badge, 16);
         badge.lineStyle(2, COLOR.white, 1);
-        badge.strokeCircle(-50, -52, 16);
-        content.push(badge, makeText(this, -50, -52, String(i + 1), 'b3', { weight: 700, color: COLOR.offWhite, origin: 0.5 }));
+        badge.strokeCircle(-50, TOKENS.badge, 16);
+        content.push(badge, makeText(this, -50, TOKENS.badge, String(i + 1), 'b3', { weight: 700, color: COLOR.offWhite, origin: 0.5 }));
       }
       const token = this.draggable(520 + slots[i] * 150, TOKENS.y, 140, 132, content, BOWL, BOWL.r + 40, (b) => this.tryAdd(b));
       token.ing = ing;

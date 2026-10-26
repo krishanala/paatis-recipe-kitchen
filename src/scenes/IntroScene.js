@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
 import { art, bokeh, burst, glow, header, raisedTitle, sparkle, twinkles, wordText } from '../ui/widgets.js';
-import { fontSize, makeText } from '../ui/text.js';
+import { fontSize } from '../ui/text.js';
 import { INTRO } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
 import { settings } from '../state.js';
@@ -15,8 +15,8 @@ const BOTTOM = 700;
 
 // The page between the welcome and Chapter 1: what we are about to do (make muruku, and find out what Deepavali is
 // along the way), beside a big plate of muruku. The heading slides in, the words arrive one at a time at a pace
-// people can read, then the path of chapters, then Start Chapter 1. A tap or key press shows it all at once, and
-// Reduce motion shows it all from the start.
+// people can read, then Start Chapter 1. A tap or key press shows it all at once, and Reduce motion shows it all
+// from the start.
 export class IntroScene extends BaseScene {
   constructor() {
     super('Intro');
@@ -48,30 +48,23 @@ export class IntroScene extends BaseScene {
     const title = raisedTitle(this, x, 0, INTRO.title, { size: fontSize('h1'), width });
     const rule = this.rule(x);
     const paras = INTRO.lines.map((line) => wordText(this, line, 's1', { width }).setX(x));
-    let path = this.path(x);
     const start = new Button(this, x + 170, 0, { label: INTRO.start, width: 340, onClick: () => this.advance() });
 
-    // Leave the chapter path out when the words take the room (on phones, or with bigger text).
-    const stack = () => [
+    const stack = [
       [eyebrow, eyebrow.height, 8],
       [title, title.textHeight, 14],
       [rule, 16, 22],
-      ...paras.map((p, i) => [p, p.textHeight, i < paras.length - 1 ? 16 : 30]),
-      ...(path ? [[path, path.textHeight, 34]] : []),
+      ...paras.map((p, i) => [p, p.textHeight, i < paras.length - 1 ? 16 : 36]),
       [start, BUTTON_HEIGHT.giant, 0],
     ];
-    const total = () => stack().reduce((sum, [, h, gap]) => sum + h + gap, 0);
-    if (total() > BOTTOM - TOP) {
-      path.destroy();
-      path = null;
-    }
-    let y = TOP + Math.max(0, Math.round((BOTTOM - TOP - total()) / 2));
-    for (const [obj, h, gap] of stack()) {
+    const total = stack.reduce((sum, [, h, gap]) => sum + h + gap, 0);
+    let y = TOP + Math.max(0, Math.round((BOTTOM - TOP - total) / 2));
+    for (const [obj, h, gap] of stack) {
       obj.setY(obj === start ? y + h / 2 : y);
       y += h + gap;
     }
 
-    this.reveal({ eyebrow, title, rule, paras, path, start });
+    this.reveal({ eyebrow, title, rule, paras, start });
   }
 
   // A small ornament under the heading: a Rani pink diamond, then a gold line ending in a dot. 16 px tall.
@@ -86,36 +79,10 @@ export class IntroScene extends BaseScene {
     return g;
   }
 
-  // The four chapters as a path: numbered discs on a gold line, with a name under each. A container; line and
-  // stops are its parts, and textHeight its full height.
-  path(x) {
-    const r = 18;
-    const gap = 132;
-    const labels = INTRO.steps.map((name) => makeText(this, 0, 2 * r + 8, name, 'b3', { weight: 600, color: COLOR.grey600, origin: [0.5, 0] }));
-    const x0 = Math.max(r, labels[0].width / 2);
-    const line = this.add.graphics({ x: x0, y: r });
-    line.lineStyle(2, COLOR.yellow500, 1);
-    line.lineBetween(0, 0, gap * (labels.length - 1), 0);
-    const stops = labels.map((label, i) => {
-      const disc = this.add.graphics();
-      disc.fillStyle(COLOR.white, 1);
-      disc.fillCircle(0, r, r);
-      disc.lineStyle(2, COLOR.yellow500, 1);
-      disc.strokeCircle(0, r, r);
-      const num = makeText(this, 0, r, String(i + 1), 'b3', { weight: 700, color: 0x800000, origin: 0.5 });
-      return this.add.container(x0 + i * gap, 0, [disc, num, label]);
-    });
-    const c = this.add.container(x, 0, [line, ...stops]);
-    c.line = line;
-    c.stops = stops;
-    c.textHeight = labels[0].y + labels[0].height;
-    return c;
-  }
-
   // The plate pops in and then floats gently; the left column follows in reading order.
-  reveal({ eyebrow, title, rule, paras, path, start }) {
+  reveal({ eyebrow, title, rule, paras, start }) {
     const words = paras.flatMap((p) => p.words);
-    const parts = [eyebrow, title, rule, ...words, ...(path ? [path.line, ...path.stops] : []), start];
+    const parts = [eyebrow, title, rule, ...words, start];
     const home = parts.map((o) => ({ x: o.x, y: o.y, scaleX: o.scaleX, scaleY: o.scaleY }));
     if (settings.reduceMotion) return;
 
@@ -169,14 +136,7 @@ export class IntroScene extends BaseScene {
       });
     });
 
-    // The chapter path draws along, a stop at a time.
-    t += 400;
-    if (path) {
-      const span = 180 * path.stops.length;
-      later(t, () => fade(path.line, { scaleX: { from: 0, to: 1 }, duration: span, ease: 'Sine.InOut' }));
-      path.stops.forEach((s, i) => later(t + i * 180, () => fade(s, { scale: { from: 0.5, to: 1 }, duration: 320, ease: 'Back.Out' })));
-      t += span + 300;
-    }
+    t += 600;
     later(t, () => fade(start, { y: { from: start.y + 18, to: start.y }, duration: 380, ease: 'Cubic.Out' }));
     later(t + 400, settle);
   }

@@ -29,8 +29,6 @@ export const INTRO = {
     'Today we learn how to *make muruku*, the crunchy spiral snack, from Paati\'s own recipe.',
     'And along the way, we find out what *Deepavali* is, and why every home fills up with muruku for it.',
   ],
-  // The four chapters, as a path under the words.
-  steps: ['Deepavali', 'Muruku', 'Cooking', 'Sharing'],
   start: 'Start Chapter 1',
 };
 
@@ -83,9 +81,9 @@ export const STORIES = {
 export const INGREDIENTS = [
   { id: 'riceFlour', name: 'Rice flour', art: 'rice-flour', artScale: 1.25, note: 'Rice flour is the crunch. No crunch, no muruku.', colour: 0xfffdf7 },
   { id: 'uradFlour', name: 'Urad dal flour', art: 'urad-dal', artScale: 1.25, note: 'Urad dal flour makes it light and tasty.', colour: 0xf1e2c0 },
-  { id: 'flour', name: 'Flour', art: 'flour-tin', note: 'A little flour helps the dough hold together.', colour: 0xf7f0e2 },
-  { id: 'spices', name: 'Spices', art: 'spice-tin', note: 'Spices bring the taste. Many add sesame too.', colour: 0xc8552a },
-  { id: 'ghee', name: 'Ghee', art: 'ghee-jar', note: 'Ghee makes it rich. Ghee makes everything rich.', colour: 0xf2c14e },
+  { id: 'flour', name: 'Flour', art: 'flour-sack', artScale: 1.35, note: 'A little flour helps the dough hold together.', colour: 0xf7f0e2 },
+  { id: 'spices', name: 'Spices', art: 'spice-tray', artScale: 1.4, note: 'Spices bring the taste. Many add sesame too.', colour: 0xc8552a },
+  { id: 'ghee', name: 'Ghee', art: 'ghee-pot', artScale: 1.15, note: 'Ghee makes it rich. Ghee makes everything rich.', colour: 0xf2c14e },
   { id: 'water', name: 'Water', art: 'jar-clay', note: 'Water brings it all together, slowly.', colour: 0x8cc4ea },
 ];
 

@@ -1,11 +1,15 @@
 // Cut an illustration out of its plain white background, for the game's art (assets/art/*.png).
 //
 //   swiftc -O tools/cutout.swift -o /tmp/cutout   (on this Mac, add -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk)
-//   /tmp/cutout in.jpg out.png [maxHeight=520] [threshold=245]
+//   /tmp/cutout in.jpg out.png [maxHeight=520] [threshold=245] [crop=x,y,w,h] [erase=x,y,w,h …] [shadow=0.12]
 //
 // The white is flood-filled in from the edges, so white things inside the drawing (a pile of flour) stay. Pixels
 // touching the background fade by how close to white they are, so the edge isn't jagged. Then the result is
 // cropped to what's left and scaled down to maxHeight.
+// For a picture with several things in it, crop= keeps one area (in pixels from the top left) and erase= paints
+// areas white first, such as a stray bit of the next thing that pokes into the crop. shadow= also takes away a
+// soft drop shadow: pale pixels with little colour (saturation up to the value given) count as background too.
+// Leave it off for pictures with white or grey things at their edges, such as a pile of flour.
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -13,15 +17,23 @@ import UniformTypeIdentifiers
 
 let args = CommandLine.arguments
 guard args.count >= 3 else {
-    print("usage: cutout in out.png [maxHeight] [threshold]")
+    print("usage: cutout in out.png [maxHeight] [threshold] [crop=x,y,w,h] [erase=x,y,w,h …]")
     exit(1)
+}
+let plain = args.dropFirst(3).filter { !$0.contains("=") }
+func rects(_ key: String) -> [(Int, Int, Int, Int)] {
+    args.filter { $0.hasPrefix(key + "=") }.map {
+        let n = $0.dropFirst(key.count + 1).split(separator: ",").map { Int($0)! }
+        return (n[0], n[1], n[2], n[3])
+    }
 }
 let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
 
 guard let src = CGImageSourceCreateWithURL(URL(fileURLWithPath: args[1]) as CFURL, nil),
       let cg = CGImageSourceCreateImageAtIndex(src, 0, nil) else { fatalError("cannot read \(args[1])") }
-let maxH = args.count > 3 ? Double(args[3]) ?? 520 : 520
-let threshold = args.count > 4 ? Int(args[4]) ?? 245 : 245
+let maxH = plain.count > 0 ? Double(plain[plain.startIndex]) ?? 520 : 520
+let threshold = plain.count > 1 ? Int(plain[plain.startIndex + 1]) ?? 245 : 245
+let shadow = args.first { $0.hasPrefix("shadow=") }.flatMap { Double($0.dropFirst(7)) }
 
 let w = cg.width, h = cg.height
 var px = [UInt8](repeating: 0, count: w * h * 4)
@@ -29,13 +41,24 @@ let ctx = CGContext(data: &px, width: w, height: h, bitsPerComponent: 8, bytesPe
                     bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
 ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
 func minChannel(_ i: Int) -> Int { Int(min(px[i * 4], px[i * 4 + 1], px[i * 4 + 2])) }
+func maxChannel(_ i: Int) -> Int { Int(max(px[i * 4], px[i * 4 + 1], px[i * 4 + 2])) }
+func isBackground(_ i: Int) -> Bool {
+    if minChannel(i) >= threshold { return true }
+    guard let shadow, minChannel(i) >= 150 else { return false }
+    return Double(maxChannel(i) - minChannel(i)) / Double(maxChannel(i)) <= shadow
+}
+func paintWhite(_ keep: (Int, Int) -> Bool) {
+    for y in 0..<h { for x in 0..<w where !keep(x, y) { for c in 0..<4 { px[(y * w + x) * 4 + c] = 255 } } }
+}
+for (cx, cy, cw, ch) in rects("crop") { paintWhite { x, y in x >= cx && x < cx + cw && y >= cy && y < cy + ch } }
+for (ex, ey, ew, eh) in rects("erase") { paintWhite { x, y in !(x >= ex && x < ex + ew && y >= ey && y < ey + eh) } }
 
 var bg = [Bool](repeating: false, count: w * h)
 var stack: [Int] = []
 for x in 0..<w { stack.append(x); stack.append((h - 1) * w + x) }
 for y in 0..<h { stack.append(y * w); stack.append(y * w + w - 1) }
 while let i = stack.popLast() {
-    if bg[i] || minChannel(i) < threshold { continue }
+    if bg[i] || !isBackground(i) { continue }
     bg[i] = true
     let x = i % w, y = i / w
     if x > 0 { stack.append(i - 1) }
