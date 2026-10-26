@@ -17,7 +17,7 @@ export const PAATI = {
   teaching: 'paati-teaching', // book in hand, finger raised
   proud: 'paati-proud', // laughing, thumbs up, waving
   gentle: 'paati-teaching',
-  celebrating: 'paati-sharing', // holding a plate of sweets to share
+  celebrating: 'paati-sharing', // holding a plate of muruku to share
 };
 
 // The page after the welcome, before Chapter 1: what the game is about, beside a big plate of muruku. Its lines
