@@ -3,6 +3,7 @@ import { progress } from './state.js';
 // The one-time journey, in order. docs/user-flow.md draws the same path.
 export const JOURNEY = [
   { scene: 'Story', data: { story: 'welcome' } },
+  { scene: 'Intro', data: {} },
   { scene: 'Story', data: { story: 'ch1' } },
   { scene: 'Quiz', data: { chapter: 'ch1' } },
   { scene: 'Store', data: { mode: 'review' } },

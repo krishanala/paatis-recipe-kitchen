@@ -10,7 +10,7 @@
 
 ## Status
 
-This is a **playable starter build**. You can play the whole journey (Title → Welcome → 4 chapters → Finale → free kitchen → a note for someone you miss → goodbye) with touch, mouse or keyboard. However:
+This is a **playable starter build**. You can play the whole journey (Title → Welcome → Before we begin → 4 chapters → Finale → free kitchen → a note for someone you miss → goodbye) with touch, mouse or keyboard. However:
 
 - Paati's stories, the quiz questions and the facts are **drafts** waiting for review by Tamil-speaking home cooks.
 - The recipe card shows Paati's order but **no amounts**, which must come from a trusted family recipe.
@@ -51,13 +51,15 @@ src/
   scoring.js          dough 40 / twist 30 / fry 30 → stars, with one-line reasons
   draw.js             draws the player's own spiral as their muruku
   ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet
-  scenes/             Title, Story, Quiz, Store, Cook (6 steps), Result, Note, Finale
+  scenes/             Title, Story, Intro (before we begin), Quiz, Store, Cook (6 steps), Result, Note, Finale
 assets/
   paati/              Paati's illustrated poses (welcome, teaching, proud, sharing) + round avatar; originals in source/
-  art/                placeholder SVG art (press, pan, jars, diyas, kolam, garland…)
+  art/                placeholder SVG art (press, pan, jars, diyas, kolam, garland…) and the user's illustrations
+                      as PNGs (rice flour, urad dal, banana leaf, plate of muruku)
   ingredients/        reference photos from the asset sheet (not used in game: the brief asks for flat 2D art)
 docs/                 design brief and user flow
 tools/serve.py        local server with caching off
+tools/cutout.swift    cuts an illustration out of its white background (for assets/art/*.png)
 figma-scripts/        pending Figma updates from the earlier design pass
 paper-whats-left.md   to-do list from the earlier Paper design pass
 ```
@@ -84,6 +86,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **26 Oct 2026, before we begin, and a new banana leaf:** After Paati's welcome comes a new page, **Before we begin** (`src/scenes/IntroScene.js`), with a big plate of muruku on the right. It says we are going to learn how to make muruku, and along the way find out what Deepavali is. The heading slides in, then the words arrive **one at a time, at a pace people can read** ("make muruku" and "Deepavali" picked out in marigold), then a path of the four chapters, then **Start Chapter 1**. A tap or key press shows it all at once, and Reduce motion shows it all from the start. On phones the chapter path is left out to make room. The words are set by `wordText` in `src/ui/widgets.js`, and their text is `INTRO` in `src/content.js`. The muruku and banana leaf at the start of chapters 2 and 4 are gone, and the chapter 4 story now opens "You made muruku with your own two hands!" Every banana leaf (Result, the chapter 4 quiz, the offering and the note page) now uses the user's leaf illustration. The leaf and the plate of muruku are cut out from white as `assets/art/banana-leaf.png` and `muruku-pile.png` with `tools/cutout.swift`.
 - **22–23 Oct 2026, polish phase 3:** Stories are now **two short lines each**, with nothing to tap. (Tap moments were tried on 22–23 Oct and then taken out: a kolam scratch card, lamps to light, biting the muruku and cooling it.) On the Finale, after you offer your muruku to Paati, you **tap three jars to pass them on**: to the neighbours, the cousins and the ants. They're on the Finale, not in the chapter 4 story, so they don't give away the "Who is muruku shared with?" answer. **Kneading** now leads with the real circular gesture: a marigold dot circles the bowl until you touch it, swirl marks follow your finger, and the dough rounds off into a smooth, shiny ball. "Or hold to knead" stays as the smaller alternative.
 - **22 Oct 2026, polish phase 2:** Paati now **asks first and explains after**. Chapter stories are a two-line hook that gives nothing away, and every question was rewritten so it makes sense on its own, with **believable wrong answers** (no more "glows in the dark"). Each wrong answer has its own nudge, and the right one gets the full explanation. After a right answer, only it stays on screen, moved to the top. In the kitchen, **Paati asks one question at the start of five steps**. Right first time unlocks her tip: numbered jars (the jars are now shuffled), a slower pour near the green zone, kneading that counts for more, a guide spiral on the oil, and golden that lasts longer. Wrong answers just mean no tip. The free kitchen has no questions, and every tip is on there. Facts, answers and sources: [docs/quiz-research.md](docs/quiz-research.md).
 - **22 Oct 2026, polish phase 1:** Paati's voice now has gentle humour and a little sass ("Shoes off, appetite on."), rewritten across the stories, store, kitchen, results and finale. The note for someone you miss stays gentle. Quiz explanations will be rewritten in phase 2, which asks first and explains after. A wrong answer now pauses the choices on Paati's hint until **Try again**, and the plate choice in the kitchen works the same way. While pouring, Paati reacts live and the meter's green zone glows, with a tiny buzz on phones at just right. While frying, a pulsing **Flip now!** badge, then **Lift it out!**, appears beside the pot. Every line goes through a voice-over hook, so recordings can be added later ([docs/voice-over.md](docs/voice-over.md)), and the speech bubble keeps the captions. Paati's kitchen, store and quiz lines now live in `src/content.js` (`COOK_LINES`, `STORE_LINES`, `QUIZ_LINES`).

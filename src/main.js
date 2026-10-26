@@ -2,6 +2,7 @@ import { STAGE, COLOR, RES, viewWidth } from './theme.js';
 import { BootScene } from './scenes/BootScene.js';
 import { TitleScene } from './scenes/TitleScene.js';
 import { StoryScene } from './scenes/StoryScene.js';
+import { IntroScene } from './scenes/IntroScene.js';
 import { QuizScene } from './scenes/QuizScene.js';
 import { StoreScene } from './scenes/StoreScene.js';
 import { CookScene } from './scenes/CookScene.js';
@@ -26,7 +27,7 @@ const game = new Phaser.Game({
   backgroundColor: COLOR.offWhite,
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, fullscreenTarget: 'game' },
   input: { activePointers: 2 },
-  scene: [BootScene, TitleScene, StoryScene, QuizScene, StoreScene, CookScene, ResultScene, NoteScene, FinaleScene],
+  scene: [BootScene, TitleScene, StoryScene, IntroScene, QuizScene, StoreScene, CookScene, ResultScene, NoteScene, FinaleScene],
 });
 
 // When the window changes shape (turning a phone, entering full screen), widen or narrow the view to match.

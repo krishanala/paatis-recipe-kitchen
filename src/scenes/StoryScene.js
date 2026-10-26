@@ -3,12 +3,7 @@ import { Button } from '../ui/Button.js';
 import { PaatiBubble, art, bokeh, doorstepKolam, glow, header, paati } from '../ui/widgets.js';
 import { CHAPTERS, STORIES } from '../content.js';
 import { storyLines } from '../quiz.js';
-import { COLOR, pick } from '../theme.js';
-import { progress } from '../state.js';
-import { paintMuruku } from '../draw.js';
-
-// Where each chapter's prop sits: below Paati's words, between her and the Next button.
-const OBJ = { x: 670, y: pick(560, 585) };
+import { COLOR } from '../theme.js';
 
 // Screen 2 · Paati's story: two short lines that open each chapter, one at a time.
 export class StoryScene extends BaseScene {
@@ -62,17 +57,10 @@ export class StoryScene extends BaseScene {
   decorate(id) {
     if (id === 'ch1') {
       doorstepKolam(this, 690, 640, 240, { diyas: 3 });
-    } else if (id === 'ch2') {
-      art(this, OBJ.x, OBJ.y + 12, 'banana-leaf', 240);
-      art(this, OBJ.x, OBJ.y, 'muruku-golden', 150);
     } else if (id === 'ch3') {
       art(this, 660, 560, 'press-filled', 200);
     } else if (id === 'ch4') {
-      // The player's own muruku, on a banana leaf.
       art(this, 640, 360, 'petals', 1280).setAlpha(0.3);
-      art(this, OBJ.x, OBJ.y + 12, 'banana-leaf', 240);
-      if (progress.lastMuruku) paintMuruku(this, progress.lastMuruku, OBJ.x, OBJ.y, 120);
-      else art(this, OBJ.x, OBJ.y, 'muruku-golden', 120);
     }
   }
 }

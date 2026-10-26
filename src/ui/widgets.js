@@ -613,6 +613,42 @@ export function raisedTitle(scene, x, y, str, { size = fontSize('h1') + 10, widt
   return title;
 }
 
+// Text set one word at a time (wrapping at width) in a container, so each word can arrive on its own while the
+// rest stay put. Words between *stars* are picked out in bold deep marigold. words lists them in reading order;
+// textHeight is the full height.
+export function wordText(scene, str, role, { width = 520, color, dark = scene.dark } = {}) {
+  const make = (s, opts = {}) => makeText(scene, 0, 0, s, role, { color, dark, ...opts });
+  const one = make('A');
+  const two = make('A\nA');
+  const pair = make('A A');
+  const lineH = one.height;
+  const advance = two.height - one.height;
+  const space = pair.width - 2 * one.width;
+  [one, two, pair].forEach((t) => t.destroy());
+  const words = [];
+  let x = 0;
+  let y = 0;
+  let marked = false;
+  for (const raw of str.split(/\s+/).filter(Boolean)) {
+    const opens = raw.startsWith('*');
+    if (opens) marked = true;
+    const hot = marked;
+    if (raw.indexOf('*', opens ? 1 : 0) !== -1) marked = false;
+    const t = make(raw.replaceAll('*', ''), hot ? { color: 0xb35600, weight: 700 } : {});
+    if (x > 0 && x + t.width > width) {
+      x = 0;
+      y += advance;
+    }
+    t.setPosition(x, y);
+    x += t.width + space;
+    words.push(t);
+  }
+  const c = scene.add.container(0, 0, words);
+  c.words = words;
+  c.textHeight = y + lineH;
+  return c;
+}
+
 // A Rani pink ribbon trimmed in gold, with a lit diya at each end, centred on (0, 0). bw and bh are its size.
 // size is the text size in px; text with line breaks is centred, and the ribbon's ends round off to suit.
 export function ribbon(scene, str, { size } = {}) {

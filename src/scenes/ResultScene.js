@@ -23,7 +23,7 @@ export class ResultScene extends BaseScene {
     header(this, { title: free ? 'Free kitchen · Your muruku' : 'Chapter 3 · Your muruku' });
 
     // Left column: the muruku on a banana leaf, stars with words, the score, then Paati's reaction.
-    const L = pick({ leafY: 250, leaf: 420, muruku: 210, starsY: 418 }, { leafY: 226, leaf: 360, muruku: 180, starsY: 378 });
+    const L = pick({ leafY: 250, leaf: 380, muruku: 200, starsY: 418 }, { leafY: 228, leaf: 320, muruku: 170, starsY: 378 });
     art(this, 320, L.leafY, 'banana-leaf', L.leaf);
     paintMuruku(this, muruku, 320, L.leafY - 6, L.muruku);
     if (r.stars >= 2) this.time.delayedCall(300, () => celebrate(this, r.stars === 3 ? [[200, 200], [440, 140], [320, 260]] : [[240, 190], [400, 170]]));

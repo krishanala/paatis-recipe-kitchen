@@ -20,6 +20,20 @@ export const PAATI = {
   celebrating: 'paati-sharing', // holding a plate of sweets to share
 };
 
+// The page after the welcome, before Chapter 1: what the game is about, beside a big plate of muruku. Its lines
+// appear a word at a time, at a pace people can read; words between *stars* are picked out in marigold.
+export const INTRO = {
+  eyebrow: 'BEFORE WE BEGIN',
+  title: 'Let us make muruku',
+  lines: [
+    'Today we learn how to *make muruku*, the crunchy spiral snack, from Paati\'s own recipe.',
+    'And along the way, we find out what *Deepavali* is, and why every home fills up with muruku for it.',
+  ],
+  // The four chapters, as a path under the words.
+  steps: ['Deepavali', 'Muruku', 'Cooking', 'Sharing'],
+  start: 'Start Chapter 1',
+};
+
 // Paati's short stories: two lines each. `paati` is the full-body pose shown beside the story. The stories set
 // the scene without giving any quiz answers away: Paati asks first and explains after (QUIZ_BANK).
 export const STORIES = {
@@ -59,7 +73,7 @@ export const STORIES = {
     paati: PAATI.celebrating,
     done: 'Start the quiz',
     lines: [
-      'Look at your muruku! Made with your own two hands. I will try not to cry.',
+      'You made muruku with your own two hands! I will try not to cry.',
       'Two last questions, and then we celebrate. I saved the good ones.',
     ],
   },

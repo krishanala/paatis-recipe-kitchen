@@ -7,7 +7,8 @@ flowchart TD
     T["1 · Title<br/>Play · Sound · Help"] --> W["2 · Paati's story<br/>Welcome"]
     T -. Help .-> S(["Settings action sheet<br/>sound · captions · text size · language"])
 
-    W --> C1["2 · Story<br/>Ch 1: What is Deepavali?"]
+    W --> I["Before we begin<br/>a plate of muruku · words one at a time · Start Chapter 1"]
+    I --> C1["2 · Story<br/>Ch 1: What is Deepavali?"]
     C1 --> Q1["3 · Quiz ×3<br/>earns rice flour, urad dal flour, flour"]
     Q1 --> ST1["4 · Store<br/>3 of 6 collected"]
 
@@ -42,6 +43,7 @@ flowchart TD
 |---|---|
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Stories are two short lines each, read with Next | Story |
+| Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
 | After the offering, the player taps three jars to share them before What you learned | Finale |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
@@ -65,6 +67,6 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. On the Note screen, the scroll rolls, is tied and leaves at once, without the pigeon's flight |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. On the Note screen, the scroll rolls, is tied and leaves at once, without the pigeon's flight. Before we begin shows all its words at once |
 | Player tries to roll up an empty note | Paati asks for a few words first; just a name is enough |
 | A phone keyboard opens over the note | The game waits until typing ends before it re-fits the screen, and the fields stay at 16 px or larger so phones don't zoom in |
