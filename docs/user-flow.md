@@ -23,7 +23,7 @@ flowchart TD
 
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
-    Q4 --> F["7 · Finale<br/>Let Paati taste it: offer · bite · chew · happy tears · thank you · Next"]
+    Q4 --> F["7 · Finale<br/>Let Paati taste it: offer · bite · happy tears · thank you · Next"]
     F --> B["7 · Bonus for your heart<br/>welcome-page style"]
     B -- Write a note --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
     B -- Skip --> C["7 · Last page<br/>Make more muruku · Finish"]

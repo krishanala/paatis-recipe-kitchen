@@ -57,15 +57,14 @@ export class FinaleScene extends BaseScene {
     });
   }
 
-  // Paati tastes it in the middle of the screen, one picture after another: a bite (Crunch!), chewing with crumbs
-  // flying, a happy dab of her eyes, then she looks at the player and says thank you, and Next appears. A tap or key
-  // press skips to the end. With Reduce motion she moves to the middle at once and the pictures change in place.
+  // Paati tastes it in the middle of the screen, one picture after another: a bite (Crunch!), a happy dab of her
+  // eyes, then she looks at the player and says thank you, and Next appears. A tap or key press skips to the end. With Reduce motion she moves to the middle at once and the pictures change in place.
   taste(welcome, light, gift, offer) {
     const still = settings.reduceMotion;
     const mid = 640;
     const tall = 520; // a little shorter than on the offering page, so her head clears the heading
     const frames = {};
-    for (const key of ['bite', 'chew', 'wipe', 'happy']) {
+    for (const key of ['bite', 'wipe', 'happy']) {
       const f = paati(this, mid, 712, `paati-taste-${key}`, tall).setAlpha(0);
       f.home = f.scaleX;
       frames[key] = f;
@@ -125,25 +124,18 @@ export class FinaleScene extends BaseScene {
       this.crunch(mouth);
       this.tweens.add({ targets: f, scaleY: f.home * 0.97, duration: 110, yoyo: true, ease: 'Sine.InOut' });
     });
-    // 2 · Chewing, with crumbs flying.
-    later(2000, () => {
-      const f = show('chew');
-      if (still) return;
-      this.tweens.add({ targets: f, scaleY: f.home * 0.985, duration: 170, yoyo: true, repeat: 4, ease: 'Sine.InOut' });
-      for (let i = 0; i < 4; i++) later(120 + i * 340, () => this.crumbs(mouth.x + 40, mouth.y - 6, 5));
-    });
-    // 3 · A happy dab of her eyes with her handkerchief.
-    later(3600, () => {
+    // 2 · A happy dab of her eyes with her handkerchief.
+    later(2500, () => {
       const f = show('wipe');
       if (still) return;
       this.tweens.add({ targets: f, angle: { from: -1.5, to: 1.5 }, duration: 420, yoyo: true, repeat: 1, ease: 'Sine.InOut', onComplete: () => f.setAngle(0) });
     });
-    // 4 · Happy and content, she looks at the player.
-    later(5100, () => {
+    // 3 · Happy and content, she looks at the player.
+    later(4000, () => {
       show('happy');
       sparkle(this, mid, 270, { radius: 170, count: 20 });
     });
-    later(5600, finish);
+    later(4500, finish);
   }
 
   // "Crunch!" pops up beside Paati's mouth, with a spray of crumbs.

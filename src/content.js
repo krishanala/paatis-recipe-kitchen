@@ -541,7 +541,7 @@ export const NOTE = {
 
 export const FINALE = {
   offer: 'Let Paati taste it',
-  // Paati tastes it: a bite, chewing, a happy dab of the eyes, then her thanks.
+  // Paati tastes it: a bite, a happy dab of the eyes, then her thanks.
   crunch: 'Crunch!',
   thanks: 'Mmm, crunchy! Thank you, dear. I can taste the love in it.',
   // Bonus for your heart: the page before the note for someone you miss.
