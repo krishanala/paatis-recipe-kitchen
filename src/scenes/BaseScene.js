@@ -2,7 +2,7 @@ import { RES, STAGE, MOOD, css, rgb } from '../theme.js';
 import { FocusManager } from '../ui/focus.js';
 import { makeText } from '../ui/text.js';
 import { SettingsSheet } from '../ui/SettingsSheet.js';
-import { progress, settings } from '../state.js';
+import { settings } from '../state.js';
 import { nextStep } from '../flow.js';
 import { hush } from '../voice.js';
 
@@ -92,11 +92,9 @@ export class BaseScene extends Phaser.Scene {
     this.go(step.scene, step.data);
   }
 
-  // Finish the game (from the free kitchen): Bonus for your heart first if the note hasn't been offered yet, then
-  // Paati's goodbye.
+  // Finish the game (from the free kitchen): Paati's goodbye.
   finishGame() {
-    if (progress.noteDone) this.go('Finale', { mode: 'goodbye' });
-    else this.go('Finale', { mode: 'bonus' });
+    this.go('Finale', { mode: 'goodbye' });
   }
 
   toTitle() {

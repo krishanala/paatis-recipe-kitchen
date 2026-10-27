@@ -33,12 +33,10 @@ const SCREENS = {
   ch4: ['Story', { story: 'ch4' }],
   'quiz-ch4': ['Quiz', { chapter: 'ch4' }],
   taste: ['Finale', { mode: 'finale' }],
-  bonus: ['Finale', { mode: 'bonus' }, { end: true }],
-  note: ['Note', {}, { end: true }],
-  last: ['Finale', { mode: 'choice' }, { end: true, noteDone: true }],
-  goodbye: ['Finale', { mode: 'goodbye' }, { end: true, noteDone: true }],
-  'free-kitchen': ['Store', { mode: 'free' }, { end: true, noteDone: true, free: true }],
-  'free-cook': ['Cook', { free: true }, { end: true, noteDone: true, free: true }],
+  last: ['Finale', { mode: 'choice' }, { end: true }],
+  goodbye: ['Finale', { mode: 'goodbye' }, { end: true }],
+  'free-kitchen': ['Store', { mode: 'free' }, { end: true, free: true }],
+  'free-cook': ['Cook', { free: true }, { end: true, free: true }],
 };
 
 export const SCREEN_NAMES = Object.keys(SCREENS);
@@ -56,7 +54,6 @@ export function shortcut() {
   const i = opts.end ? JOURNEY.length : journeyIndex(scene, data, opts.nth ?? 1);
   playUpTo(i);
   progress.step = Math.min(i, JOURNEY.length - 1);
-  if (opts.noteDone) progress.noteDone = true;
   if (opts.free) progress.freeKitchen = true;
   return { scene, data: { ...data, ...opts.data } };
 }

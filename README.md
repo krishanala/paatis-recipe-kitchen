@@ -10,7 +10,7 @@
 
 ## Status
 
-This is a **playable starter build**. You can play the whole journey (Title → Welcome → Before we begin → 4 chapters → Finale → free kitchen → a note for someone you miss → goodbye) with touch, mouse or keyboard. However:
+This is a **playable starter build**. You can play the whole journey (Title → Welcome → Before we begin → 4 chapters → Finale → free kitchen → goodbye) with touch, mouse or keyboard. However:
 
 - Paati's stories, the quiz questions and the facts are **drafts** waiting for review by Tamil-speaking home cooks.
 - The recipe card shows Paati's order but **no amounts**, which must come from a trusted family recipe.
@@ -57,8 +57,6 @@ The links in the first column open your local copy (start it as above); the last
 | [`ch4`](http://localhost:8000/?screen=ch4) | Chapter 4 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch4) |
 | [`quiz-ch4`](http://localhost:8000/?screen=quiz-ch4) | Chapter 4 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch4) |
 | [`taste`](http://localhost:8000/?screen=taste) | Let Paati taste it, and the tasting animation | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=taste) |
-| [`bonus`](http://localhost:8000/?screen=bonus) | Bonus for your heart | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=bonus) |
-| [`note`](http://localhost:8000/?screen=note) | The note for someone you miss | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=note) |
 | [`last`](http://localhost:8000/?screen=last) | The last page: Make more muruku or Finish | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=last) |
 | [`goodbye`](http://localhost:8000/?screen=goodbye) | Paati's goodbye | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=goodbye) |
 | [`free-kitchen`](http://localhost:8000/?screen=free-kitchen) | The free kitchen Store | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=free-kitchen) |
@@ -90,12 +88,12 @@ src/
   scoring.js          dough 40 / twist 30 / fry 30 → stars, with one-line reasons
   draw.js             draws the player's own spiral as their muruku
   ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet
-  scenes/             Title, Story, Intro (before we begin), Quiz, Store, Cook (6 steps), Result, Note, Finale
+  scenes/             Title, Story, Intro (before we begin), Quiz, Store, Cook (6 steps), Result, Finale
 assets/
   paati/              Paati's illustrated poses (welcome, teaching, proud, sharing, and four for tasting the muruku)
                       + round avatar; originals in source/
   art/                placeholder SVG art (press, pan, water jar, diyas, kolam, garland…) and the user's illustrations
-                      as PNGs (the five dry ingredients, banana leaf, plate of muruku, leaf laid with a meal)
+                      as PNGs (the five dry ingredients, banana leaf, plate of muruku)
   ingredients/        reference photos from the asset sheet (not used in game: the brief asks for flat 2D art)
 docs/                 design brief and user flow
 tools/serve.py        local server with caching off
@@ -126,6 +124,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **27 Oct 2026, no Bonus for your heart:** The Bonus for your heart page and the note for someone you miss (writing on parchment, rolling it up, the pigeon) are taken out, with their art (parchment, scroll, pigeon, the leaf laid with a meal) and the handwriting font. After Paati says thank you, Next goes straight to the last page, and Finish in the free kitchen goes straight to the goodbye. The remembrance research stays in [docs/quiz-research.md](docs/quiz-research.md#remembering-loved-ones-no-longer-in-the-game) in case it comes back.
 - **27 Oct 2026, greeting position:** On the Title screen, "Happy Deepavali" now pops up in the middle of the left side: halfway down the screen, and halfway between the garlands at the edge and Paati (on phones held sideways, between the visible edge and Paati).
 - **27 Oct 2026, screen shortcuts:** Adding `?screen=` and a name to the address opens that screen straight away, set up as it would be mid-game, including each of the six kitchen steps (see [Screen shortcuts](#screen-shortcuts)). Building them turned up a crash: after the free kitchen, Play again on a computer broke the kitchen when you reached it. That is fixed.
 - **27 Oct 2026, Let Paati taste it:** The offering page now reads "Let Paati taste it". After Offer to Paati, she steps into the middle of the screen as the muruku flies over, and tastes it in three pictures from the user's illustrations: a bite (with a "Crunch!" and crumbs), a happy dab of her eyes with her handkerchief, then she looks at the player and says thank you in a speech bubble on her left, and Next (on her right) goes on to Bonus for your heart. A tap or key press skips to the end; with Reduce motion the pictures change in place without movement. The frames are `assets/paati/taste-*.png`, all cut to one shared box (`tools/cutout.swift` gained `trim=no` for that) so they line up as they swap. (A chewing picture, with her mouth open, was tried and taken out.)

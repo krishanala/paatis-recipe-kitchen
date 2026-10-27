@@ -9,8 +9,7 @@ import { paintMuruku } from '../draw.js';
 
 // Screen 7 · Finale, in modes:
 // 'finale'  Let Paati taste it: the player offers their muruku, Paati tastes it and says thank you, and Next goes
-//           on to Bonus for your heart (or the last page, once the note has been offered);
-// 'bonus'   Bonus for your heart, in the welcome page's style, leading to the note for someone you miss;
+//           on to the last page;
 // 'choice'  the last page: Make more muruku (the free kitchen) or Finish;
 // 'goodbye' Paati's farewell at the very end.
 export class FinaleScene extends BaseScene {
@@ -21,7 +20,6 @@ export class FinaleScene extends BaseScene {
   create(data) {
     this.setStage('festive');
     const mode = data.mode ?? 'finale';
-    if (mode === 'bonus') return this.bonus();
     if (mode === 'choice') return this.choice();
     bokeh(this, 26, { seed: `finale-${mode}` });
     garland(this);
@@ -179,7 +177,7 @@ export class FinaleScene extends BaseScene {
     const next = new Button(this, 1010, 620, {
       label: 'Next',
       width: 320,
-      onClick: () => this.go('Finale', { mode: progress.noteDone ? 'choice' : 'bonus' }),
+      onClick: () => this.go('Finale', { mode: 'choice' }),
     });
     if (!settings.reduceMotion) {
       this.tweens.add({ targets: bubble, alpha: { from: 0, to: 1 }, y: { from: y + 16, to: y }, duration: 320, ease: 'Cubic.Out' });
@@ -218,24 +216,6 @@ export class FinaleScene extends BaseScene {
       made.forEach((btn, i) => this.tweens.add({ targets: btn, alpha: { from: 0, to: 1 }, y: { from: y + 16, to: y }, duration: 360, delay: 520 + i * 110, ease: 'Cubic.Out' }));
     }
     return made;
-  }
-
-  // Bonus for your heart: the way into the note for someone you miss.
-  bonus() {
-    const leave = () => {
-      progress.noteDone = true;
-      this.go('Finale', { mode: 'choice' });
-    };
-    this.welcomeLayout({
-      pose: PAATI.welcome,
-      ribbonText: FINALE.bonusRibbon,
-      title: FINALE.bonusTitle,
-      text: FINALE.bonusText,
-      buttons: [
-        { label: 'Write a note', width: pick(280, 300), onClick: () => this.go('Note') },
-        { label: 'Skip', width: 180, variant: 'outline', accent: true, onClick: leave },
-      ],
-    });
   }
 
   // The last page: more muruku in the free kitchen, or finish.

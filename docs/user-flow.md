@@ -24,10 +24,7 @@ flowchart TD
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
     Q4 --> F["7 · Finale<br/>Let Paati taste it: offer · bite · happy tears · thank you · Next"]
-    F --> B["7 · Bonus for your heart<br/>welcome-page style"]
-    B -- Write a note --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
-    B -- Skip --> C["7 · Last page<br/>Make more muruku · Finish"]
-    N -- Continue or Skip --> C
+    F --> C["7 · Last page<br/>Make more muruku · Finish"]
     C -- Finish --> G["7 · Finale<br/>Paati's goodbye"]
 
     C -- Make more muruku --> FK["4 · Store (always full)<br/>Deepavali fact"]
@@ -53,7 +50,6 @@ flowchart TD
 | In the free kitchen the Store is always full, and there is no quiz, shop or points | Free kitchen |
 | Help opens settings from the header on every screen, and from the Title | All screens |
 | A right answer sends up firecrackers (two or three stars do too) | Quiz, Result |
-| The note for someone you miss comes once, right after the offering, and can be skipped. It is never saved or sent | Bonus, Note |
 
 ## Edge cases to design for
 
@@ -66,6 +62,4 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. On the Note screen, the scroll rolls, is tied and leaves at once, without the pigeon's flight. Before we begin shows all its words at once. When Paati tastes the muruku, her pictures change in place without movement |
-| Player tries to roll up an empty note | Paati asks for a few words first; just a name is enough |
-| A phone keyboard opens over the note | The game waits until typing ends before it re-fits the screen, and the fields stay at 16 px or larger so phones don't zoom in |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. When Paati tastes the muruku, her pictures change in place without movement |

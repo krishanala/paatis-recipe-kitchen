@@ -28,10 +28,6 @@ const ART = [
   ['bowl-front', 1],
   ['pitcher', 0.7],
   ['muruku-golden', 1],
-  ['parchment', 1.2],
-  ['scroll-roll', 1.2],
-  ['pigeon-body', 1],
-  ['pigeon-wing', 1],
 ];
 
 export class BootScene extends Phaser.Scene {
@@ -55,7 +51,7 @@ export class BootScene extends Phaser.Scene {
       this.load.svg(key, `assets/art/${key}.svg`, { scale: scale * RES });
     }
     // The user's illustrations (PNG, cut out from white with tools/cutout.swift).
-    for (const key of ['rice-flour', 'urad-dal', 'flour-sack', 'spice-tray', 'ghee-pot', 'banana-leaf', 'muruku-pile', 'food-leaf']) {
+    for (const key of ['rice-flour', 'urad-dal', 'flour-sack', 'spice-tray', 'ghee-pot', 'banana-leaf', 'muruku-pile']) {
       this.load.image(key, `assets/art/${key}.png`);
     }
     // Paati is illustrated art (assets/paati), cut out from the source images in assets/paati/source.

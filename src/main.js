@@ -8,13 +8,12 @@ import { StoreScene } from './scenes/StoreScene.js';
 import { CookScene } from './scenes/CookScene.js';
 import { ResultScene } from './scenes/ResultScene.js';
 import { FinaleScene } from './scenes/FinaleScene.js';
-import { NoteScene } from './scenes/NoteScene.js';
 import { loadVoice, voiceScript } from './voice.js';
 
 // Phaser measures text when it is created, so wait (briefly) for the fonts to load first: Inter, EB Garamond for
-// the game's name, Poppins for the Play button, and Kalam for handwriting.
+// the game's name and Poppins for the buttons.
 const timeout = new Promise((resolve) => setTimeout(resolve, 2500));
-const faces = [...['400', '500', '600', '700'].map((w) => `${w} 24px Inter`), '700 24px "EB Garamond"', '600 24px Poppins', '400 24px Kalam'];
+const faces = [...['400', '500', '600', '700'].map((w) => `${w} 24px Inter`), '700 24px "EB Garamond"', '600 24px Poppins'];
 const fonts = Promise.all(faces.map((face) => document.fonts.load(face))).catch(() => {});
 await Promise.race([fonts, timeout]);
 
@@ -27,7 +26,7 @@ const game = new Phaser.Game({
   backgroundColor: COLOR.offWhite,
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, fullscreenTarget: 'game' },
   input: { activePointers: 2 },
-  scene: [BootScene, TitleScene, StoryScene, IntroScene, QuizScene, StoreScene, CookScene, ResultScene, NoteScene, FinaleScene],
+  scene: [BootScene, TitleScene, StoryScene, IntroScene, QuizScene, StoreScene, CookScene, ResultScene, FinaleScene],
 });
 
 // When the window changes shape (turning a phone, entering full screen), widen or narrow the view to match.

@@ -102,9 +102,9 @@ Paati asks one question at the start of five cooking steps (not in the free kitc
 | The Golden Temple in Amritsar is lit with lamps for Bandi Chhor Divas. | [Read The Spirit](https://readthespirit.com/religious-holidays-festivals/?p=4548) |
 | Many families wear bright new clothes and visit their elders for blessings. | [Hindutone: Diwali in Chennai](https://hindutone.com/festivals/diwali-celebrations-in-chennai-tamil-nadu-india-2026-a-complete-guide/) |
 
-## Remembering loved ones (the Note screen)
+## Remembering loved ones (no longer in the game)
 
-Not a quiz question. This is the fact Paati shares before the player writes a note for someone they miss.
+Not a quiz question. Paati shared this fact on the note screen at the end, where the player wrote a note for someone they miss. The note screen and its Bonus for your heart page were taken out on 27 Oct 2026; the research stays here in case they come back.
 
 | Fact | Sources |
 |---|---|
@@ -132,6 +132,5 @@ Please check these closely:
 5. **Rice as "plenty".** Is this the right way to describe the blessing?
 6. **Urad dal "makes muruku light".** This comes from the brief and needs a home cook's confirmation.
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
-8. **The remembrance offering** (Note screen). Is "many families set out the favourite foods of loved ones who have passed away" fair across the families you know? Is the pigeon (rather than, say, a lamp) a kind way to show the note going to them? And is the closing line, "Wherever they are, they know you remember them", gentle enough for anyone who has lost someone recently, young or old?
-9. **Paati's humour** (stories, store, kitchen, results). The jokes are on Paati, the food or the moment, never on the player or the tradition. Do any land wrong in your families, or read as unkind to grandparents? For example: "Shoes off, appetite on.", "Older cooks, call your common sense.", "Nobody can un-water dough." and "Most of them were me."
-10. **The new wrong answers and the kitchen questions.** Is each wrong answer believable but clearly wrong once explained? Check especially "A new year" (some families do start a new year around Deepavali, so the nudge says so), "Wheat does not grow in India", Mysuru and Kolkata for the muruku town, and "At the edge, then round and in" for the spiral. Are the ghee, water and spiral answers true to how your families make muruku?
+8. **Paati's humour** (stories, store, kitchen, results). The jokes are on Paati, the food or the moment, never on the player or the tradition. Do any land wrong in your families, or read as unkind to grandparents? For example: "Shoes off, appetite on.", "Older cooks, call your common sense.", "Nobody can un-water dough." and "Most of them were me."
+9. **The new wrong answers and the kitchen questions.** Is each wrong answer believable but clearly wrong once explained? Check especially "A new year" (some families do start a new year around Deepavali, so the nudge says so), "Wheat does not grow in India", Mysuru and Kolkata for the muruku town, and "At the edge, then round and in" for the spiral. Are the ghee, water and spiral answers true to how your families make muruku?

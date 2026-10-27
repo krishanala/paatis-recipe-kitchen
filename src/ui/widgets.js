@@ -599,7 +599,7 @@ export function doorstepKolam(scene, x, y, width, { diyas = 5 } = {}) {
   return [floor, kolam, petals, ...lamps];
 }
 
-// ---- The welcome look: the Title, Bonus for your heart and the last page share it ----------------------
+// ---- The welcome look: the Title and the last page share it ------------------------------------------
 
 export const SERIF = '"EB Garamond", Garamond, Georgia, serif';
 const MAROON = 0x800000;
