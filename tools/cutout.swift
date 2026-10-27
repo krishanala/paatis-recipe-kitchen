@@ -1,7 +1,7 @@
 // Cut an illustration out of its plain white background, for the game's art (assets/art/*.png).
 //
 //   swiftc -O tools/cutout.swift -o /tmp/cutout   (on this Mac, add -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk)
-//   /tmp/cutout in.jpg out.png [maxHeight=520] [threshold=245] [crop=x,y,w,h] [erase=x,y,w,h …] [shadow=0.12]
+//   /tmp/cutout in.jpg out.png [maxHeight=520] [threshold=245] [crop=x,y,w,h] [erase=x,y,w,h …] [shadow=0.12] [trim=no]
 //
 // The white is flood-filled in from the edges, so white things inside the drawing (a pile of flour) stay. Pixels
 // touching the background fade by how close to white they are, so the edge isn't jagged. Then the result is
@@ -10,6 +10,8 @@
 // areas white first, such as a stray bit of the next thing that pokes into the crop. shadow= also takes away a
 // soft drop shadow: pale pixels with little colour (saturation up to the value given) count as background too.
 // Leave it off for pictures with white or grey things at their edges, such as a pile of flour.
+// trim=no keeps the whole crop= area instead of cropping to the drawing, so frames of an animation cut with the
+// same crop= line up exactly. It prints where the drawing sits, to find a crop that fits every frame.
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -34,6 +36,7 @@ guard let src = CGImageSourceCreateWithURL(URL(fileURLWithPath: args[1]) as CFUR
 let maxH = plain.count > 0 ? Double(plain[plain.startIndex]) ?? 520 : 520
 let threshold = plain.count > 1 ? Int(plain[plain.startIndex + 1]) ?? 245 : 245
 let shadow = args.first { $0.hasPrefix("shadow=") }.flatMap { Double($0.dropFirst(7)) }
+let trim = !args.contains("trim=no")
 
 let w = cg.width, h = cg.height
 var px = [UInt8](repeating: 0, count: w * h * 4)
@@ -85,7 +88,9 @@ for y in 0..<h {
 }
 
 let full = ctx.makeImage()!
-let crop = full.cropping(to: CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1))!
+let area = trim ? CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
+    : rects("crop").first.map { CGRect(x: $0.0, y: $0.1, width: $0.2, height: $0.3) } ?? CGRect(x: 0, y: 0, width: w, height: h)
+let crop = full.cropping(to: area)!
 let s = min(1.0, maxH / Double(crop.height))
 let ow = Int((Double(crop.width) * s).rounded()), oh = Int((Double(crop.height) * s).rounded())
 let out = CGContext(data: nil, width: ow, height: oh, bitsPerComponent: 8, bytesPerRow: 0, space: sRGB,
@@ -95,4 +100,4 @@ out.draw(crop, in: CGRect(x: 0, y: 0, width: ow, height: oh))
 guard let dest = CGImageDestinationCreateWithURL(URL(fileURLWithPath: args[2]) as CFURL, UTType.png.identifier as CFString, 1, nil) else { fatalError("cannot write \(args[2])") }
 CGImageDestinationAddImage(dest, out.makeImage()!, nil)
 guard CGImageDestinationFinalize(dest) else { fatalError("could not save \(args[2])") }
-print("\(args[2]) \(ow)x\(oh)")
+print("\(args[2]) \(ow)x\(oh) (drawing at x \(minX), y \(minY), \(maxX - minX + 1)x\(maxY - minY + 1))")

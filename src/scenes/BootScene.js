@@ -58,7 +58,7 @@ export class BootScene extends Phaser.Scene {
       this.load.image(key, `assets/art/${key}.png`);
     }
     // Paati is illustrated art (assets/paati), cut out from the source images in assets/paati/source.
-    for (const pose of ['welcome', 'teaching', 'proud', 'sharing', 'avatar']) {
+    for (const pose of ['welcome', 'teaching', 'proud', 'sharing', 'avatar', 'taste-bite', 'taste-chew', 'taste-wipe', 'taste-happy']) {
       this.load.image(`paati-${pose}`, `assets/paati/${pose}.png`);
     }
   }

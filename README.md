@@ -53,7 +53,8 @@ src/
   ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet
   scenes/             Title, Story, Intro (before we begin), Quiz, Store, Cook (6 steps), Result, Note, Finale
 assets/
-  paati/              Paati's illustrated poses (welcome, teaching, proud, sharing) + round avatar; originals in source/
+  paati/              Paati's illustrated poses (welcome, teaching, proud, sharing, and four for tasting the muruku)
+                      + round avatar; originals in source/
   art/                placeholder SVG art (press, pan, water jar, diyas, kolam, garland…) and the user's illustrations
                       as PNGs (the five dry ingredients, banana leaf, plate of muruku, leaf laid with a meal)
   ingredients/        reference photos from the asset sheet (not used in game: the brief asks for flat 2D art)
@@ -86,6 +87,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **27 Oct 2026, Let Paati taste it:** The offering page now reads "Let Paati taste it". After Offer to Paati, the muruku flies over and Paati tastes it in four pictures from the user's illustrations: a bite (with a "Crunch!" and crumbs), chewing, a happy dab of her eyes with her handkerchief, then she looks at the player and says thank you in a speech bubble, and Next goes on to Bonus for your heart. A tap or key press skips to the end; with Reduce motion the pictures change in place without movement. The frames are `assets/paati/taste-*.png`, all cut to one shared box (`tools/cutout.swift` gained `trim=no` for that) so they line up as they swap.
 - **26 Oct 2026, Paati shares muruku:** Her sharing pose (chapter 4 and the last page) now holds a plate of muruku instead of round sweets, from the user's new illustration (`assets/paati/sharing.png`, source in `assets/paati/source/sharing.jpg`).
 - **26 Oct 2026, a shorter ending:** The three jars to share and the What you learned page are gone. After you offer your muruku to Paati, it flies over to her and the game goes straight to Bonus for your heart (or the last page, once the note has been offered). The safety line that sat on What you learned ("May contain sesame. Younger cooks need an adult near hot oil.") went with it; the chapter 3 story still warns about hot oil.
 - **26 Oct 2026, more of the user's art:** Flour (a jute sack with wheat), spices (a clay tray of seven spices) and ghee (a painted clay pot) now use the user's illustrations instead of the generated tins and jar, cut from one picture as `assets/art/flour-sack.png`, `spice-tray.png` and `ghee-pot.png`. `tools/cutout.swift` gained `crop=` and `erase=` for pictures with several things in them, and `shadow=` to take away soft drop shadows. On phones the kitchen's ingredient row sits a little lower so it clears the step tabs. The note page now shows the user's banana leaf laid with a full meal (`assets/art/food-leaf.png`) between the two lamps, in place of the leaf with three muruku and flowers.

@@ -1,15 +1,15 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { art, bokeh, burst, fireworks, garland, glow, hangingGarlands, paati, raisedTitle, ribbon, sparkle, welcomeStage } from '../ui/widgets.js';
-import { fontSize } from '../ui/text.js';
+import { PaatiBubble, art, bokeh, burst, fireworks, garland, glow, hangingGarlands, paati, raisedTitle, ribbon, sparkle, welcomeStage } from '../ui/widgets.js';
+import { BUTTON_FONT, fontSize } from '../ui/text.js';
 import { FINALE, PAATI } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
 import { progress, resetProgress, settings } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
 // Screen 7 · Finale, in modes:
-// 'finale'  the player offers their muruku to Paati, then the game moves on to Bonus for your heart (or the last
-//           page, once the note has been offered);
+// 'finale'  Let Paati taste it: the player offers their muruku, Paati tastes it and says thank you, and Next goes
+//           on to Bonus for your heart (or the last page, once the note has been offered);
 // 'bonus'   Bonus for your heart, in the welcome page's style, leading to the note for someone you miss;
 // 'choice'  the last page: Make more muruku (the free kitchen) or Finish;
 // 'goodbye' Paati's farewell at the very end.
@@ -29,7 +29,7 @@ export class FinaleScene extends BaseScene {
     else this.offer();
   }
 
-  // The player's muruku on a banana leaf, offered to Paati: it flies over to her, and the game moves on.
+  // Let Paati taste it: the player's muruku on a banana leaf. Offered, it flies over to her and she tastes it.
   offer() {
     this.pinToEdges(
       hangingGarlands(this, [
@@ -43,7 +43,7 @@ export class FinaleScene extends BaseScene {
     burst(this, 1120, 200, 50, COLOR.marigold500);
     this.text(640, 130, FINALE.offer, 'h3', { origin: [0.5, 0], width: 1100, align: 'center' });
     glow(this, 900, 430, 240);
-    paati(this, 900, 712, PAATI.welcome, 540);
+    const welcome = paati(this, 900, 712, PAATI.welcome, 540);
     const gift = [art(this, 380, 400, 'banana-leaf', 360)];
     if (progress.lastMuruku) gift.push(...paintMuruku(this, progress.lastMuruku, 380, 392, 180));
     else gift.push(art(this, 380, 392, 'muruku-golden', 180));
@@ -52,12 +52,140 @@ export class FinaleScene extends BaseScene {
       width: 320,
       onClick: () => {
         offer.setEnabled(false);
-        const done = () => this.go('Finale', { mode: progress.noteDone ? 'choice' : 'bonus' });
-        if (settings.reduceMotion) return done();
-        sparkle(this, 900, 360, { radius: 140, count: 24 });
-        this.tweens.add({ targets: gift, x: '+=420', y: '-=20', alpha: 0, duration: 700, ease: 'Cubic.In', onComplete: done });
+        this.taste(welcome, gift, offer);
       },
     });
+  }
+
+  // Paati tastes it, one picture after another: a bite (Crunch!), chewing with crumbs flying, a happy dab of her
+  // eyes, then she looks at the player and says thank you, and Next appears. A tap or key press skips to the end.
+  // With Reduce motion the pictures change in place, without movement.
+  taste(welcome, gift, offer) {
+    const still = settings.reduceMotion;
+    const frames = {};
+    for (const key of ['bite', 'chew', 'wipe', 'happy']) {
+      const f = paati(this, 900, 712, `paati-taste-${key}`, 540).setAlpha(0);
+      f.home = f.scaleX;
+      frames[key] = f;
+    }
+    const mouth = { x: 905, y: 296 };
+    let shown = welcome;
+    const show = (key) => {
+      const next = frames[key];
+      if (still) {
+        shown.setAlpha(0);
+        next.setAlpha(1);
+      } else {
+        this.tweens.add({ targets: shown, alpha: 0, duration: 200 });
+        this.tweens.add({ targets: next, alpha: 1, duration: 200 });
+      }
+      shown = next;
+      return next;
+    };
+
+    const timers = [];
+    const later = (ms, fn) => timers.push(this.time.delayedCall(ms, fn));
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      timers.forEach((t) => t.remove(false));
+      this.input.off('pointerdown', finish);
+      this.input.keyboard?.off('keydown', finish);
+      this.tweens.killTweensOf([welcome, offer, ...gift, ...Object.values(frames)]);
+      gift.forEach((o) => o.destroy());
+      offer.destroy();
+      welcome.setAlpha(0);
+      Object.values(frames).forEach((f) => f.setAlpha(0).setScale(f.home).setAngle(0));
+      frames.happy.setAlpha(1);
+      this.thanks();
+    };
+    this.input.on('pointerdown', finish);
+    this.input.keyboard?.on('keydown', finish);
+
+    // The muruku goes over to Paati.
+    if (still) {
+      [...gift, offer].forEach((o) => o.setVisible(false));
+    } else {
+      this.tweens.add({ targets: offer, alpha: 0, duration: 200 });
+      this.tweens.add({ targets: gift, x: '+=480', y: '-=70', alpha: 0, duration: 700, ease: 'Cubic.In' });
+    }
+    // 1 · A bite.
+    later(520, () => {
+      const f = show('bite');
+      if (still) return;
+      this.crunch(mouth);
+      this.tweens.add({ targets: f, scaleY: f.home * 0.97, duration: 110, yoyo: true, ease: 'Sine.InOut' });
+    });
+    // 2 · Chewing, with crumbs flying.
+    later(1900, () => {
+      const f = show('chew');
+      if (still) return;
+      this.tweens.add({ targets: f, scaleY: f.home * 0.985, duration: 170, yoyo: true, repeat: 4, ease: 'Sine.InOut' });
+      for (let i = 0; i < 4; i++) later(120 + i * 340, () => this.crumbs(mouth.x + 40, mouth.y - 6, 5));
+    });
+    // 3 · A happy dab of her eyes with her handkerchief.
+    later(3500, () => {
+      const f = show('wipe');
+      if (still) return;
+      this.tweens.add({ targets: f, angle: { from: -1.5, to: 1.5 }, duration: 420, yoyo: true, repeat: 1, ease: 'Sine.InOut', onComplete: () => f.setAngle(0) });
+    });
+    // 4 · Happy and content, she looks at the player.
+    later(5000, () => {
+      show('happy');
+      sparkle(this, 900, 250, { radius: 170, count: 20 });
+    });
+    later(5500, finish);
+  }
+
+  // "Crunch!" pops up beside Paati's mouth, with a spray of crumbs.
+  crunch({ x, y }) {
+    const word = this.text(x + 136, y - 70, FINALE.crunch, 'h4', { weight: 700, color: 0xb35600, origin: 0.5 })
+      .setFontFamily(BUTTON_FONT)
+      .setStroke('#ffffff', 8)
+      .setAngle(-8)
+      .setScale(0)
+      .setDepth(5);
+    this.tweens.add({ targets: word, scale: 1, duration: 260, ease: 'Back.Out' });
+    this.tweens.add({ targets: word, y: word.y - 30, alpha: 0, delay: 900, duration: 420, ease: 'Sine.In', onComplete: () => word.destroy() });
+    this.crumbs(x + 30, y, 10);
+  }
+
+  // Golden crumbs that spray out and fall.
+  crumbs(x, y, count) {
+    for (let i = 0; i < count; i++) {
+      const c = this.add.circle(x, y, 2 + Math.random() * 3, [0xd9a441, 0xc07a2a, 0xe8b860][i % 3]).setDepth(5);
+      this.tweens.add({
+        targets: c,
+        x: x + Phaser.Math.Between(-10, 56),
+        y: y + Phaser.Math.Between(40, 120),
+        alpha: 0,
+        duration: Phaser.Math.Between(600, 900),
+        ease: 'Quad.In',
+        onComplete: () => c.destroy(),
+      });
+    }
+  }
+
+  // Paati's thanks, in a bubble pointing at her, then Next.
+  thanks() {
+    const x = 96;
+    const y = 250;
+    const w = 560;
+    const bubble = new PaatiBubble(this, x, y, w, { avatar: false }).say(FINALE.thanks);
+    const tail = this.add.graphics();
+    tail.fillStyle(COLOR.white, 1);
+    tail.fillTriangle(x + w - 2, y + 32, x + w + 18, y + 48, x + w - 2, y + 64);
+    const next = new Button(this, 380, 620, {
+      label: 'Next',
+      width: 320,
+      onClick: () => this.go('Finale', { mode: progress.noteDone ? 'choice' : 'bonus' }),
+    });
+    if (!settings.reduceMotion) {
+      this.tweens.add({ targets: bubble, alpha: { from: 0, to: 1 }, y: { from: y + 16, to: y }, duration: 320, ease: 'Cubic.Out' });
+      this.tweens.add({ targets: tail, alpha: { from: 0, to: 1 }, y: { from: 16, to: 0 }, duration: 320, ease: 'Cubic.Out' });
+      this.tweens.add({ targets: next, alpha: { from: 0, to: 1 }, y: { from: next.y + 18, to: next.y }, duration: 360, delay: 260, ease: 'Cubic.Out' });
+    }
   }
 
   // The welcome page's layout: a ribbon, a raised maroon heading, a line of text and buttons on the left, and Paati

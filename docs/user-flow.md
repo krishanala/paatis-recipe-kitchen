@@ -23,7 +23,7 @@ flowchart TD
 
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
-    Q4 --> F["7 · Finale<br/>offer muruku to Paati"]
+    Q4 --> F["7 · Finale<br/>Let Paati taste it: offer · bite · chew · happy tears · thank you · Next"]
     F --> B["7 · Bonus for your heart<br/>welcome-page style"]
     B -- Write a note --> N["Note<br/>a note for someone you miss:<br/>write · roll · tie · pigeon"]
     B -- Skip --> C["7 · Last page<br/>Make more muruku · Finish"]
@@ -66,6 +66,6 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. On the Note screen, the scroll rolls, is tied and leaves at once, without the pigeon's flight. Before we begin shows all its words at once |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. On the Note screen, the scroll rolls, is tied and leaves at once, without the pigeon's flight. Before we begin shows all its words at once. When Paati tastes the muruku, her pictures change in place without movement |
 | Player tries to roll up an empty note | Paati asks for a few words first; just a name is enough |
 | A phone keyboard opens over the note | The game waits until typing ends before it re-fits the screen, and the fields stay at 16 px or larger so phones don't zoom in |
