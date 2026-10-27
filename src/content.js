@@ -150,10 +150,10 @@ export const QUIZ_BANK = {
       {
         id: 'medicine',
         group: 'morning',
-        teach: 'After the bath, many Tamil families eat a spoonful of Deepavali medicine, made with ginger, pepper and herbs. It gets tummies ready for all the sweets.',
-        q: 'Why do many families eat a herbal paste on Deepavali morning?',
+        teach: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: dry ginger, pepper and herbs, cooked with jaggery and ghee into a thick paste. It gets tummies ready for all the sweets.',
+        q: 'After the oil bath on Deepavali morning, many families eat a spoonful of Deepavali medicine. Why?',
         choices: [
-          { text: 'To help the tummy with all the sweets', correct: true, why: 'Exactly. Ginger, pepper and herbs first, so the tummy is ready for a whole day of sweets and muruku.' },
+          { text: 'To help the tummy with all the sweets', correct: true, why: 'Exactly. It is dry ginger, pepper and herbs, cooked with jaggery and ghee. One spoonful after the oil bath, and the tummy is ready for a whole day of sweets and muruku.' },
           { text: 'To bring good luck for the year', why: 'Not luck, dear. Something more practical. Think about everything you will eat that day.' },
           { text: 'To keep mosquitoes away', why: 'Mosquitoes are not invited, but no. Think about the day ahead: what will you be eating?' },
         ],
@@ -162,7 +162,7 @@ export const QUIZ_BANK = {
         id: 'morning-order',
         type: 'order',
         group: 'morning',
-        teach: 'In many Tamil homes, Deepavali morning goes like this: a warm oil bath before sunrise, then a spoonful of Deepavali medicine, then new clothes and blessings from the elders.',
+        teach: 'In many Tamil homes, Deepavali morning goes like this: a warm oil bath before sunrise, then a spoonful of Deepavali medicine (dry ginger, pepper and herbs cooked with jaggery and ghee), then new clothes and blessings from the elders.',
         q: 'Put a Tamil Deepavali morning in order.',
         items: ['Oil bath before sunrise', 'Deepavali medicine', 'New clothes and blessings'],
         why: 'Perfect! Oil bath, Deepavali medicine, then new clothes and blessings. The day can begin.',
