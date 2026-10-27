@@ -42,7 +42,7 @@ export class FinaleScene extends BaseScene {
     burst(this, 640, 300, 40);
     burst(this, 1120, 200, 50, COLOR.marigold500);
     this.text(640, 130, FINALE.offer, 'h3', { origin: [0.5, 0], width: 1100, align: 'center' });
-    glow(this, 900, 430, 240);
+    const light = glow(this, 900, 430, 240);
     const welcome = paati(this, 900, 712, PAATI.welcome, 540);
     const gift = [art(this, 380, 400, 'banana-leaf', 360)];
     if (progress.lastMuruku) gift.push(...paintMuruku(this, progress.lastMuruku, 380, 392, 180));
@@ -52,23 +52,25 @@ export class FinaleScene extends BaseScene {
       width: 320,
       onClick: () => {
         offer.setEnabled(false);
-        this.taste(welcome, gift, offer);
+        this.taste(welcome, light, gift, offer);
       },
     });
   }
 
-  // Paati tastes it, one picture after another: a bite (Crunch!), chewing with crumbs flying, a happy dab of her
-  // eyes, then she looks at the player and says thank you, and Next appears. A tap or key press skips to the end.
-  // With Reduce motion the pictures change in place, without movement.
-  taste(welcome, gift, offer) {
+  // Paati tastes it in the middle of the screen, one picture after another: a bite (Crunch!), chewing with crumbs
+  // flying, a happy dab of her eyes, then she looks at the player and says thank you, and Next appears. A tap or key
+  // press skips to the end. With Reduce motion she moves to the middle at once and the pictures change in place.
+  taste(welcome, light, gift, offer) {
     const still = settings.reduceMotion;
+    const mid = 640;
+    const tall = 520; // a little shorter than on the offering page, so her head clears the heading
     const frames = {};
     for (const key of ['bite', 'chew', 'wipe', 'happy']) {
-      const f = paati(this, 900, 712, `paati-taste-${key}`, 540).setAlpha(0);
+      const f = paati(this, mid, 712, `paati-taste-${key}`, tall).setAlpha(0);
       f.home = f.scaleX;
       frames[key] = f;
     }
-    const mouth = { x: 905, y: 296 };
+    const mouth = { x: mid + 5, y: 312 };
     let shown = welcome;
     const show = (key) => {
       const next = frames[key];
@@ -92,7 +94,8 @@ export class FinaleScene extends BaseScene {
       timers.forEach((t) => t.remove(false));
       this.input.off('pointerdown', finish);
       this.input.keyboard?.off('keydown', finish);
-      this.tweens.killTweensOf([welcome, offer, ...gift, ...Object.values(frames)]);
+      this.tweens.killTweensOf([welcome, light, offer, ...gift, ...Object.values(frames)]);
+      light.setX(mid - 900);
       gift.forEach((o) => o.destroy());
       offer.destroy();
       welcome.setAlpha(0);
@@ -103,39 +106,44 @@ export class FinaleScene extends BaseScene {
     this.input.on('pointerdown', finish);
     this.input.keyboard?.on('keydown', finish);
 
-    // The muruku goes over to Paati.
+    // Paati steps into the middle, with her glow, as the muruku goes over to her.
+    const scale = (welcome.scaleX * tall) / 540;
     if (still) {
       [...gift, offer].forEach((o) => o.setVisible(false));
+      welcome.setX(mid).setScale(scale);
+      light.setX(mid - 900);
     } else {
       this.tweens.add({ targets: offer, alpha: 0, duration: 200 });
-      this.tweens.add({ targets: gift, x: '+=480', y: '-=70', alpha: 0, duration: 700, ease: 'Cubic.In' });
+      this.tweens.add({ targets: welcome, x: mid, scale, duration: 520, ease: 'Cubic.InOut' });
+      this.tweens.add({ targets: light, x: mid - 900, duration: 520, ease: 'Cubic.InOut' });
+      this.tweens.add({ targets: gift, x: '+=265', y: '-=20', alpha: 0, duration: 700, delay: 120, ease: 'Cubic.In' });
     }
     // 1 · A bite.
-    later(520, () => {
+    later(620, () => {
       const f = show('bite');
       if (still) return;
       this.crunch(mouth);
       this.tweens.add({ targets: f, scaleY: f.home * 0.97, duration: 110, yoyo: true, ease: 'Sine.InOut' });
     });
     // 2 · Chewing, with crumbs flying.
-    later(1900, () => {
+    later(2000, () => {
       const f = show('chew');
       if (still) return;
       this.tweens.add({ targets: f, scaleY: f.home * 0.985, duration: 170, yoyo: true, repeat: 4, ease: 'Sine.InOut' });
       for (let i = 0; i < 4; i++) later(120 + i * 340, () => this.crumbs(mouth.x + 40, mouth.y - 6, 5));
     });
     // 3 · A happy dab of her eyes with her handkerchief.
-    later(3500, () => {
+    later(3600, () => {
       const f = show('wipe');
       if (still) return;
       this.tweens.add({ targets: f, angle: { from: -1.5, to: 1.5 }, duration: 420, yoyo: true, repeat: 1, ease: 'Sine.InOut', onComplete: () => f.setAngle(0) });
     });
     // 4 · Happy and content, she looks at the player.
-    later(5000, () => {
+    later(5100, () => {
       show('happy');
-      sparkle(this, 900, 250, { radius: 170, count: 20 });
+      sparkle(this, mid, 270, { radius: 170, count: 20 });
     });
-    later(5500, finish);
+    later(5600, finish);
   }
 
   // "Crunch!" pops up beside Paati's mouth, with a spray of crumbs.
@@ -167,16 +175,16 @@ export class FinaleScene extends BaseScene {
     }
   }
 
-  // Paati's thanks, in a bubble pointing at her, then Next.
+  // Paati's thanks, in a bubble on her left pointing at her, then Next on her right.
   thanks() {
-    const x = 96;
-    const y = 250;
-    const w = 560;
+    const x = 72;
+    const y = 262;
+    const w = 400;
     const bubble = new PaatiBubble(this, x, y, w, { avatar: false }).say(FINALE.thanks);
     const tail = this.add.graphics();
     tail.fillStyle(COLOR.white, 1);
     tail.fillTriangle(x + w - 2, y + 32, x + w + 18, y + 48, x + w - 2, y + 64);
-    const next = new Button(this, 380, 620, {
+    const next = new Button(this, 1010, 620, {
       label: 'Next',
       width: 320,
       onClick: () => this.go('Finale', { mode: progress.noteDone ? 'choice' : 'bonus' }),
