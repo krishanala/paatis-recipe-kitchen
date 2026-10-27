@@ -8,6 +8,7 @@ import { NoteSheet } from '../ui/NoteSheet.js';
 import { progress, settings, markChapterDone } from '../state.js';
 import { WATER_ZONE, GOLDEN_ZONE, scoreDough, scoreTwist, scoreFry, fryColour, buildResult } from '../scoring.js';
 import { drawSegment, paintRibbon, edgeOf } from '../draw.js';
+import { sampleMuruku } from '../shortcuts.js';
 
 // On phones (COMPACT) text is larger, so Paati's bubble needs more room at the bottom and the work area
 // tucks up and shrinks a little to stay clear of it.
@@ -63,6 +64,7 @@ export class CookScene extends BaseScene {
     this.chips = [];
     this.pressTop = null;
     this.nudging = null; // the scene object is reused between visits
+    this.fullToggle = null;
     // The card shows the full instruction, except in the free kitchen (short hints) and on phones, where the
     // full steps open in a pop-up because they don't fit the card.
     this.showFull = !this.free && !COMPACT;
@@ -102,7 +104,8 @@ export class CookScene extends BaseScene {
     this.input.on('pointermove', (p) => this.pointerMove?.(this.world(p)));
     this.input.on('pointerup', () => this.pointerUp?.());
     this.input.on('pointerupoutside', () => this.pointerUp?.());
-    this.goStep(0);
+    if (data.step) this.skipTo(data.step);
+    else this.goStep(0);
   }
 
   update(time, delta) {
@@ -145,6 +148,33 @@ export class CookScene extends BaseScene {
     }
     this.drawCard();
     run[id]();
+  }
+
+  // Screen shortcuts (src/shortcuts.js) can open the kitchen at a later step. This sets up what the earlier steps
+  // would have left: everything in the bowl, the water poured, or a spiral in the oil.
+  skipTo(id) {
+    const i = STEPS.findIndex((s) => s.id === id);
+    if (i <= 0) return this.goStep(0);
+    if (id === 'water' || id === 'knead' || id === 'fill') {
+      this.drawBowl();
+      const [, urad, flour] = ADD_ORDER.map(ingredient);
+      Object.assign(this.mix, { level: 0.9, specks: true, ghee: true });
+      this.mix.layers.push({ dx: 46 * BS, colour: urad.colour }, { dx: -52 * BS, colour: flour.colour });
+    }
+    if (i > STEPS.findIndex((s) => s.id === 'water')) this.cook.water = 0.62;
+    if (id === 'fry') {
+      // The pot and the spiral the hold button lays, as the twist step leaves them.
+      this.pan = art(this, PAN.x, PAN.y, 'pot-oil', PAN.width);
+      this.muruku = this.add.container(PAN.x, PAN.y);
+      this.edgeG = this.add.graphics();
+      this.fillG = this.add.graphics();
+      this.muruku.add([this.edgeG, this.fillG]);
+      this.resetTwist();
+      this.samples = sampleMuruku(OIL_R - 12).samples;
+      this.samples.forEach((p, k) => drawSegment(this.edgeG, this.fillG, this.samples[k - 1], p));
+      this.cook.twist = scoreTwist(this.samples);
+    }
+    this.goStep(i);
   }
 
   // ---- Paati asks ----------------------------------------------------------------------------------

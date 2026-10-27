@@ -28,6 +28,44 @@ python3 tools/serve.py
 
 Then open <http://localhost:8000>. The script turns off browser caching, so a normal reload picks up your edits.
 
+## Screen shortcuts
+
+To check a change without playing up to it, add `?screen=` and a name to the address. For example, <http://localhost:8000/?screen=taste> opens Let Paati taste it straight away. The game sets up what you would have by then (the ingredients earned, the chapters done, a well-made muruku), so the screen looks as it does mid-game, and Next carries on from there. The shortcuts work on the live site too; players never see them unless they type one. A name that doesn't exist opens the Title, and the browser console lists the names.
+
+The links in the first column open your local copy (start it as above); the last column opens the live site.
+
+| Screen | What it opens | Live |
+|---|---|---|
+| [`title`](http://localhost:8000/?screen=title) | Title screen (the normal start) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=title) |
+| [`welcome`](http://localhost:8000/?screen=welcome) | Paati's welcome | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=welcome) |
+| [`intro`](http://localhost:8000/?screen=intro) | Before we begin (the plate of muruku and the words that appear one at a time) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=intro) |
+| [`ch1`](http://localhost:8000/?screen=ch1) | Chapter 1 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch1) |
+| [`quiz-ch1`](http://localhost:8000/?screen=quiz-ch1) | Chapter 1 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch1) |
+| [`store`](http://localhost:8000/?screen=store) | Paati's Store after chapter 1, with three ingredients flying in | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=store) |
+| [`ch2`](http://localhost:8000/?screen=ch2) | Chapter 2 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch2) |
+| [`quiz-ch2`](http://localhost:8000/?screen=quiz-ch2) | Chapter 2 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch2) |
+| [`store-full`](http://localhost:8000/?screen=store-full) | The Store after chapter 2, with the last three flying in | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=store-full) |
+| [`ch3`](http://localhost:8000/?screen=ch3) | Chapter 3 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch3) |
+| [`store-cook`](http://localhost:8000/?screen=store-cook) | The full Store, with Start cooking | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=store-cook) |
+| [`kitchen`](http://localhost:8000/?screen=kitchen) | Kitchen, step 1: Add | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen) |
+| [`kitchen-water`](http://localhost:8000/?screen=kitchen-water) | Kitchen, step 2: Water (the bowl already has the flours, spices and ghee) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-water) |
+| [`kitchen-knead`](http://localhost:8000/?screen=kitchen-knead) | Kitchen, step 3: Knead (the water is already in) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-knead) |
+| [`kitchen-fill`](http://localhost:8000/?screen=kitchen-fill) | Kitchen, step 4: Fill the press | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-fill) |
+| [`kitchen-twist`](http://localhost:8000/?screen=kitchen-twist) | Kitchen, step 5: Twist | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-twist) |
+| [`kitchen-fry`](http://localhost:8000/?screen=kitchen-fry) | Kitchen, step 6: Fry (a spiral is already in the oil) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-fry) |
+| [`result`](http://localhost:8000/?screen=result) | Your muruku: stars, score and reasons | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=result) |
+| [`ch4`](http://localhost:8000/?screen=ch4) | Chapter 4 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch4) |
+| [`quiz-ch4`](http://localhost:8000/?screen=quiz-ch4) | Chapter 4 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch4) |
+| [`taste`](http://localhost:8000/?screen=taste) | Let Paati taste it, and the tasting animation | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=taste) |
+| [`bonus`](http://localhost:8000/?screen=bonus) | Bonus for your heart | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=bonus) |
+| [`note`](http://localhost:8000/?screen=note) | The note for someone you miss | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=note) |
+| [`last`](http://localhost:8000/?screen=last) | The last page: Make more muruku or Finish | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=last) |
+| [`goodbye`](http://localhost:8000/?screen=goodbye) | Paati's goodbye | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=goodbye) |
+| [`free-kitchen`](http://localhost:8000/?screen=free-kitchen) | The free kitchen Store | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=free-kitchen) |
+| [`free-cook`](http://localhost:8000/?screen=free-cook) | Cooking in the free kitchen | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=free-cook) |
+
+The kitchen steps ask Paati's question for that step first, as in the game. The shortcuts live in [`src/shortcuts.js`](src/shortcuts.js); add a line there for a new screen.
+
 ## How it's built
 
 - [Phaser 3.88](https://phaser.io), loaded from jsDelivr, with plain JavaScript modules and no bundler.
@@ -47,6 +85,7 @@ src/
   theme.js            colour, type, radius, button and mood tokens from the brief
   content.js          everything Paati says and asks: stories, quiz, ingredients, steps, facts
   flow.js             the one-time journey, in order
+  shortcuts.js        ?screen= shortcuts that open one screen straight away
   state.js            settings (saved) and progress (this visit only)
   scoring.js          dough 40 / twist 30 / fry 30 → stars, with one-line reasons
   draw.js             draws the player's own spiral as their muruku
@@ -87,6 +126,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **27 Oct 2026, screen shortcuts:** Adding `?screen=` and a name to the address opens that screen straight away, set up as it would be mid-game, including each of the six kitchen steps (see [Screen shortcuts](#screen-shortcuts)). Building them turned up a crash: after the free kitchen, Play again on a computer broke the kitchen when you reached it. That is fixed.
 - **27 Oct 2026, Let Paati taste it:** The offering page now reads "Let Paati taste it". After Offer to Paati, she steps into the middle of the screen as the muruku flies over, and tastes it in four pictures from the user's illustrations: a bite (with a "Crunch!" and crumbs), chewing, a happy dab of her eyes with her handkerchief, then she looks at the player and says thank you in a speech bubble on her left, and Next (on her right) goes on to Bonus for your heart. A tap or key press skips to the end; with Reduce motion the pictures change in place without movement. The frames are `assets/paati/taste-*.png`, all cut to one shared box (`tools/cutout.swift` gained `trim=no` for that) so they line up as they swap.
 - **26 Oct 2026, Paati shares muruku:** Her sharing pose (chapter 4 and the last page) now holds a plate of muruku instead of round sweets, from the user's new illustration (`assets/paati/sharing.png`, source in `assets/paati/source/sharing.jpg`).
 - **26 Oct 2026, a shorter ending:** The three jars to share and the What you learned page are gone. After you offer your muruku to Paati, it flies over to her and the game goes straight to Bonus for your heart (or the last page, once the note has been offered). The safety line that sat on What you learned ("May contain sesame. Younger cooks need an adult near hot oil.") went with it; the chapter 3 story still warns about hot oil.

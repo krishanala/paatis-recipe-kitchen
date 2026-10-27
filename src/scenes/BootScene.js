@@ -1,4 +1,5 @@
 import { COLOR, RES, STAGE } from '../theme.js';
+import { shortcut } from '../shortcuts.js';
 
 // [file in assets/art, largest display scale used] — SVGs are rasterised at that scale × render resolution.
 const ART = [
@@ -64,6 +65,9 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    this.scene.start('Title');
+    // ?screen= in the address opens one screen straight away (src/shortcuts.js); otherwise the Title.
+    const jump = shortcut();
+    if (jump) this.scene.start(jump.scene, jump.data);
+    else this.scene.start('Title');
   }
 }
