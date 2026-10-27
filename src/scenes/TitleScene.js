@@ -40,7 +40,6 @@ export class TitleScene extends BaseScene {
     const total = title.textHeight + 36 + BUTTON_HEIGHT.giant + 28 + icon + labelGap + labelH;
     let y = Math.max(110, Math.round(392 - total / 2));
     title.setY(y);
-    const titleMid = y + title.textHeight / 2;
     y += title.textHeight + 36;
 
     const playX = x + 150;
@@ -99,18 +98,21 @@ export class TitleScene extends BaseScene {
     // The welcome greeting plays once per visit to the site; coming back to this screen shows it settled.
     if (!introPlayed) {
       introPlayed = true;
-      this.intro(x, titleMid, title, play, toolParts);
+      this.intro(title, play, toolParts);
     }
   }
 
   // Welcome: "Happy Deepavali" pops up big with firecrackers, stays for five seconds and pops away, then the name
   // slides in, then Play, then the icons. A tap or key press skips to the end. Reduce motion swaps the steps
   // without movement.
-  intro(x, titleMid, title, play, toolParts) {
+  intro(title, play, toolParts) {
     const banner = ribbon(this, 'Happy\nDeepavali', { size: fontSize('h5') + 20 });
-    // As big as the left column allows.
+    // As big as the left side allows, in its middle: halfway down, and halfway between the garland strands at the
+    // screen's edge and Paati (phones held sideways show more on the left).
     const S = Math.min(pick(1.5, 1.35), 600 / banner.bw);
-    banner.setPosition(x + (banner.bw * S) / 2, titleMid).setScale(S).setDepth(20);
+    const w = banner.bw * S;
+    const { left } = this.viewBounds();
+    banner.setPosition((left + 80 + 640) / 2, 392).setScale(S).setDepth(20);
     const parts = [title, play, ...toolParts];
     const home = parts.map((o) => ({ x: o.x, y: o.y }));
     const buttons = parts.filter((o) => o instanceof Button);
@@ -147,8 +149,8 @@ export class TitleScene extends BaseScene {
       this.tweens.add({ targets: banner, scale: S, duration: 520, ease: 'Back.Out' });
       sparkle(this, banner.x, banner.y, { radius: 280, count: 24, depth: 21 });
       celebrate(this, [
-        [x + 70, titleMid - 120],
-        [x + banner.bw * S - 60, titleMid - 150],
+        [banner.x - w / 2 + 70, banner.y - 120],
+        [banner.x + w / 2 - 60, banner.y - 150],
       ]);
     });
     // 2 · …stays for five seconds, and pops away.
