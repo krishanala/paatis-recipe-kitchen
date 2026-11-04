@@ -372,8 +372,9 @@ export function fireworks(scene, { top = 120, bottom = 420 } = {}) {
   });
 }
 
-// The festive doorway valance across the top (Title and Finale): mango leaves hanging from a chain with brass bells,
-// a dense band of marigolds, and marigold swags with short rose drops between them.
+// The festive doorway valance across the top (Title and Finale): a dense band of marigolds along a chain, marigold
+// swags with short rose drops between them, and mango leaves hanging in front of the flowers, as Tamil homes tie
+// them, with brass bells.
 export function garland(scene, { x0 = -BLEED, x1 = STAGE.width + BLEED } = {}) {
   const rnd = new Phaser.Math.RandomDataGenerator(['valance']);
   const objs = [];
@@ -382,9 +383,9 @@ export function garland(scene, { x0 = -BLEED, x1 = STAGE.width + BLEED } = {}) {
   chain.lineStyle(2, 0xb8860b, 1);
   chain.lineBetween(x0, chainY, x1, chainY);
   objs.push(chain);
-  for (let x = x0 + 10; x < x1; x += 23) {
-    objs.push(art(scene, x, chainY - 2, 'mango-leaf', 24).setOrigin(0.5, 0).setAngle(rnd.realInRange(-9, 9)));
-  }
+  // Each leaf's tilt is picked first, so the garland looks the same as before the leaves moved to the front.
+  const leafX = [];
+  for (let x = x0 + 10; x < x1; x += 23) leafX.push([x, rnd.realInRange(-9, 9)]);
   // Swag anchors every 256 px, lined up with the stage edges, reaching into the extra width on wide screens.
   const anchors = [];
   for (let x = Math.floor(x0 / 256) * 256; x <= x1 + 255; x += 256) anchors.push(x);
@@ -402,25 +403,32 @@ export function garland(scene, { x0 = -BLEED, x1 = STAGE.width + BLEED } = {}) {
   });
   // The straight band along the chain, mostly yellow.
   for (let x = x0 + 6, i = 0; x < x1 + 12; x += 17, i++) objs.push(flowerAt(scene, x, chainY, 22, 'YYYO'[i % 4], rnd));
-  // Short drops with a rose at each inner anchor, and brass bells.
+  // Short drops with a rose at each inner anchor.
   anchors.slice(1, -1).forEach((ax, k) => {
     objs.push(marigoldStrand(scene, ax, chainY + 4, 44, { size: 20, pattern: 'YO', tassel: false, seed: 900 + k }));
     objs.push(art(scene, ax, chainY + 58, 'rose', 18));
+  });
+  // The mango leaves hang in front of the flowers, then the brass bells.
+  for (const [x, angle] of leafX) objs.push(art(scene, x, chainY - 2, 'mango-leaf', 24).setOrigin(0.5, 0).setAngle(angle));
+  anchors.slice(1, -1).forEach((ax) => {
     objs.push(art(scene, ax + 22, chainY + 4, 'brass-bell', 14).setOrigin(0.5, 0));
     objs.push(art(scene, ax - 22, chainY + 4, 'brass-bell', 14).setOrigin(0.5, 0));
   });
   return objs;
 }
 
-// Mango-leaf toran: glossy leaves hanging from a string with small marigolds, above the kitchen on the Cook screen.
+// Mango-leaf toran: small marigolds on a string with glossy leaves hanging in front of them, above the kitchen on the
+// Cook screen.
 export function toran(scene, y, x0 = -BLEED, x1 = STAGE.width + BLEED) {
   const rnd = new Phaser.Math.RandomDataGenerator(['toran']);
   const string = scene.add.graphics();
   string.lineStyle(2, 0xb8860b, 1);
   string.lineBetween(x0, y, x1, y);
   const objs = [string];
-  for (let x = x0 + 8; x < x1; x += 15) objs.push(art(scene, x, y - 1, 'mango-leaf', 11).setOrigin(0.5, 0).setAngle(rnd.realInRange(-8, 8)));
+  const leaves = [];
+  for (let x = x0 + 8; x < x1; x += 15) leaves.push([x, rnd.realInRange(-8, 8)]);
   for (let x = x0 + 24, i = 0; x < x1; x += 64, i++) objs.push(flowerAt(scene, x, y + 2, 16, i % 2 ? 'Y' : 'O', rnd));
+  for (const [x, angle] of leaves) objs.push(art(scene, x, y - 1, 'mango-leaf', 11).setOrigin(0.5, 0).setAngle(angle));
   return objs;
 }
 
