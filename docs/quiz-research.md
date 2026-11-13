@@ -104,16 +104,36 @@ Paati asks one question at the start of five cooking steps (not in the free kitc
 
 ## The puppet show (after the chapter 1 quiz)
 
-Not a quiz question. A full-screen shadow puppet show, with subtitles, of three stories families tell about why Deepavali's lamps are lit. It runs just under two minutes, with Skip.
+Not a quiz question. A full-screen shadow puppet show, with subtitles. It opens on three story cards, and people pick one to watch. After each story the cards come back, with the watched ones ticked, so people can pick another or carry on with Next (Skip before any story). Skip story goes back to the cards at any time.
 
-1. **From the Mahabharata.** The five Pandava brothers and Draupadi lose their kingdom to their cousin Duryodhana in a game of dice. They live twelve years in the forest and one more in hiding, then come home on a dark new moon night to lamps.
-2. **From the Ramayana.** Ravana, the ten-headed king of Lanka, carries Sita away. Hanuman leaps across the sea, finds her in a garden and gives her Rama's ring. A bridge of stones is built across the sea. Rama defeats Ravana. They fly home in the flying chariot, and Ayodhya, which had waited fourteen years, lights rows of lamps.
-3. **The story many Tamil families tell.** Narakasura, a proud king, frightens heaven and earth. Krishna and Satyabhama fly to stop him on Garuda, the great eagle. When Krishna falls, Satyabhama raises her bow, and together they defeat him. His last wish is that the day be remembered with lamps and joy. Krishna comes home at dawn and bathes in warm oil, which is why Tamil Deepavali starts with an oil bath before sunrise. The show ends at sunrise with crackers and "Happy Deepavali!".
+Each story explains who everyone is and why things happen, and ends on a different part of Deepavali, so the stories aren't all about lamps.
 
-The first two stories are what the show told before 14 Nov 2026. The third was added because it is the Deepavali story of Tamil Nadu, and it explains the morning the chapter 1 quiz asks about.
+1. **The Pandavas come home (Mahabharata).** It ends on families getting together, the elders' blessings and sharing sweets.
+   - The five Pandava princes live happily with Draupadi.
+   - Their jealous cousin Duryodhana tricks them in a game of dice.
+   - They lose the kingdom. The rule is that they must leave home for thirteen years: twelve in the forest, and a last year in hiding, or they start over.
+   - When the thirteen years are over they come home on a dark new moon night, and bow to their elders.
+   - The last line links this homecoming to families getting together at Deepavali, asking the elders for blessings and sharing sweets.
+2. **Rama comes home (Ramayana).** It ends on the rows of lamps that give Deepavali its name.
+   - Rama must live in the forest for fourteen years, to keep his father's promise. Sita and Lakshmana go with him.
+   - Ravana carries Sita away to Lanka.
+   - Hanuman and the monkey army help. Hanuman finds Sita and gives her Rama's ring, and the army builds a bridge of stones.
+   - Rama's arrow wins the battle.
+   - The fourteen years are over, so they fly home in the flying chariot, and the people light rows of lamps.
+3. **Krishna and Satyabhama (the story many Tamil families tell).** It ends on the oil bath before sunrise, new clothes and crackers.
+   - Narakasura grows proud and cruel. His gift is that only his own mother can defeat him.
+   - Krishna and Satyabhama ride Garuda to stop him.
+   - Krishna falls, and Satyabhama, who had been Narakasura's mother in an earlier life, defeats him with her arrow.
+   - His last wish is that the day be remembered with joy.
+   - Krishna bathes in warm oil at dawn, so Tamil families start Deepavali with an oil bath before sunrise, new clothes and crackers.
 
 | Fact | Sources |
 |---|---|
+| The dice game's terms: the losers would live twelve years in the forest and a thirteenth year in hiding, and if they were found in that year, they would go into exile again. | [Wikipedia: Pandava](https://en.wikipedia.org/wiki/Pandava); [Facts and Details](https://factsanddetails.com/india/People_and_Life/sub7_3b/entry-5656.html) |
+| Rama's fourteen years in the forest: King Dasharatha had promised Queen Kaikeyi two wishes, and she asked for her son Bharata to be made king and for Rama to be sent to the forest for fourteen years. Sita and Lakshmana went with him. The show says only "to keep a promise his father, the king, had made". | [Wikipedia: Rama](https://en.wikipedia.org/wiki/Rama); [Wikipedia: Kaikeyi](https://en.wikipedia.org/wiki/Kaikeyi) |
+| Rama and Lakshmana, searching for Sita, made friends with Hanuman and the monkey army (the vanaras), who helped them find her and fight for her. | [Wikipedia: Hanuman](https://en.wikipedia.org/wiki/Hanuman); [Wikipedia: Vanara](https://en.wikipedia.org/wiki/Vanara) |
+| Narakasura's boon: he could be killed only by the one who gave birth to him. Satyabhama is described as an avatar of Bhumi, his mother, which is why her attack worked. | [Wikipedia: Narakasura](https://en.wikipedia.org/wiki/Narakasura) |
+| On Tamil Deepavali morning, after the oil bath, families put on new clothes, ask their elders for blessings, and share homemade sweets and savouries with neighbours, friends and relatives. | [SBS: Deepavali the South Indian way](https://www.sbs.com.au/language/tamil/en/article/from-oil-baths-to-sweets-and-fireworks-celebrating-deepavali-the-south-indian-way/kobjxxgum); [Hindutone: Diwali in Chennai](https://hindutone.com/festivals/diwali-celebrations-in-chennai-tamil-nadu-india-2026-a-complete-guide/); [Festivals of India: Tamil Nadu](https://www.festivalsofindia.in/diwali/celebrations-in-tamil-nadu) |
 | Many families tell that the Pandavas came home from exile on the new moon night of Kartika, Deepavali's night, and that people lit lamps to welcome them. It is a well-known but secondary Deepavali story, beside Rama's return and Narakasura. | [Google Arts & Culture](https://artsandculture.google.com/story/0QVxpSl4NnfrEQ); [Sahapedia: Diwali origins](https://www.sahapedia.org/diwali-origins-and-the-evolution-of-the-festival-of-lights); [Hindutone: the stories behind Diwali](https://hindutone.com/festivals/the-sacred-stories-behind-diwali-festival/); [The Federal: the many legends](https://thefederal.com/category/features/diwali-the-many-myths-and-legends-behind-the-festival-of-lights-153013) |
 | The exile after the game of dice: twelve years in the forest and one year in hiding. | [Facts and Details](https://factsanddetails.com/india/People_and_Life/sub7_3b/entry-5656.html) |
 | Hanuman leaps across the ocean to Lanka, finds Sita in the Ashoka grove, and gives her Rama's ring as a sign that he is Rama's messenger (Sundara Kanda). | [Wikipedia: Sundara Kanda](https://en.wikipedia.org/wiki/Sundara_Kanda); [Hindupedia: Sundara Kanda](https://hindupedia.com/en/Sundara_Kanda) |
@@ -125,7 +145,7 @@ The first two stories are what the show told before 14 Nov 2026. The third was a
 | Krishna took an oil bath after the battle, which many link to the oil bath before sunrise on Tamil Deepavali morning, with crackers and lamps. | [Curly Tales: the oil bath on Naraka Chaturdashi](https://curlytales.com/what-is-the-significance-of-oil-bath-ritual-on-naraka-chaturdashi-or-choti-diwali-in-southern-india); [ISKCON Bangalore: Naraka Chaturdashi](https://www.iskconbangalore.org/blog/naraka-chaturdashi/); [Wikipedia: Naraka Chaturdashi](https://en.wikipedia.org/wiki/Naraka_Chaturdashi) |
 | South Indian shadow puppet theatre is played behind a white cloth screen, lit from behind by a row of oil lamps; the leather puppets have small holes punched in them that let the light through. Its traditional repertoire is the Ramayana. | [Wikipedia: Tholpavakoothu](https://en.wikipedia.org/wiki/Tholpavakoothu); [Wikipedia: Tholu bommalata](https://en.wikipedia.org/wiki/Tholu_bommalata); [Kerala Tourism](https://keralatourism.org/artforms/tholppavakkoothu-shadow-puppetry/9) |
 
-Sources disagree on details of the Pandavas' story (thirteen or fourteen years, and which city they came home to), so the show keeps to what they share and names no city. The opening line says these are stories families tell, so no single one is presented as the reason. Battles stay gentle for every age: an arrow, a sparkle, and the defeated king falling back or sinking to his knees and fading away. Nothing is shown as hurt. The game uses no Tamil word for the puppet theatre.
+Sources disagree on details of the Pandavas' story (thirteen or fourteen years, and which city they came home to), so the show keeps to what they share and names no city. The elder who welcomes them is not named. The link from their homecoming to families getting together at Deepavali is the show's own ("just like that homecoming"); "travelling home for Deepavali" was left out, because no source describes it as a general custom. The cards say these are stories families tell, so no single one is presented as the reason. Battles stay gentle for every age: an arrow, a sparkle, and the defeated king falling back or sinking to his knees and fading away. Nothing is shown as hurt. The game uses no Tamil word for the puppet theatre.
 
 ## Remembering loved ones (no longer in the game)
 

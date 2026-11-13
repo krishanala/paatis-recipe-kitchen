@@ -50,7 +50,9 @@ export function voiceScript() {
   for (const [id, story] of Object.entries(STORIES)) {
     story.lines.forEach((t) => add(`story ${id}`, t));
   }
-  PUPPET.lines.forEach((l) => add('puppet show', l.text));
+  add('puppet show', PUPPET.pick);
+  add('puppet show', PUPPET.again);
+  PUPPET.stories.forEach((st) => st.lines.forEach((l) => add(`puppet show: ${st.title}`, l.text)));
   const facts = [...EXTRA_FACTS];
   for (const [ch, bank] of Object.entries(QUIZ_BANK)) {
     for (const q of bank.questions) {

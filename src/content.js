@@ -32,31 +32,62 @@ export const INTRO = {
   start: 'Start Chapter 1',
 };
 
-// The shadow puppet show, after the chapter 1 quiz: three stories families tell about why Deepavali's lamps are lit,
-// told full screen behind a lit cloth screen as South Indian shadow puppet theatre is, with subtitles. From the
-// Mahabharata, the Pandavas coming home; from the Ramayana, Rama coming home to Ayodhya; and the story many Tamil
-// families tell, of Krishna and Satyabhama defeating Narakasura, which is why Tamil Deepavali starts with an oil bath
-// before sunrise. Each line is one scene, shown as long as people need to read it; just under two minutes in all.
-// The details vary between families, so the first line says these are stories families tell
-// (docs/quiz-research.md → "The puppet show").
+// The shadow puppet show, after the chapter 1 quiz: stories families tell about Deepavali, told full screen behind
+// a lit cloth screen as South Indian shadow puppet theatre is, with subtitles. The show opens on three story cards;
+// people pick one, watch it, and come back to the cards to pick another or carry on with Next. Each story explains
+// who everyone is and why things happen, and ends on a different part of Deepavali: families getting together, the
+// elders' blessings and sharing sweets (the Pandavas), the rows of lamps that give Deepavali its name (Rama), and the oil bath before
+// sunrise that starts Tamil Deepavali (Krishna, Satyabhama and Narakasura). Each line is one scene, shown as long as
+// people need to read it. Sources and the details that vary: docs/quiz-research.md → "The puppet show".
 export const PUPPET = {
-  title: 'Why we light the lamps',
-  lines: [
-    { id: 'title', text: 'On the darkest night of the year, we light the most lamps. Families tell three stories of why.' },
-    { id: 'kingdom', text: 'Long ago, five brothers, the Pandavas, lived happily with Draupadi in their kingdom.' },
-    { id: 'dice', text: 'Then their cousin Duryodhana tricked them in a game of dice, and they lost everything.' },
-    { id: 'forest', text: 'For twelve years they lived in the forest, and for one more year they hid in disguise.' },
-    { id: 'home', text: 'On a dark new moon night they came home at last, and the whole city lit lamps to welcome them.' },
-    { id: 'ravana', text: 'The second story: Ravana, the ten-headed king of Lanka, carried Sita away from Prince Rama.' },
-    { id: 'hanuman', text: 'Brave Hanuman leapt across the sea and found Sita in a garden. He gave her Rama\'s ring: help was coming.' },
-    { id: 'bridge', text: 'Stone by stone, a bridge was built across the sea, and Rama, Lakshmana and Hanuman crossed to Lanka.' },
-    { id: 'battle', text: 'Rama\'s arrow flew true. Ravana fell, and Sita was free.' },
-    { id: 'ayodhya', text: 'They flew home in a flying chariot. Ayodhya had waited fourteen years, and lit rows of lamps to welcome them.' },
-    { id: 'naraka', text: 'The third story, told in many Tamil homes: Narakasura, a proud king, was frightening heaven and earth.' },
-    { id: 'garuda', text: 'Krishna and his wife Satyabhama flew to stop him, riding Garuda, the great eagle.' },
-    { id: 'fight', text: 'When Krishna fell in the battle, Satyabhama raised her bow, and together they defeated Narakasura.' },
-    { id: 'wish', text: 'Narakasura\'s last wish: remember this day not with tears, but with lamps and joy.' },
-    { id: 'dawn', text: 'Krishna came home at dawn and bathed in warm oil, so Tamil Deepavali starts with an oil bath before sunrise.' },
+  title: 'Stories of Deepavali',
+  pick: 'Families tell many stories about Deepavali. Pick one to watch.',
+  again: 'Pick another story, or press Next to carry on.',
+  stories: [
+    {
+      id: 'pandavas',
+      title: 'The Pandavas come home',
+      teaser: 'Why families get together at Deepavali',
+      lines: [
+        { id: 'kingdom', text: 'Long ago, five princes called the Pandavas lived happily in their kingdom with Draupadi, their queen.' },
+        { id: 'dice', text: 'Their cousin Duryodhana was jealous of them. He invited them to play a game of dice, and tricked them.' },
+        { id: 'lost', text: 'They lost the game, and their kingdom with it. The rule was that they must leave home for thirteen years.' },
+        { id: 'forest', text: 'For twelve years they lived in the forest. In the last year they had to stay hidden, or start all over again.' },
+        { id: 'home', text: 'When the thirteen years were over, they came home at last, on a dark new moon night.' },
+        { id: 'reunion', text: 'Their family had waited for them all those years. The brothers bowed to their elders, and everyone was together again.' },
+        { id: 'together', text: 'Just like that homecoming, families get together at Deepavali: they ask the elders for blessings and share sweets.' },
+      ],
+    },
+    {
+      id: 'rama',
+      title: 'Rama comes home',
+      teaser: 'Why we light rows of lamps',
+      lines: [
+        { id: 'exile', text: 'Prince Rama of Ayodhya had to live in the forest for fourteen years, to keep a promise his father, the king, had made.' },
+        { id: 'hut', text: 'His wife Sita and his brother Lakshmana went with him, and they made a little home in the forest.' },
+        { id: 'ravana', text: 'One day, Ravana, the ten-headed king of Lanka, carried Sita away to his island, far across the sea.' },
+        { id: 'friends', text: 'Rama and Lakshmana searched everywhere for her. Hanuman and an army of monkeys came to help them.' },
+        { id: 'hanuman', text: 'Brave Hanuman leapt across the sea to Lanka, found Sita in a garden, and gave her Rama\'s ring: help was coming.' },
+        { id: 'bridge', text: 'Then the monkey army built a bridge of stones across the sea, and Rama, Lakshmana and Hanuman crossed to Lanka.' },
+        { id: 'battle', text: 'Rama fought Ravana, and Rama\'s arrow won the battle. Sita was free.' },
+        { id: 'ayodhya', text: 'The fourteen years were over, so they flew home to Ayodhya in a flying chariot, on a dark new moon night.' },
+        { id: 'rows', text: 'The people lit rows of lamps to light their way home. Deepavali means just that: a row of lamps.' },
+      ],
+    },
+    {
+      id: 'krishna',
+      title: 'Krishna and Satyabhama',
+      teaser: 'Why Tamil Deepavali starts with an oil bath',
+      lines: [
+        { id: 'naraka', text: 'Long ago, a king called Narakasura grew proud and cruel. He frightened people on earth, and even the gods in heaven.' },
+        { id: 'boon', text: 'He had a special gift: only his own mother could ever defeat him. So he thought no one could stop him.' },
+        { id: 'garuda', text: 'Krishna and his brave wife Satyabhama flew to stop him, riding Garuda, the great eagle.' },
+        { id: 'fight', text: 'In the battle, Krishna fell. Satyabhama had been Narakasura\'s mother in an earlier life, so her arrow could defeat him.' },
+        { id: 'wish', text: 'Narakasura saw he had done wrong. His last wish: remember this day not with tears, but with joy.' },
+        { id: 'dawn', text: 'Krishna came home at dawn and bathed in warm oil, to wash away the battle.' },
+        { id: 'morning', text: 'So on Deepavali, Tamil families wake before sunrise for a warm oil bath, put on new clothes and burst crackers for joy.' },
+      ],
+    },
   ],
 };
 
