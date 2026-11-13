@@ -4,7 +4,8 @@ import { PaatiBubble, ProgressBar, art, card, celebrate, chip, header, ingredien
 import { makeText } from '../ui/text.js';
 import { CHAPTERS, QUIZ_LINES, REWARDS, ingredient } from '../content.js';
 import { pickQuiz } from '../quiz.js';
-import { BUTTON_HEIGHT, COLOR, MIN_HIT, pick } from '../theme.js';
+import { JOURNEY } from '../flow.js';
+import { BUTTON_HEIGHT, COLOR, COMPACT, MIN_HIT, pick } from '../theme.js';
 import { progress, settings, markChapterDone } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
@@ -16,6 +17,9 @@ const EYEBROWS = { truefalse: 'TRUE OR NOT?', picture: 'TAP THE PICTURE', order:
 // lively: 3 choices, true or not, tap the picture, and put in order. A wrong answer is set aside (or, in order
 // questions, gently corrected) and the player tries again. In chapters 1 and 2 each right answer earns an
 // ingredient, which flies to the Store.
+// Phones: the right-hand column, with the reward card across its top and Paati's bubble under it.
+const SIDE = { x: 812, y: 108, w: 436, h: 124 };
+
 export class QuizScene extends BaseScene {
   constructor() {
     super('Quiz');
@@ -33,19 +37,24 @@ export class QuizScene extends BaseScene {
     // "Question 2 of 3" with the gold progress bar beside it on the same line.
     this.counter = this.text(80, 112, `Question ${this.questions.length} of ${this.questions.length}`, 'b1', { weight: 600 });
     const barX = 80 + this.counter.width + 20;
-    this.bar = new ProgressBar(this, barX, 112 + this.counter.height / 2 - 6, 760 - barX, this.questions.length);
+    // On phones the Store chip shares this line, at its right end.
+    const barEnd = COMPACT && this.rewards.length ? 590 : 760;
+    this.bar = new ProgressBar(this, barX, 112 + this.counter.height / 2 - 6, barEnd - barX, this.questions.length);
     this.bar.value = this.index;
     this.bar.draw(this.index);
     this.questionY = 112 + this.counter.height + 12;
     this.eyebrow = this.text(80, this.questionY, '', 'b3', { weight: 700, color: 0xb35600 });
     this.question = this.text(80, this.questionY, '', 'h5', { width: 680 });
-    this.bubble = new PaatiBubble(this, 80, 528, 680);
+    // On phones Paati's bubble has the right-hand column to itself, under a short card for the reward, so her longer
+    // explanations have room; on bigger screens it sits under the answers.
+    this.bubble = COMPACT ? new PaatiBubble(this, SIDE.x, SIDE.y + SIDE.h + 16, SIDE.w, { avatar: false }).setDepth(5) : new PaatiBubble(this, 80, 528, 680);
     this.answers = [];
 
     this.storeChip = null;
-    this.next = new Button(this, 1060, 650, { label: 'Next', width: 320, onClick: () => this.onNext() });
+    const btnX = COMPACT ? SIDE.x + SIDE.w / 2 : 1060;
+    this.next = new Button(this, btnX, 650, { label: 'Next', width: 320, onClick: () => this.onNext() });
     // After a wrong answer the choices pause on Paati's hint until Try again.
-    this.retry = new Button(this, 1060, 650, { label: 'Try again', width: 320, onClick: () => this.tryAgain() }).setVisible(false);
+    this.retry = new Button(this, btnX, 650, { label: 'Try again', width: 320, onClick: () => this.tryAgain() }).setVisible(false);
     this.side = [];
     this.showQuestion();
   }
@@ -75,23 +84,28 @@ export class QuizScene extends BaseScene {
 
   // Three answers stacked under the question; on phones they are taller and spaced so touch areas don't overlap.
   buildChoices(q, top) {
-    const step = Math.max(BUTTON_HEIGHT.large + 14, MIN_HIT + 2);
+    // Stacked by real heights: a long answer on a phone takes two lines.
+    let y = top;
     this.answers = q.choices.map((choice, i) => {
       const badge = this.add.graphics();
       badge.fillStyle(this.dark ? COLOR.white : COLOR.indigo900, this.dark ? 0.16 : 0.08);
       badge.fillCircle(-340 + 40, 0, 20);
       const letter = makeText(this, -300, 0, LETTERS[i], 'b1', { weight: 700, dark: this.dark, origin: 0.5 });
-      return new Button(this, 420, top + BUTTON_HEIGHT.large / 2 + i * step, {
+      const btn = new Button(this, 420, 0, {
         label: choice.text,
         size: 'large',
         variant: 'outline',
         width: 680,
         align: 'left',
         content: [badge, letter],
-        onClick: (btn) => this.choose(btn, choice),
+        onClick: (b) => this.choose(b, choice),
       });
+      btn.setY(y + btn.bh / 2);
+      y += Math.max(btn.bh + 14, MIN_HIT + 2);
+      return btn;
     });
-    return top + (q.choices.length - 1) * step + BUTTON_HEIGHT.large;
+    const last = this.answers[this.answers.length - 1];
+    return last.y + last.bh / 2;
   }
 
   // True or not: two big buttons side by side.
@@ -199,6 +213,7 @@ export class QuizScene extends BaseScene {
   // The right-hand card: the ingredient this question earns, or (chapter 4) the player's muruku.
   showSide() {
     this.side.forEach((o) => o.destroy());
+    if (COMPACT) return this.showStrip();
     const x = 840;
     const y = 160;
     const w = 380;
@@ -239,17 +254,56 @@ export class QuizScene extends BaseScene {
     }
   }
 
-  // Paati's bubble sits under the answers, moving up only if a long line would run off the bottom.
+  // Phones: a short card across the top of the right-hand column, with the reward's picture beside its name (or the
+  // player's muruku in chapter 4). Paati's bubble goes under it.
+  showStrip() {
+    const { x, y, w, h } = SIDE;
+    this.side = [card(this, x, y, w, h)];
+    const tx = x + 132;
+    const t = (...args) => {
+      const o = makeText(this, ...args);
+      this.side.push(o);
+      return o;
+    };
+    const reward = this.rewards[this.index];
+    this.rewardNote = null;
+    if (reward) {
+      const ing = ingredient(reward);
+      const have = progress.collected.includes(ing.id);
+      const label = t(tx, y + 18, 'ANSWER TO EARN', 'b3', { weight: 700, color: 0xb35600 });
+      t(tx, label.y + label.height + 2, ing.name, 'h5', { width: w - 148 });
+      this.rewardArt = ingredientArt(this, x + 68, y + h / 2, ing, 78);
+      if (!have) this.rewardArt.setTintFill(0xd9cdb8).setAlpha(0.7);
+      this.side.push(this.rewardArt);
+    } else {
+      const label = t(tx, y + 18, 'YOUR MURUKU', 'b3', { weight: 700, color: 0xb35600 });
+      t(tx, label.y + label.height + 2, 'For Paati, at the end', 'b1', { width: w - 148, color: COLOR.grey600 });
+      this.side.push(art(this, x + 68, y + h / 2 + 6, 'banana-leaf', 110));
+      if (progress.lastMuruku) this.side.push(...paintMuruku(this, progress.lastMuruku, x + 68, y + h / 2, 56));
+      else this.side.push(art(this, x + 68, y + h / 2, 'muruku-golden', 56));
+    }
+  }
+
+  // Paati's bubble sits under the answers, moving up only if a long line would run off the bottom. (On phones it has
+  // the right-hand column: under the reward card, or at the top once the answer is right.)
   say(str, tone) {
+    // Bigger text (Settings) steps down to fit: above Next on phones, between the answers and the bottom otherwise.
+    const y = COMPACT ? (this.answered ? SIDE.y : SIDE.y + SIDE.h + 16) : this.bubbleTop;
+    this.bubble.maxH = COMPACT ? 650 - this.next.bh / 2 - 8 - y : 712 - y;
     this.bubble.say(str, tone);
-    this.bubble.setY(Math.min(this.bubbleTop, 712 - this.bubble.bubbleHeight));
+    if (COMPACT) this.bubble.setY(y);
+    else this.bubble.setY(Math.min(this.bubbleTop, 712 - this.bubble.bubbleHeight));
   }
 
   updateStoreChip() {
     this.storeChip?.destroy();
     this.storeChip = null;
     if (!this.rewards.length) return;
-    this.storeChip = chip(this, 1100, 124, `Store  ${progress.collected.length} of 6`, 'success');
+    this.storeChip = COMPACT
+      ? chip(this, 0, this.bar.y + 6, `Store  ${progress.collected.length} of 6`, 'success')
+      : chip(this, 1100, 124, `Store  ${progress.collected.length} of 6`, 'success');
+    // On phones the chip ends where the answers do.
+    if (COMPACT) this.storeChip.setX(760 - this.storeChip.list[1].width / 2 - 14);
   }
 
   choose(btn, choice) {
@@ -279,6 +333,14 @@ export class QuizScene extends BaseScene {
     this.complete(choice.why, this.tries === 1);
   }
 
+  // The last question's button says where the journey goes next.
+  lastLabel() {
+    const next = JOURNEY[progress.step + 1]?.scene;
+    if (next === 'Puppet') return 'Watch the puppet show';
+    if (next === 'Store') return 'See the Store';
+    return 'Finish the chapter';
+  }
+
   // Back to the choices that are left; the wrong ones stay dimmed, so the right answer is always within reach.
   tryAgain() {
     this.retry.setVisible(false);
@@ -300,9 +362,18 @@ export class QuizScene extends BaseScene {
     const reward = this.rewards[this.index];
     if (reward && !progress.collected.includes(reward)) this.earn(ingredient(reward));
     const last = this.index === this.questions.length - 1;
-    this.next.setLabel(last ? (this.chapterId === 'ch4' ? 'Finish the chapter' : 'See the Store') : 'Next question');
+    this.next.setLabel(last ? this.lastLabel() : 'Next question');
     this.next.setVisible(true);
     if (this.focus.visible) this.focus.focus(this.next);
+    // On phones the reward card has done its job, so it makes way for Paati's explanation.
+    if (COMPACT) this.clearStrip();
+  }
+
+  clearStrip() {
+    const old = this.side;
+    this.side = [];
+    if (settings.reduceMotion) return old.forEach((o) => o.destroy());
+    this.tweens.add({ targets: old, alpha: 0, duration: 250, onComplete: () => old.forEach((o) => o.destroy()) });
   }
 
   // The earned ingredient fills in on the card, then a copy flies to the Store counter.
@@ -310,7 +381,7 @@ export class QuizScene extends BaseScene {
     progress.collected.push(ing.id);
     progress.justEarned.push(ing.id);
     this.rewardArt.clearTint().setAlpha(1);
-    this.rewardNote.setText(ing.note).setColor('#5a6070');
+    this.rewardNote?.setText(ing.note).setColor('#5a6070');
     sparkle(this, this.rewardArt.x, this.rewardArt.y);
     if (settings.reduceMotion) {
       this.updateStoreChip();
@@ -319,8 +390,8 @@ export class QuizScene extends BaseScene {
     const flyer = ingredientArt(this, this.rewardArt.x, this.rewardArt.y, ing, 150).setDepth(700);
     this.tweens.add({
       targets: flyer,
-      x: 1100,
-      y: 124,
+      x: this.storeChip?.x ?? 1100,
+      y: this.storeChip?.y ?? 124,
       scale: flyer.scale * 0.2,
       alpha: 0.4,
       delay: 350,

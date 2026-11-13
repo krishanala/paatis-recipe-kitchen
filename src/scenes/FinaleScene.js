@@ -228,7 +228,7 @@ export class FinaleScene extends BaseScene {
       buttons: [
         {
           label: 'Make more muruku',
-          width: pick(360, 390),
+          width: pick(360, 440),
           onClick: () => {
             progress.freeKitchen = true;
             this.go('Store', { mode: 'free' });

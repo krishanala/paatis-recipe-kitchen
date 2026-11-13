@@ -51,6 +51,8 @@ export class Button extends Phaser.GameObjects.Container {
       });
       this.label.setFontFamily(BUTTON_FONT);
       this.add(this.label);
+      // A label too long for one line (big text on phones) makes the button taller instead of spilling out of it.
+      if (height === undefined && this.label.height > this.bh - 20) this.bh = Math.ceil(this.label.height + 26);
     }
     if (icon) {
       this.iconG = scene.add.graphics();

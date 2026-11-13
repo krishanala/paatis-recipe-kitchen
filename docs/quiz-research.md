@@ -102,6 +102,18 @@ Paati asks one question at the start of five cooking steps (not in the free kitc
 | The Golden Temple in Amritsar is lit with lamps for Bandi Chhor Divas. | [Read The Spirit](https://readthespirit.com/religious-holidays-festivals/?p=4548) |
 | Many families wear bright new clothes and visit their elders for blessings. | [Hindutone: Diwali in Chennai](https://hindutone.com/festivals/diwali-celebrations-in-chennai-tamil-nadu-india-2026-a-complete-guide/) |
 
+## The puppet show (after the chapter 1 quiz)
+
+Not a quiz question. Paati tells a story from the Mahabharata as a shadow puppet show, in six short lines (under a minute): the five Pandava brothers and Draupadi lose their kingdom to their cousins in a game of dice, live twelve years in the forest and one more in hiding, and come home on a dark new moon night, when everyone lights rows of lamps to welcome them.
+
+| Fact | Sources |
+|---|---|
+| Many families tell that the Pandavas came home from exile on the new moon night of Kartika, Deepavali's night, and that people lit lamps to welcome them. It is a well-known but secondary Deepavali story, beside Rama's return and Narakasura. | [Google Arts & Culture](https://artsandculture.google.com/story/0QVxpSl4NnfrEQ); [Sahapedia: Diwali origins](https://www.sahapedia.org/diwali-origins-and-the-evolution-of-the-festival-of-lights); [Hindutone: the stories behind Diwali](https://hindutone.com/festivals/the-sacred-stories-behind-diwali-festival/) |
+| The exile after the game of dice: twelve years in the forest and one year in hiding. | [Facts and Details](https://factsanddetails.com/india/People_and_Life/sub7_3b/entry-5656.html) |
+| South Indian shadow puppet theatre is played behind a white cloth screen, lit from behind by a row of oil lamps; the leather puppets have small holes punched in them that let the light through. | [Wikipedia: Tholpavakoothu](https://en.wikipedia.org/wiki/Tholpavakoothu); [Wikipedia: Tholu bommalata](https://en.wikipedia.org/wiki/Tholu_bommalata) |
+
+Sources disagree on details (thirteen or fourteen years, and which city they came home to), so Paati keeps to what they share, names no city, and ends with "many families say that is one reason we light lamps". The game uses no Tamil word for the puppet theatre.
+
 ## Remembering loved ones (no longer in the game)
 
 Not a quiz question. Paati shared this fact on the note screen at the end, where the player wrote a note for someone they miss. The note screen and its Bonus for your heart page were taken out on 27 Oct 2026; the research stays here in case they come back.
@@ -134,3 +146,4 @@ Please check these closely:
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
 8. **Paati's humour** (stories, store, kitchen, results). The jokes are on Paati, the food or the moment, never on the player or the tradition. Do any land wrong in your families, or read as unkind to grandparents? For example: "Shoes off, appetite on.", "Older cooks, call your common sense.", "Nobody can un-water dough." and "Most of them were me."
 9. **The new wrong answers and the kitchen questions.** Is each wrong answer believable but clearly wrong once explained? Check especially "A new year" (some families do start a new year around Deepavali, so the nudge says so), "Wheat does not grow in India", Mysuru and Kolkata for the muruku town, and "At the edge, then round and in" for the spiral. Are the ghee, water and spiral answers true to how your families make muruku?
+10. **The puppet show.** Do your families tell the Pandavas' homecoming as a Deepavali story? Are the shadow puppets (crowns, Bhima's mace, Arjuna's bow, Draupadi's sari) respectful?

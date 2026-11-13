@@ -41,6 +41,7 @@ The links in the first column open your local copy (start it as above); the last
 | [`intro`](http://localhost:8000/?screen=intro) | Before we begin (the plate of muruku and the words that appear one at a time) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=intro) |
 | [`ch1`](http://localhost:8000/?screen=ch1) | Chapter 1 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch1) |
 | [`quiz-ch1`](http://localhost:8000/?screen=quiz-ch1) | Chapter 1 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch1) |
+| [`puppet`](http://localhost:8000/?screen=puppet) | Paati's shadow puppet show: the Pandavas come home | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=puppet) |
 | [`store`](http://localhost:8000/?screen=store) | Paati's Store after chapter 1, with three ingredients flying in | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=store) |
 | [`ch2`](http://localhost:8000/?screen=ch2) | Chapter 2 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch2) |
 | [`quiz-ch2`](http://localhost:8000/?screen=quiz-ch2) | Chapter 2 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch2) |
@@ -88,7 +89,8 @@ src/
   scoring.js          dough 40 / twist 30 / fry 30 → stars, with one-line reasons
   draw.js             draws the player's own spiral as their muruku
   ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet
-  scenes/             Title, Story, Intro (before we begin), Quiz, Store, Cook (6 steps), Result, Finale
+  scenes/             Title, Story, Intro (before we begin), Quiz, Puppet (the shadow puppet show), Store,
+                      Cook (6 steps), Result, Finale
 assets/
   paati/              Paati's illustrated poses (welcome, teaching, proud, sharing, and four for tasting the muruku)
                       + round avatar; originals in source/
@@ -124,6 +126,8 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **13 Nov 2026, a roomier phone layout:** On phones held sideways, text is bigger: Paati's lines and other body text about 16–18 px, the smallest labels about 15 px. Screens were reworked to fit it, checked line by line at 844 × 390 and 667 × 375. The top bar leaves out the chapter diyas. In the quiz, Paati's bubble moves to the right-hand column under a short reward card, and has the whole column once the answer is right. Long answers wrap onto two lines in taller buttons. The kitchen's question card is nearly full width, and its step card and hold buttons sit higher. The Store's shelves are tighter, and in the free kitchen (on every screen size) Paati's fact sits in a tall bubble beside narrower shelves. The Help sheet uses two columns. The Text size setting still works: on phones its A+ and A++ steps add less (A++ is about the old A++ size), and wherever a bigger size wouldn't fit, Paati's lines and the kitchen hints step down to fit, never below the default. Computers keep their layout.
+- **13 Nov 2026, Paati's puppet show:** After the chapter 1 quiz, Paati tells a story from the Mahabharata as a shadow puppet show behind a lit cloth screen, in under a minute: the Pandavas and Draupadi lose their kingdom in a game of dice, live in the forest, and come home on a dark new moon night to rows of lamps. Red curtains open on the screen; leather-style shadow puppets with punched holes walk and sway while Paati tells it line by line, the screen darkens for the new moon, and the lamps light up one by one. Skip moves on at any time. With Reduce motion the scenes change without movement. Sources and the reviewer question are in [docs/quiz-research.md](docs/quiz-research.md#the-puppet-show-after-the-chapter-1-quiz).
 - **4 Nov 2026, mango leaves in front:** In the marigold garland across the top (Title, the offering, the last page and the goodbye) and the toran over the kitchen, the mango leaves now hang in front of the flowers, the way Tamil homes tie a thoranam. The brass bells stay on top.
 - **28 Oct 2026, crinkly sides:** Following the user's photos of real muruku, the player's muruku now has the crinkly edge a star plate leaves: small bumps of dough along both sides, taking turns and wobbling a little in size, with the outline following them. It shows while twisting, in the oil, on the Result screen and everywhere else. The photos themselves aren't used in the game. (`CRINKLE` in `src/draw.js` sets their spacing and size.)
 - **28 Oct 2026, no middle line on the muruku:** The player's muruku no longer has a dark line down the middle of the dough (meant as the star plate's ridge, it read as stripes). It keeps its darker outline, in the oil, on the Result screen and everywhere else it appears. (A thinner, softer outline was tried and turned back.)

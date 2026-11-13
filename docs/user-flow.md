@@ -10,7 +10,8 @@ flowchart TD
     W --> I["Before we begin<br/>a plate of muruku · words one at a time · Start Chapter 1"]
     I --> C1["2 · Story<br/>Ch 1: What is Deepavali?"]
     C1 --> Q1["3 · Quiz ×3<br/>earns rice flour, urad dal flour, flour"]
-    Q1 --> ST1["4 · Store<br/>3 of 6 collected"]
+    Q1 --> P["Paati's puppet show<br/>the Pandavas come home (under a minute) · Skip"]
+    P --> ST1["4 · Store<br/>3 of 6 collected"]
 
     ST1 --> C2["2 · Story<br/>Ch 2: What is muruku?"]
     C2 --> Q2["3 · Quiz ×3<br/>earns spices, ghee, water"]
@@ -40,6 +41,7 @@ flowchart TD
 |---|---|
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Stories are two short lines each, read with Next | Story |
+| The puppet show plays scene by scene with Paati's line for each, shown long enough to read; Skip moves on at any time | Puppet |
 | Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
@@ -62,4 +64,4 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. When Paati tastes the muruku, her pictures change in place without movement |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's scenes change without the puppets walking or the lamp light flickering. When Paati tastes the muruku, her pictures change in place without movement |

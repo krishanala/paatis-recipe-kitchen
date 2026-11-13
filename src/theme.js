@@ -86,7 +86,8 @@ export const TYPE = {
 export const TEXT_BASE_SCALE = 1.25;
 
 // Extra growth per type role on phones (COMPACT): small text grows most, headings barely.
-const COMPACT_TEXT = { h1: 1, h2: 1, h3: 1.05, h4: 1.1, h5: 1.15, s1: 1.25, b1: 1.3, b3: 1.35 };
+// Changed on 2026-11-13 so body text is about 16–18 px on a phone held sideways, and the smallest about 15 px.
+const COMPACT_TEXT = { h1: 1, h2: 1, h3: 1.1, h4: 1.2, h5: 1.25, s1: 1.45, b1: 1.5, b3: 1.6 };
 export const textBoost = (role) => (COMPACT ? COMPACT_TEXT[role] : 1);
 
 export const RADIUS = { button: 12, card: 24 };

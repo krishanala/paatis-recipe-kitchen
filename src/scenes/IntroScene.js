@@ -3,7 +3,7 @@ import { Button } from '../ui/Button.js';
 import { art, bokeh, burst, glow, header, raisedTitle, sparkle, twinkles, wordText } from '../ui/widgets.js';
 import { fontSize } from '../ui/text.js';
 import { INTRO } from '../content.js';
-import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
+import { COLOR, pick } from '../theme.js';
 import { settings } from '../state.js';
 
 // Reading pace: a new word every PACE ms, and a pause between the two paragraphs.
@@ -45,17 +45,31 @@ export class IntroScene extends BaseScene {
     const x = 96;
     const width = 540;
     const eyebrow = this.text(x, 0, INTRO.eyebrow, 'b3', { weight: 700, color: 0xb35600 });
-    const title = raisedTitle(this, x, 0, INTRO.title, { size: fontSize('h1'), width });
+    // The heading stays on one line: bigger text (Settings) steps down to fit, never below the default size.
+    let title;
+    for (let size = fontSize('h1'); ; size--) {
+      title?.destroy();
+      title = raisedTitle(this, x, 0, INTRO.title, { size, width });
+      if (title.textHeight < size * 1.6 || size <= fontSize('h1', 1)) break;
+    }
     const rule = this.rule(x);
-    const paras = INTRO.lines.map((line) => wordText(this, line, 's1', { width }).setX(x));
-    const start = new Button(this, x + 170, 0, { label: INTRO.start, width: 340, onClick: () => this.advance() });
+    const startW = pick(340, 400);
+    const start = new Button(this, x + startW / 2, 0, { label: INTRO.start, width: startW, onClick: () => this.advance() });
+    // Bigger text (Settings) steps down until the words fit above Start, never below the default size.
+    const room = BOTTOM - TOP - (eyebrow.height + 8 + title.textHeight + 14 + 16 + 22 + 16 + 36 + start.bh);
+    let paras;
+    for (let size = fontSize('s1'); ; size--) {
+      paras?.forEach((p) => p.destroy());
+      paras = INTRO.lines.map((line) => wordText(this, line, 's1', { width, size }).setX(x));
+      if (paras.reduce((sum, p) => sum + p.textHeight, 0) <= room || size <= fontSize('s1', 1)) break;
+    }
 
     const stack = [
       [eyebrow, eyebrow.height, 8],
       [title, title.textHeight, 14],
       [rule, 16, 22],
       ...paras.map((p, i) => [p, p.textHeight, i < paras.length - 1 ? 16 : 36]),
-      [start, BUTTON_HEIGHT.giant, 0],
+      [start, start.bh, 0],
     ];
     const total = stack.reduce((sum, [, h, gap]) => sum + h + gap, 0);
     let y = TOP + Math.max(0, Math.round((BOTTOM - TOP - total) / 2));

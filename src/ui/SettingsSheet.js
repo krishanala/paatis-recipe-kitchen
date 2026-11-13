@@ -1,4 +1,4 @@
-import { BLEED, BUTTON_HEIGHT, COLOR, MIN_HIT, STAGE } from '../theme.js';
+import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, MIN_HIT, STAGE } from '../theme.js';
 import { settings, saveSettings, resetProgress } from '../state.js';
 import { makeText } from './text.js';
 import { Button } from './Button.js';
@@ -62,22 +62,23 @@ function labelWithNote(scene, x, y, label, note) {
 }
 
 // Help and settings, as an Action Sheet from the bottom. Opened from the header's Help button.
-// Rows stack by their real height, so the sheet grows on phones where text is larger.
+// Rows stack by their real height, so the sheet grows where text is larger; on phones it uses two columns.
 export class SettingsSheet {
   constructor(scene, onClose) {
     this.scene = scene;
     this.onClose = onClose;
     scene.focus.pushLayer();
-    const W = 760;
+    // On phones the sheet is wide and splits into two columns (switches on the left, text size and language on the
+    // right), so it fits the short screen with the bigger text.
+    const W = COMPACT ? 1180 : 760;
     const x = (STAGE.width - W) / 2;
     const cx = STAGE.width / 2;
-    const rowW = W - 80;
     const rowH = Math.max(64, MIN_HIT);
     const parts = [];
     const add = (o) => (parts.push(o), o);
 
     // Everything is laid out from y = 0, then the whole sheet moves up to sit on the bottom edge.
-    const title = add(makeText(scene, x + 40, 40, 'Help & settings', 'h4'));
+    const title = add(makeText(scene, x + 40, COMPACT ? 30 : 40, 'Help & settings', 'h4'));
     add(new Button(scene, x + W - 56, title.y + title.height / 2, { variant: 'icon', icon: 'close', dark: false, onClick: () => this.close() }));
     const howTo = add(
       makeText(scene, x + 40, title.y + title.height + 8, 'Tap to choose. On a keyboard, Tab moves and Enter picks. Every line Paati says is shown as text.', 'b1', {
@@ -85,47 +86,74 @@ export class SettingsSheet {
         color: COLOR.grey600,
       }),
     );
-    let y = howTo.y + howTo.height + 12;
+    const top0 = howTo.y + howTo.height + 12;
+    const colW = COMPACT ? (W - 120) / 2 : W - 80;
+    let y = top0;
     const row = () => {
       const mid = y + rowH / 2;
       y += rowH + 4;
       return mid;
     };
 
-    add(toggleRow(scene, cx, row(), rowW, rowH, 'Sound', 'sound', { onChange: () => scene.events.emit('settings-changed') }));
-    add(toggleRow(scene, cx, row(), rowW, rowH, 'Reduce motion', 'reduceMotion', { hint: 'No sparkles or fireworks' }));
+    // The switches.
+    const toggleX = COMPACT ? x + 40 + colW / 2 : cx;
+    add(toggleRow(scene, toggleX, row(), colW, rowH, 'Sound', 'sound', { onChange: () => scene.events.emit('settings-changed') }));
+    add(toggleRow(scene, toggleX, row(), colW, rowH, 'Reduce motion', 'reduceMotion', { hint: 'No sparkles or fireworks' }));
     if (scene.canFullscreen?.()) {
       add(
-        toggleRow(scene, cx, row(), rowW, rowH, 'Full screen', null, {
+        toggleRow(scene, toggleX, row(), colW, rowH, 'Full screen', null, {
           hint: 'Hides the browser bars',
           get: () => scene.scale.isFullscreen,
           set: () => scene.toggleFullscreen(),
         }),
       );
     }
+    const switchesEnd = y;
 
-    const sizeY = row();
-    labelWithNote(scene, x + 60, sizeY, 'Text size', 'Applies from the next screen').forEach(add);
-    const sizeButtons = TEXT_SIZES.map((t, i) =>
-      add(
-        new Button(scene, x + W - 300 + i * 104, sizeY, {
-          label: t.label,
-          size: 'medium',
-          variant: 'outline',
-          width: 92,
-          dark: false,
-          onClick: () => {
-            settings.textScale = t.value;
-            saveSettings();
-            sizeButtons.forEach((b, j) => b.setLook(TEXT_SIZES[j].value === settings.textScale ? 'selected' : 'default'));
-          },
-        }).setLook(t.value === settings.textScale ? 'selected' : 'default'),
-      ),
-    );
-
-    const langY = row();
-    labelWithNote(scene, x + 60, langY, 'Language', 'More languages after review').forEach(add);
-    add(new Button(scene, x + W - 196, langY, { label: 'English  ▾', size: 'medium', variant: 'outline', width: 300, dark: false }).setEnabled(false));
+    // Text size and language: beside their labels on bigger screens, under them in the phone's right column.
+    const sizeButtons = [];
+    const sizeRow = (bx, by) =>
+      TEXT_SIZES.forEach((t, i) =>
+        sizeButtons.push(
+          add(
+            new Button(scene, bx + i * 104, by, {
+              label: t.label,
+              size: 'medium',
+              variant: 'outline',
+              width: 92,
+              dark: false,
+              onClick: () => {
+                settings.textScale = t.value;
+                saveSettings();
+                sizeButtons.forEach((b, j) => b.setLook(TEXT_SIZES[j].value === settings.textScale ? 'selected' : 'default'));
+              },
+            }).setLook(t.value === settings.textScale ? 'selected' : 'default'),
+          ),
+        ),
+      );
+    const language = (bx, by) => add(new Button(scene, bx, by, { label: 'English  ▾', size: 'medium', variant: 'outline', width: 300, dark: false }).setEnabled(false));
+    if (COMPACT) {
+      const rx = x + 80 + colW + 20;
+      let ry = top0 + 6;
+      for (const [label, note, control] of [
+        ['Text size', 'Applies from the next screen', (by) => sizeRow(rx + 46, by)],
+        ['Language', 'More languages after review', (by) => language(rx + 150, by)],
+      ]) {
+        const a = add(makeText(scene, rx, ry, label, 's1'));
+        const b = add(makeText(scene, rx, a.y + a.height, note, 'b3', { color: COLOR.grey600 }));
+        const by = b.y + b.height + 8 + BUTTON_HEIGHT.medium / 2;
+        control(by);
+        ry = by + BUTTON_HEIGHT.medium / 2 + 18;
+      }
+      y = Math.max(switchesEnd, ry);
+    } else {
+      const sizeY = row();
+      labelWithNote(scene, x + 60, sizeY, 'Text size', 'Applies from the next screen').forEach(add);
+      sizeRow(x + W - 300, sizeY);
+      const langY = row();
+      labelWithNote(scene, x + 60, langY, 'Language', 'More languages after review').forEach(add);
+      language(x + W - 196, langY);
+    }
 
     const buttonsY = y + 12 + BUTTON_HEIGHT.large / 2;
     add(

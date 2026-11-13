@@ -17,6 +17,7 @@ const SCREENS = {
   intro: ['Intro', {}],
   ch1: ['Story', { story: 'ch1' }],
   'quiz-ch1': ['Quiz', { chapter: 'ch1' }],
+  puppet: ['Puppet', {}],
   store: ['Store', { mode: 'review' }],
   ch2: ['Story', { story: 'ch2' }],
   'quiz-ch2': ['Quiz', { chapter: 'ch2' }],

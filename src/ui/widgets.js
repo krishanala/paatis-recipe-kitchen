@@ -1,5 +1,5 @@
-import { BLEED, BUTTON_HEIGHT, COLOR, STAGE, css } from '../theme.js';
-import { fontSize, makeText } from './text.js';
+import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, STAGE, css } from '../theme.js';
+import { fitText, fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { settings, progress } from '../state.js';
 import { speak } from '../voice.js';
@@ -48,14 +48,15 @@ export function header(scene, { title, onBack }) {
   silkTrim(scene, HEADER_H, scene.mood.band, -BLEED, STAGE.width + 2 * BLEED);
   new Button(scene, 50, HEADER_H / 2, { variant: 'icon', icon: 'back', onClick: onBack ?? (() => scene.toTitle()) });
   // The title is centred, but a long one moves left to clear the chapter diyas, and gets smaller only if it still
-  // doesn't fit between them and the back button.
+  // doesn't fit between them and the back button. Phones leave the diyas out, so the title has the room.
   const diyasX = 920;
-  const room = [50 + BUTTON_HEIGHT.giant / 2 + 20, diyasX - 18 - 20];
+  const fsLeft = STAGE.width - 50 - BUTTON_HEIGHT.giant - 12 - BUTTON_HEIGHT.giant / 2;
+  const room = [50 + BUTTON_HEIGHT.giant / 2 + 20, COMPACT ? fsLeft - 20 : diyasX - 18 - 20];
   const t = makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h5', { dark, origin: 0.5 });
   const fit = room[1] - room[0];
   if (t.width > fit) t.setFontSize(Math.floor((fontSize('h5') * fit) / t.width));
   t.setX(Math.min(STAGE.width / 2, room[1] - t.width / 2));
-  diyaRow(scene, diyasX, HEADER_H / 2, progress.chaptersDone.length);
+  if (!COMPACT) diyaRow(scene, diyasX, HEADER_H / 2, progress.chaptersDone.length);
   const helpX = STAGE.width - 50;
   if (scene.canFullscreen?.()) {
     // Icon buttons are drawn at the default (giant) height, and are as wide as they are tall.
@@ -149,6 +150,8 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
       this.labelText.setVisible(false);
     }
     this.body.setText(str).setY(y);
+    // A screen can cap the bubble's height (maxH): bigger text then steps down to fit, never below the default.
+    fitText(this.body, 's1', this.maxH ? this.maxH - y - 18 : Infinity);
     const h = Math.max(96, y + this.body.height + 18);
     const bx = this.avatar ? 112 : 0;
     const w = this.bw - bx;
@@ -630,9 +633,12 @@ export function raisedTitle(scene, x, y, str, { size = fontSize('h1') + 10, widt
 
 // Text set one word at a time (wrapping at width) in a container, so each word can arrive on its own while the
 // rest stay put. Words between *stars* are picked out in bold deep marigold. words lists them in reading order;
-// textHeight is the full height.
-export function wordText(scene, str, role, { width = 520, color, dark = scene.dark } = {}) {
-  const make = (s, opts = {}) => makeText(scene, 0, 0, s, role, { color, dark, ...opts });
+// textHeight is the full height. size (px) overrides the role's size.
+export function wordText(scene, str, role, { width = 520, color, dark = scene.dark, size } = {}) {
+  const make = (s, opts = {}) => {
+    const t = makeText(scene, 0, 0, s, role, { color, dark, ...opts });
+    return size ? t.setFontSize(size) : t;
+  };
   const one = make('A');
   const two = make('A\nA');
   const pair = make('A A');

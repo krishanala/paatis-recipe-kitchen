@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
 import { PaatiBubble, art, card, header, ingredientArt, kolamCorner, sparkle, toran } from '../ui/widgets.js';
-import { BUTTON_FONT, makeText } from '../ui/text.js';
+import { BUTTON_FONT, fitText, makeText } from '../ui/text.js';
 import { ADD_ORDER, ASK_LINES, COOK_LINES as LINES, COOK_QUESTIONS, QUIZ_LINES, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
 import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, MIN_HIT, STAGE, lerpColor, pick } from '../theme.js';
 import { NoteSheet } from '../ui/NoteSheet.js';
@@ -33,10 +33,11 @@ const RAW = 0xf3e2b8;
 const RICE = 0xfbf7ee; // rice flour on its own
 const FLOUR = 0xf4ead2; // the flours mixed
 const DOUGH = 0xe9d3a3;
-const ALT_BUTTON = pick({ x: 525, y: 540, width: 240 }, { x: 525, y: 500, width: 240 }); // tap-and-hold alternatives
+const ALT_BUTTON = pick({ x: 525, y: 540, width: 240 }, { x: 574, y: 420, width: 240 }); // tap-and-hold alternatives, clear of Paati's bubble
 const TOKENS = pick({ y: 262, art: 78, label: 46, badge: -52 }, { y: 246, art: 64, label: 38, badge: -48 }); // ingredient row in step 1, clear of the step tabs
-const CARD = pick({ y: 196, h: 384 }, { y: 196, h: 324 });
+const CARD = pick({ y: 196, w: 360, h: 384 }, { y: 186, w: 416, h: 300 });
 const BUBBLE_TOP = 596; // the bubble sits here, or higher when a long line needs the room
+const BUBBLE_MAX = 712 - pick(586, 498); // its tallest, clear of the step card and the hold buttons above it
 const NOZZLE = { idle: 0.35, pressing: 0.55 }; // the press nozzle over the oil, see-through
 
 const wrapAngle = (a) => (a > Math.PI ? a - 2 * Math.PI : a < -Math.PI ? a + 2 * Math.PI : a);
@@ -69,13 +70,14 @@ export class CookScene extends BaseScene {
     // full steps open in a pop-up because they don't fit the card.
     this.showFull = !this.free && !COMPACT;
 
-    card(this, 32, CARD.y, 360, CARD.h, { kolam: true });
-    this.cardEyebrow = this.text(60, CARD.y + 30, '', 'b3', { weight: 700, color: 0xb35600 });
-    this.cardTitle = this.text(60, CARD.y + 54, '', 'h4', { width: 304 });
-    this.cardBody = this.text(60, 0, '', 's1', { width: 304 });
-    this.cardNote = this.text(60, 0, '', 'b3', { width: 304, color: COLOR.grey600 });
+    card(this, 32, CARD.y, CARD.w, CARD.h, { kolam: true });
+    const textW = CARD.w - 56;
+    this.cardEyebrow = this.text(60, CARD.y + pick(30, 24), 'STEP', 'b3', { weight: 700, color: 0xb35600 });
+    this.cardTitle = this.text(60, this.cardEyebrow.y + this.cardEyebrow.height + 2, '', 'h4', { width: textW });
+    this.cardBody = this.text(60, 0, '', 's1', { width: textW });
+    this.cardNote = this.text(60, 0, '', 'b3', { width: textW, color: COLOR.grey600 });
     if (this.free || COMPACT) {
-      this.fullToggle = new Button(this, 212, CARD.y + CARD.h - 44, {
+      this.fullToggle = new Button(this, 32 + CARD.w / 2, CARD.y + CARD.h - 44, {
         label: 'Show full steps',
         size: 'medium',
         variant: 'clear',
@@ -184,9 +186,9 @@ export class CookScene extends BaseScene {
   // Continue goes on to the step. onDone(firstTry).
   ask(q, onDone) {
     this.focus.pushLayer();
-    const W = pick(760, 900);
+    const W = pick(760, 1120); // nearly full width on phones, so the bigger text wraps less
     const x = 640 - W / 2;
-    const top = pick(118, 104);
+    const top = pick(118, 24); // on phones it starts near the top: the shade covers the header while it is open
     const objs = [];
     const add = (o, depth = 902) => {
       objs.push(o.setDepth(depth));
@@ -206,10 +208,10 @@ export class CookScene extends BaseScene {
       kolamCorner(panel, x, top + h, 1, -1);
       kolamCorner(panel, x + W, top + h, -1, -1);
     };
-    const eyebrow = add(makeText(this, x + 44, top + 30, ASK_LINES.eyebrow, 'b3', { weight: 700, color: 0xb35600 }));
-    const question = add(makeText(this, x + 44, eyebrow.y + eyebrow.height + 6, q.q, 'h5', { width: W - 88 }));
+    // On phones the card leaves out its "Paati asks" label (her bubble says it), so it clears her bubble.
+    const eyebrow = COMPACT ? null : add(makeText(this, x + 44, top + 30, ASK_LINES.eyebrow, 'b3', { weight: 700, color: 0xb35600 }));
+    const question = add(makeText(this, x + 44, eyebrow ? eyebrow.y + eyebrow.height + 6 : top + 24, q.q, 'h5', { width: W - 88 }));
     const optionsTop = question.y + question.height + 20;
-    const step = Math.max(BUTTON_HEIGHT.large + 14, MIN_HIT + 2);
     let tries = 0;
     let answered = false;
     let firstTry = false;
@@ -235,8 +237,8 @@ export class CookScene extends BaseScene {
       btn.setLook('correct');
       // The right answer moves up under the question, with Paati's tip (or a word of comfort) under it.
       options.forEach((o) => o !== btn && o.setVisible(false));
-      btn.setY(optionsTop + BUTTON_HEIGHT.large / 2);
-      const boxTop = optionsTop + BUTTON_HEIGHT.large + 16;
+      btn.setY(optionsTop + btn.bh / 2);
+      const boxTop = optionsTop + btn.bh + 16;
       const box = add(this.add.graphics());
       const label = add(makeText(this, x + 64, boxTop + 16, firstTry ? ASK_LINES.tipLabel : ASK_LINES.noTipLabel, 'b3', { weight: 700, color: firstTry ? COLOR.green700 : 0xb35600 }));
       const text = add(makeText(this, x + 64, label.y + label.height + 4, firstTry ? q.tip : ASK_LINES.noTip, 's1', { width: W - 128 }));
@@ -246,14 +248,16 @@ export class CookScene extends BaseScene {
       box.fillStyle(firstTry ? COLOR.green600 : COLOR.yellow500, 1);
       box.fillRoundedRect(x + 44, boxTop + 12, 6, boxBottom - boxTop - 24, 3);
       drawPanel(boxBottom);
+      this.askMax = 712 - (boxBottom + 30 + 8);
       if (firstTry) sparkle(this, x + W - 90, boxTop + 20, { radius: 70, count: 12, depth: 950 });
       this.say(choice.why, choice.why, 'success');
       action.setLabel('Continue').setVisible(true);
       if (this.focus.visible) this.focus.focus(action);
     };
+    let optionY = optionsTop;
     const options = q.choices.map((choice, i) =>
       add(
-        new Button(this, 640, optionsTop + BUTTON_HEIGHT.large / 2 + i * step, {
+        new Button(this, 640, 0, {
           label: choice.text,
           size: 'large',
           variant: 'outline',
@@ -264,7 +268,14 @@ export class CookScene extends BaseScene {
         }),
       ),
     );
-    drawPanel(optionsTop + (q.choices.length - 1) * step + BUTTON_HEIGHT.large);
+    // Stacked by real heights: a long answer on a phone takes two lines.
+    options.forEach((o) => {
+      o.setY(optionY + o.bh / 2);
+      optionY += Math.max(o.bh + 14, MIN_HIT + 2);
+    });
+    const lastOption = options[options.length - 1];
+    drawPanel(lastOption.y + lastOption.bh / 2);
+    this.askMax = 712 - (lastOption.y + lastOption.bh / 2 + 30 + 8);
 
     const onAction = () => {
       if (!answered) {
@@ -275,6 +286,7 @@ export class CookScene extends BaseScene {
         return;
       }
       objs.forEach((o) => o.destroy());
+      this.askMax = null;
       this.bubble.setDepth(bubbleDepth);
       this.focus.popLayer();
       onDone(firstTry);
@@ -293,6 +305,8 @@ export class CookScene extends BaseScene {
   }
 
   say(full, short = full, tone = 'plain') {
+    // Bigger text (Settings) steps down so the bubble stays clear of the work area, or of Paati's question card.
+    this.bubble.maxH = this.askMax ?? BUBBLE_MAX;
     this.bubble.say(this.free ? short : full, tone);
     // Grow upwards when a line needs more room than the space below the work area.
     this.bubble.setY(Math.min(BUBBLE_TOP, 712 - this.bubble.bubbleHeight));
@@ -340,8 +354,13 @@ export class CookScene extends BaseScene {
     const step = STEPS[this.stepIndex];
     this.cardEyebrow.setText(`STEP ${this.stepIndex + 1} OF ${STEPS.length}`);
     this.cardTitle.setText(step.title);
-    this.cardBody.setY(this.cardTitle.y + this.cardTitle.height + 14).setText(hide ? '' : this.showFull ? step.full : step.short);
-    this.cardNote.setText(!hide && step.id === 'add' && !COMPACT ? RECIPE_NOTE : '').setY(this.cardBody.y + this.cardBody.height + 12);
+    this.cardBody.setY(this.cardTitle.y + this.cardTitle.height + pick(14, 8)).setText(hide ? '' : this.showFull ? step.full : step.short);
+    // Bigger text steps down to fit above the card's button (or its bottom edge), leaving room for the note.
+    this.cardNote.setText(!hide && step.id === 'add' && !COMPACT ? RECIPE_NOTE : '');
+    const noteH = this.cardNote.text ? this.cardNote.height + 12 : 0;
+    const cardEnd = this.fullToggle ? this.fullToggle.y - this.fullToggle.bh / 2 - 6 : CARD.y + CARD.h - 16;
+    fitText(this.cardBody, 's1', cardEnd - noteH - this.cardBody.y);
+    this.cardNote.setY(this.cardBody.y + this.cardBody.height + 12);
     if (!COMPACT) this.fullToggle?.setLabel(this.showFull ? 'Show short hint' : 'Show full steps');
   }
 
@@ -949,7 +968,8 @@ export class CookScene extends BaseScene {
         this.autoKnead = true;
       },
       () => (this.autoKnead = false),
-      { ...ALT_BUTTON, size: 'medium', width: pick(240, 300) },
+      // On phones it wraps onto two lines rather than reaching the step card or the bowl.
+      { ...ALT_BUTTON, size: 'medium', width: 240 },
     );
     this.tick = (dt) => {
       if (this.autoKnead) knead(((dt / 1000) * Math.PI * 2) / 0.9);
@@ -1304,8 +1324,9 @@ export class CookScene extends BaseScene {
 
   stepFry() {
     const fry = (this.fry = { a: 0, b: 0, flipped: false, warned: false, since: 0 });
-    const M = pick({ x: 506, top: 236, h: 250, w: 30 }, { x: 506, top: 226, h: 220, w: 30 });
-    this.keep(makeText(this, M.x + M.w / 2, M.top - 12, 'Side in the oil', 'b3', { weight: 700, color: COLOR.grey600, origin: [0.5, 1] }));
+    const M = pick({ x: 506, top: 236, h: 250, w: 30 }, { x: 520, top: 226, h: 220, w: 30 });
+    // On phones the label starts at the step card's edge instead of centring over the meter, to stay clear of it.
+    this.keep(makeText(this, pick(M.x + M.w / 2, 468), M.top - 12, 'Side in the oil', 'b3', { weight: 700, color: COLOR.grey600, origin: [pick(0.5, 0), 1] }));
     const meter = this.keep(this.add.graphics());
     for (let i = 0; i < M.h; i += 2) {
       meter.fillStyle(fryColour(1 - i / M.h), 1);
@@ -1324,8 +1345,8 @@ export class CookScene extends BaseScene {
 
     // Loader restyled as a flickering diya while frying.
     const loaderY = M.top + M.h + pick(70, 46);
-    const diya = this.keep(art(this, 470, loaderY - 4, 'diya', 48));
-    this.keep(makeText(this, 500, loaderY, 'Frying…', 'b3', { weight: 600, origin: [0, 0.5] }));
+    const diya = this.keep(art(this, pick(470, 496), loaderY - 4, 'diya', 48));
+    this.keep(makeText(this, pick(500, 526), loaderY, 'Frying…', 'b3', { weight: 600, origin: [0, 0.5] }));
     // The oil bubbles hard all round the muruku, with bigger bubbles rising across the pot. It calms a little
     // as the side in the oil turns golden.
     // Froth hugs the muruku while it fries, under it and over the oil.

@@ -44,22 +44,22 @@ export class ResultScene extends BaseScene {
     // Right column, a List: one row each for dough, twist and fry. Rows grow with their reason text.
     const x = 640;
     const w = 600;
-    makeText(this, x + 40, 140, 'How Paati judged it', 's1', { weight: 700 });
+    const heading = makeText(this, x + 40, 140, 'How Paati judged it', 's1', { weight: 700 });
     const rows = [
       ['Dough', r.dough],
       ['Twist', r.twist],
       ['Fry', r.fry],
     ];
-    let y = 186;
+    let y = Math.max(186, heading.y + heading.height + 14);
     rows.forEach(([name, part], i) => {
       if (i > 0) {
         const g = this.add.graphics();
         g.lineStyle(1, COLOR.yellow500, 0.7);
         g.lineBetween(x + 40, y - 10, x + w - 40, y - 10);
       }
-      makeText(this, x + 40, y, name, 's1', { weight: 700 });
+      const title = makeText(this, x + 40, y, name, 's1', { weight: 700 });
       makeText(this, x + w - 40, y, `${part.score} / ${part.max}`, 's1', { weight: 700, origin: [1, 0], color: part.score === part.max ? COLOR.green700 : COLOR.grey900 });
-      const reason = makeText(this, x + 40, y + 30, part.reason, 'b1', { width: w - 80, color: COLOR.grey600 });
+      const reason = makeText(this, x + 40, y + title.height + 2, part.reason, 'b1', { width: w - 80, color: COLOR.grey600 });
       y = reason.y + reason.height + 18;
     });
     card(this, x, 116, w, y + 4 - 116, { kolam: true }).setDepth(-1);

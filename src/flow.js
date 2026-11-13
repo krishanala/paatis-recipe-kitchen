@@ -6,6 +6,7 @@ export const JOURNEY = [
   { scene: 'Intro', data: {} },
   { scene: 'Story', data: { story: 'ch1' } },
   { scene: 'Quiz', data: { chapter: 'ch1' } },
+  { scene: 'Puppet', data: {} },
   { scene: 'Store', data: { mode: 'review' } },
   { scene: 'Story', data: { story: 'ch2' } },
   { scene: 'Quiz', data: { chapter: 'ch2' } },

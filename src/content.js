@@ -32,6 +32,22 @@ export const INTRO = {
   start: 'Start Chapter 1',
 };
 
+// Paati's shadow puppet show, after the chapter 1 quiz: a story from the Mahabharata, told behind a lit cloth
+// screen as South Indian shadow puppet theatre is. Each line is one scene, shown as long as people need to read it.
+// Many families tell this story; the details vary, so Paati says so (docs/quiz-research.md → "The puppet show").
+export const PUPPET = {
+  header: "Chapter 1 · Paati's puppet show",
+  title: 'The Pandavas come home',
+  lines: [
+    { id: 'title', text: 'Come, sit. Tonight, a story from the Mahabharata, told with shadow puppets.' },
+    { id: 'kingdom', text: 'Long ago, five brothers called the Pandavas lived happily with Draupadi in their kingdom.' },
+    { id: 'dice', text: 'Then their cousins tricked them in a game of dice, and they lost everything.' },
+    { id: 'forest', text: 'They had to live in the forest for twelve years, and one more year in hiding.' },
+    { id: 'home', text: 'At last, on a dark new moon night, they came home.' },
+    { id: 'lamps', text: 'Everyone lit rows of lamps to welcome them. Many families say that is one reason we light lamps at Deepavali.' },
+  ],
+};
+
 // Paati's short stories: two lines each. `paati` is the full-body pose shown beside the story. The stories set
 // the scene without giving any quiz answers away: Paati asks first and explains after (QUIZ_BANK).
 export const STORIES = {
@@ -150,7 +166,7 @@ export const QUIZ_BANK = {
       {
         id: 'medicine',
         group: 'morning',
-        teach: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: dry ginger, pepper and herbs, cooked with jaggery and ghee into a thick paste. It gets tummies ready for all the sweets.',
+        teach: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: dry ginger, pepper and herbs, cooked with jaggery and ghee. It gets tummies ready for the sweets.',
         q: 'After the oil bath on Deepavali morning, many families eat a spoonful of Deepavali medicine. Why?',
         choices: [
           { text: 'To help the tummy with all the sweets', correct: true, why: 'Exactly. It is dry ginger, pepper and herbs, cooked with jaggery and ghee. One spoonful after the oil bath, and the tummy is ready for a whole day of sweets and muruku.' },
@@ -162,7 +178,7 @@ export const QUIZ_BANK = {
         id: 'morning-order',
         type: 'order',
         group: 'morning',
-        teach: 'In many Tamil homes, Deepavali morning goes like this: a warm oil bath before sunrise, then a spoonful of Deepavali medicine (dry ginger, pepper and herbs cooked with jaggery and ghee), then new clothes and blessings from the elders.',
+        teach: 'In many Tamil homes, Deepavali morning goes like this: a warm oil bath before sunrise, then a spoonful of Deepavali medicine, then new clothes and blessings from the elders.',
         q: 'Put a Tamil Deepavali morning in order.',
         items: ['Oil bath before sunrise', 'Deepavali medicine', 'New clothes and blessings'],
         why: 'Perfect! Oil bath, Deepavali medicine, then new clothes and blessings. The day can begin.',
