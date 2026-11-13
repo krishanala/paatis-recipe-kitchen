@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { SERIF, art, sparkle } from '../ui/widgets.js';
+import { SERIF, art, rocket, sparkle } from '../ui/widgets.js';
 import { fontSize, makeText } from '../ui/text.js';
 import { PUPPET } from '../content.js';
 import { BLEED, COLOR, RES, STAGE, css, pick } from '../theme.js';
@@ -20,11 +20,28 @@ const WOOD = 0x4a1d0c;
 const CURTAIN = 0xa3172f;
 const CURTAIN_DARK = 0x7a0f22;
 // The dyes as they look with lamp light shining through the leather.
-const DYE = { maroon: 0xb8322a, ochre: 0xd88a26, teal: 0x23887e, indigo: 0x3a5cae, green: 0x4c8c2c, red: 0xd2352b };
+const DYE = { maroon: 0xb8322a, ochre: 0xd88a26, teal: 0x23887e, indigo: 0x3a5cae, green: 0x4c8c2c, red: 0xd2352b, purple: 0x7b3fa0 };
 
-// How long each scene stays up, in ms: long enough to read its subtitle, about a minute in all.
-const HOLD = { title: 5000, kingdom: 6500, dice: 6500, forest: 6500, home: 8000, ravana: 6500, bridge: 6500, battle: 6000, ayodhya: 9000 };
+// How long each scene stays up, in ms: long enough to read its subtitle, under two minutes in all.
+const HOLD = {
+  title: 5500,
+  kingdom: 6000,
+  dice: 6500,
+  forest: 6500,
+  home: 8000,
+  ravana: 6500,
+  hanuman: 7500,
+  bridge: 7000,
+  battle: 6000,
+  ayodhya: 9000,
+  naraka: 7000,
+  garuda: 6500,
+  fight: 7500,
+  wish: 7500,
+  dawn: 10000,
+};
 const CURTAIN_MS = 1200;
+const BAND_DEPTH = 10; // the subtitle band and its button, above the crackers (depth 5) at the end
 
 // Who each puppet is: its dye, crown, what it holds, and how big it is.
 const CAST = {
@@ -40,12 +57,17 @@ const CAST = {
   sita: { dye: DYE.red, sari: true, hold: 'lotus' },
   hanuman: { dye: DYE.ochre, crown: 'low', hold: 'mace', monkey: true, size: 1.02 },
   ravana: { dye: DYE.maroon, crown: 'tall', hold: 'sword', heads: 10, size: 1.15, left: true },
+  krishna: { dye: DYE.ochre, skin: DYE.indigo, crown: 'peacock', hold: 'chakra' },
+  satyabhama: { dye: DYE.green, sari: true, hold: 'bow' },
+  narakasura: { dye: DYE.purple, crown: 'tall', hold: 'trident', fierce: true, size: 1.12, left: true },
 };
 
-// The shadow puppet show (after the chapter 1 quiz), full screen: two stories many families tell at Deepavali, the
-// Pandavas coming home and Rama coming home to Ayodhya, both to rows of lamps. Curtains open on a lit cloth screen;
-// each scene's puppets come and go with a subtitle on a dark band at the bottom. Skip moves on at any time; at the
-// end it becomes Next. With Reduce motion the scenes change without the puppets moving or the lamp light flickering.
+// The shadow puppet show (after the chapter 1 quiz), full screen: three stories families tell about Deepavali's
+// lamps: the Pandavas coming home, Rama coming home to Ayodhya, and Krishna and Satyabhama defeating Narakasura, whose
+// last wish was a day of lamps (and why Tamil Deepavali starts with an oil bath at dawn). Curtains open on a lit
+// cloth screen; each scene's puppets come and go with a subtitle on a dark band at the bottom. Skip moves on at any
+// time; at the end it becomes Next. With Reduce motion the scenes change without the puppets moving or the lamp light
+// flickering.
 export class PuppetScene extends BaseScene {
   constructor() {
     super('Puppet');
@@ -155,6 +177,8 @@ export class PuppetScene extends BaseScene {
     band.fillRect(x, b.y, w, 2);
     this.subtitle = makeText(this, x + 40, b.y + b.h / 2, '', 'h5', { width: b.textW, weight: 600, color: COLOR.white, origin: [0, 0.5] });
     this.skip = new Button(this, b.btnX, b.y + b.h / 2, { label: 'Skip', variant: 'outline', width: b.btnW, dark: true, onClick: () => this.advance() });
+    // Above the crackers at the end of the show, which go up from behind the band.
+    [band, this.subtitle, this.skip].forEach((o) => o.setDepth(BAND_DEPTH));
 
     // Red curtains, drawn closed over the cloth; they open to the sides when the show starts.
     this.curtains = [-1, 1].map((side) => {
@@ -168,7 +192,7 @@ export class PuppetScene extends BaseScene {
       c.fillStyle(COLOR.yellow500, 1);
       c.fillRect(x0, h - 14, cw, 6);
       c.side = side;
-      return c;
+      return c.setDepth(BAND_DEPTH + 1);
     });
   }
 
@@ -203,7 +227,7 @@ export class PuppetScene extends BaseScene {
     const focused = this.focus.current === this.skip;
     this.skip.destroy();
     const b = this.band;
-    const next = new Button(this, b.btnX, b.y + b.h / 2, { label: 'Next', width: b.btnW, onClick: () => this.advance() });
+    const next = new Button(this, b.btnX, b.y + b.h / 2, { label: 'Next', width: b.btnW, onClick: () => this.advance() }).setDepth(BAND_DEPTH);
     if (focused) this.focus.focus(next);
     if (!this.still) this.tweens.add({ targets: next, alpha: { from: 0, to: 1 }, duration: 300 });
   }
@@ -258,8 +282,8 @@ export class PuppetScene extends BaseScene {
     this.tweens.add({ targets: p, angle: { from: -2, to: 2 }, duration: 1100 + i * 90, yoyo: true, repeat: -1, ease: 'Sine.InOut', delay: i * 120 });
   }
 
-  // Diyas at each x, standing at y, lit one by one from `delay` ms (all at once with Reduce motion).
-  lamps(xs, y, delay, size = 1) {
+  // Diyas at each x, standing at y, lit one by one, `step` ms apart, from `delay` ms (all at once with Reduce motion).
+  lamps(xs, y, delay, size = 1, step = 280) {
     const front = [];
     const pools = [];
     xs.forEach((x, i) => {
@@ -267,7 +291,7 @@ export class PuppetScene extends BaseScene {
       front.push(lamp);
       pools.push(pool);
       if (this.still) return lamp.light();
-      this.later(delay + i * 280, () => lamp.light());
+      this.later(delay + i * step, () => lamp.light());
     });
     return { front, pools };
   }
@@ -413,18 +437,166 @@ export class PuppetScene extends BaseScene {
     this.setCast(objs);
   }
 
+  hanuman() {
+    // Hanuman leaps from the shore, high over the sea, and lands in the garden of Lanka, where Sita sits under a tree.
+    // He holds out Rama's ring: a sparkle between them.
+    const k = this.P / 100;
+    const h = 34 * k; // the land stands this high above the floor of the cloth
+    const top = this.floor - h;
+    const sea = this.sea();
+    const shore = this.land(0, this.at(0.13), h);
+    const garden = this.land(this.at(0.52), this.S.w, h);
+    const lanka = this.lanka(this.at(0.95)).setY(top);
+    const tree = this.forestShadow('tall', 0.5, 0.4, { x: this.at(0.81), y: top, scale: 0.42 });
+    const sita = this.puppet('sita', this.at(0.74), h, { face: 'left' });
+    const hanuman = this.puppet('hanuman', this.at(0.06), h);
+    const landX = this.at(0.6);
+    if (this.still) {
+      hanuman.setX(landX);
+    } else {
+      // He flies leaning far forward, mace out in front, and straightens up to land.
+      this.later(700, () => {
+        this.tweens.add({ targets: hanuman, x: landX, duration: 1800, ease: 'Sine.InOut' });
+        this.tweens.add({ targets: hanuman, y: top - 0.3 * this.P, duration: 900, yoyo: true, ease: 'Quad.Out' });
+        this.tweens.add({ targets: hanuman, angle: 62, duration: 450, ease: 'Sine.Out' });
+        this.tweens.add({ targets: hanuman, angle: 0, duration: 450, delay: 1350, ease: 'Sine.In' });
+      });
+      this.later(2900, () => sparkle(this, this.S.x + (landX + sita.x) / 2, this.S.y + top - 60 * k, { radius: 36, count: 10 }));
+    }
+    this.setCast([sea, shore, garden, lanka, tree, sita, hanuman]);
+  }
+
   ayodhya() {
-    // Home on a dark night: rows of diyas light their way, and the show ends in their glow.
+    // Home on a dark night: the flying chariot glides in with Rama, Sita, Lakshmana and Hanuman aboard and settles
+    // by the palace, rows of diyas are lit to welcome them, and the cloth stays dark enough for them to glow.
     this.setNight(0.72);
     const palace = this.palace(this.at(0.86), 1.05);
-    // Rama and Sita lead; Hanuman walks at the back, with room for his tail and mace.
-    const back = [0, 0.42, 0.84, 1.4];
-    const party = ['rama', 'sita', 'lakshmana', 'hanuman'].map((k, i) => this.puppet(k, (-0.3 - back[i]) * this.P));
-    party.forEach((p, i) => this.walk(p, this.at(0.56) - back[i] * this.P, 3600));
+    const chariot = this.chariot([['hanuman', -38], ['lakshmana', -16], ['sita', 5], ['rama', 26]]);
+    const landX = this.at(0.4);
+    const landY = this.floor - 8 * (this.P / 100);
+    if (this.still) {
+      chariot.setPosition(landX, landY);
+    } else {
+      chariot.setPosition(-0.7 * this.P, this.floor * 0.32);
+      this.tweens.add({ targets: chariot, x: landX, duration: 3400, ease: 'Sine.Out' });
+      this.tweens.add({ targets: chariot, y: landY, duration: 3400, ease: 'Sine.InOut' });
+    }
     const lamps = this.lamps(this.row(11), this.floor, 3000, 1.2);
     this.setNight(0.48, 2800, 3400);
     this.later(3000 + 11 * 280, () => sparkle(this, this.S.x + this.S.w / 2, this.S.y + this.floor * 0.45, { radius: this.S.w * 0.4, count: 30 }));
-    this.setCast([palace, ...party], lamps);
+    this.setCast([palace, chariot], lamps);
+  }
+
+  naraka() {
+    // The sky dims while Narakasura stamps before his fort, trident raised.
+    this.setNight(0.32, 900);
+    const fort = this.fort(this.at(0.8));
+    const naraka = this.puppet('narakasura', this.at(0.48));
+    if (!this.still) {
+      this.tweens.add({ targets: naraka, y: naraka.y - 0.04 * this.P, duration: 260, yoyo: true, repeat: 7, repeatDelay: 420, ease: 'Quad.Out' });
+      this.tweens.add({ targets: naraka, angle: { from: -4, to: 4 }, duration: 680, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+    }
+    this.setCast([fort, naraka]);
+  }
+
+  garuda() {
+    // Krishna and Satyabhama fly in on Garuda, wings beating, and hover facing Narakasura.
+    this.setNight(0, 1200);
+    const fort = this.fort(this.at(0.88));
+    const naraka = this.puppet('narakasura', this.at(0.7));
+    this.sway(naraka, 1);
+    const bird = this.eagle([['satyabhama', -16], ['krishna', 10]]).setScale(1.2);
+    const hoverX = this.at(0.32);
+    const hoverY = this.floor * 0.58;
+    if (this.still) {
+      bird.setPosition(hoverX, hoverY);
+    } else {
+      bird.setPosition(-0.9 * this.P, this.floor * 0.22);
+      this.tweens.add({ targets: bird, x: hoverX, y: hoverY, duration: 3000, ease: 'Sine.Out' });
+      this.later(3000, () => this.tweens.add({ targets: bird, y: hoverY - 0.04 * this.P, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.InOut' }));
+    }
+    this.setCast([fort, naraka, bird]);
+  }
+
+  fight() {
+    // Narakasura strikes Krishna to his knees; Satyabhama steps in front of him and looses an arrow; Narakasura sinks
+    // to his knees, and Krishna rises.
+    const k = this.P / 100;
+    const fort = this.fort(this.at(0.9));
+    const krishna = this.puppet('krishna', this.at(0.2));
+    const satya = this.puppet('satyabhama', this.at(0.07), 0, { pose: 'draw' });
+    const naraka = this.puppet('narakasura', this.at(0.7));
+    const shootX = this.at(0.36);
+    const arrow = this.arrow(shootX + 25 * k, this.floor - 72 * k);
+    const kneel = { y: this.floor + 0.12 * this.P, angle: -10 };
+    if (this.still) {
+      satya.setX(shootX);
+      arrow.setVisible(false);
+      naraka.setPosition(naraka.x, kneel.y).setAngle(kneel.angle);
+    } else {
+      arrow.setAlpha(0);
+      this.later(800, () => this.tweens.add({ targets: krishna, y: this.floor + 0.1 * this.P, angle: -16, duration: 500, ease: 'Quad.In' }));
+      this.later(1300, () => this.walk(satya, shootX, 900));
+      this.later(2400, () => {
+        arrow.setAlpha(1);
+        this.tweens.add({ targets: arrow, x: naraka.x - 20 * k, duration: 750, ease: 'Quad.In', onComplete: () => arrow.setVisible(false) });
+      });
+      this.later(3150, () => {
+        sparkle(this, this.S.x + naraka.x, this.S.y + this.floor - 0.6 * this.P, { radius: 60, count: 14 });
+        this.tweens.add({ targets: naraka, angle: 14, duration: 300, ease: 'Quad.Out' });
+        this.tweens.add({ targets: naraka, ...kneel, duration: 1000, delay: 300, ease: 'Sine.InOut' });
+      });
+      this.later(3900, () => this.tweens.add({ targets: krishna, angle: 0, y: this.floor, duration: 800, ease: 'Back.Out' }));
+    }
+    this.setCast([fort, krishna, satya, naraka, arrow]);
+  }
+
+  wish() {
+    // Evening: Narakasura, kneeling, makes his last wish. Diyas are lit one by one, and he fades away.
+    this.setNight(0.72);
+    const satya = this.puppet('satyabhama', this.at(0.2));
+    const krishna = this.puppet('krishna', this.at(0.34));
+    const naraka = this.puppet('narakasura', this.at(0.64));
+    naraka.setPosition(naraka.x, this.floor + 0.12 * this.P).setAngle(-10);
+    const lamps = this.lamps(this.row(9), this.floor, 2000, 1.2);
+    this.setNight(0.45, 2600, 2400);
+    if (!this.still) this.later(4300, () => this.tweens.add({ targets: naraka, alpha: 0, duration: 2400, ease: 'Sine.InOut' }));
+    this.setCast([satya, krishna, naraka], lamps);
+  }
+
+  dawn() {
+    // Dawn: a deep orange sun rises behind the cloth as Krishna and Satyabhama walk home past the lit diyas, crackers
+    // go up from behind the stage, and Happy Deepavali appears across the top.
+    this.setNight(0.6, 300);
+    const r = 0.26 * this.P;
+    const sunX = this.at(0.5);
+    const glow = this.glow(sunX, this.floor, this.S.w * 0.95, this.floor * 1.5, 0xff9a40, 0);
+    const sun = this.add.circle(sunX, this.floor + r, r, 0xffa63a, 1);
+    const risen = this.floor - r * 1.15;
+    const palace = this.palace(this.at(0.88), 1);
+    const satya = this.puppet('satyabhama', this.at(0));
+    const krishna = this.puppet('krishna', this.at(0.12));
+    this.walk(satya, this.at(0.35), 5200);
+    this.walk(krishna, this.at(0.65), 5200);
+    const lamps = this.lamps(this.row(9), this.floor, 150, 1.2, 0);
+    this.setNight(0.22, 4800, 900);
+    const greeting = makeText(this, this.S.w / 2, this.floor * 0.15, 'Happy Deepavali!', 'h1', { color: SHADOW, weight: 700, origin: 0.5, align: 'center' })
+      .setFontFamily(SERIF)
+      .setFontSize(Math.round(fontSize('h1') * 1.15));
+    if (this.still) {
+      sun.setY(risen);
+      glow.setAlpha(0.5);
+    } else {
+      greeting.setAlpha(0);
+      this.tweens.add({ targets: sun, y: risen, duration: 5200, delay: 600, ease: 'Sine.Out' });
+      this.tweens.add({ targets: glow, alpha: 0.5, duration: 4200, delay: 600 });
+      this.later(5000, () => this.tweens.add({ targets: greeting, alpha: 1, duration: 900 }));
+      const R = Phaser.Math;
+      for (let i = 0; i < 8; i++) {
+        this.later(4400 + i * 620, () => rocket(this, this.S.x + this.at(R.FloatBetween(0.1, 0.9)), this.S.y + this.floor * R.FloatBetween(0.14, 0.4), { depth: 5 }));
+      }
+    }
+    this.setCast([sun, palace, satya, krishna, greeting], { front: lamps.front, pools: [...lamps.pools, glow] });
   }
 
   // ---- puppets and props, drawn as shadows -----------------------------------------------------------
@@ -432,7 +604,7 @@ export class PuppetScene extends BaseScene {
   // A shadow puppet standing at screen x, on the ground (or `lift` above it), facing right (left for Duryodhana and
   // Ravana). Drawn 100 units tall (crown extra), with a profile face, crown, jewellery and clothes picked out by
   // punched holes, dyed panels, and what each one holds.
-  puppet(kind, x, lift = 0, { pose } = {}) {
+  puppet(kind, x, lift = 0, { pose, face } = {}) {
     const c = CAST[kind];
     const k = (this.P / 100) * (c.size ?? 1);
     // The rod the puppeteer holds, running down off the cloth.
@@ -448,8 +620,15 @@ export class PuppetScene extends BaseScene {
     lit.setAlpha(1 - this.light.night * 0.75);
     this.lights.push(lit);
     const ct = this.add.container(x, this.floor - lift, [rod, plain, lit]);
-    if (c.left) ct.setScale(-1, 1);
+    if (face ? face === 'left' : c.left) ct.setScale(-1, 1);
     return ct;
+  }
+
+  // A puppet riding on something: smaller, without its rod, standing at (x, y) inside it.
+  rider(kind, x, y, scale, opts) {
+    const p = this.puppet(kind, x, 0, opts);
+    p.list[0].setVisible(false);
+    return p.setPosition(x, y).setScale(p.scaleX * scale, scale);
   }
 
   // Draws a puppet into g at k pixels a unit; `lit` adds the holes and dyed leather the light shines through.
@@ -542,6 +721,15 @@ export class PuppetScene extends BaseScene {
     holes([[-1, -82.5]], 1.2);
     shadow();
     g.fillCircle(s(-1), s(-82.5), s(0.6));
+    // A proud, fierce face (Narakasura): a thick moustache curling up past the nose, and a fang.
+    if (c.fierce) {
+      shadow();
+      g.fillPoints(P([[6.5, -81.6], [10, -81.8], [12.5, -83.2], [14, -85.6], [15, -84.6], [13.6, -81.6], [10.6, -79.8], [7, -79.9]]), true);
+      if (lit) {
+        g.fillStyle(LIGHT, 0.9);
+        g.fillTriangle(s(7.6), s(-79.6), s(9.2), s(-79.6), s(8.5), s(-77.4));
+      }
+    }
 
     // The crown: a tall tiered one for kings and heroes, a low one otherwise; with the sari, a bun and a small tiara.
     if (c.sari) {
@@ -550,6 +738,37 @@ export class PuppetScene extends BaseScene {
       shadow();
       g.fillPoints(P([[-4, -92], [6, -92], [5, -95], [1, -97], [-3, -95]]), true);
       holes([[1, -94]], 0.8);
+    } else if (c.crown === 'peacock') {
+      // A jewelled crown with a peacock feather rising from it (Krishna), its eye dyed blue and green.
+      shadow();
+      g.fillRect(s(-6), s(-95), s(15), s(4));
+      g.fillPoints(P([[-6, -95], [9, -95], [7, -101], [3.5, -105], [1.5, -103], [-0.5, -105], [-4, -101]]), true);
+      holes([[1.5, -93], [-3, -93], [6, -93], [1.5, -99]], 0.85);
+      g.lineStyle(s(1.3), SHADOW, 0.94);
+      g.beginPath();
+      g.moveTo(s(-1), s(-103));
+      g.lineTo(s(-3), s(-111));
+      g.lineTo(s(-6.5), s(-119));
+      g.lineTo(s(-10), s(-124));
+      g.strokePath();
+      g.lineStyle(s(0.5), SHADOW, 0.94);
+      for (let i = 0; i < 6; i++) {
+        const y = -106 - i * 3;
+        g.lineBetween(s(-2 - i * 1.3), s(y), s(-6 - i * 1.4), s(y - 1.5));
+        g.lineBetween(s(-2 - i * 1.3), s(y), s(1 - i * 1.2), s(y - 2.5));
+      }
+      shadow();
+      g.fillEllipse(s(-11.5), s(-128), s(10), s(13));
+      if (lit) {
+        g.fillStyle(DYE.teal, 0.85);
+        g.fillEllipse(s(-11.5), s(-128), s(7), s(9.5));
+        g.fillStyle(DYE.indigo, 0.95);
+        g.fillEllipse(s(-11.5), s(-128.5), s(3.6), s(5));
+      }
+      holes([[-11.5, -129]], 0.6);
+      shadow();
+      g.fillPoints(P([[-6, -92], [-12, -97], [-13, -89], [-7, -86]]), true);
+      holes([[-10, -92]], 0.8);
     } else if (c.crown === 'tall') {
       shadow();
       g.fillRect(s(-6), s(-95), s(15), s(4));
@@ -627,6 +846,33 @@ export class PuppetScene extends BaseScene {
       shadow();
       g.fillPoints(P([[hx - 4, hy - 30], [hx, hy - 36], [hx + 4, hy - 30], [hx, hy - 28]]), true);
       holes([[hx, hy - 31]], 0.8);
+    } else if (c.hold === 'chakra') {
+      // The discus, spinning on a raised finger (Krishna): a toothed wheel with spokes of light.
+      g.lineBetween(s(hx), s(hy), s(hx + 1), s(hy - 6));
+      const cx = hx + 1.5;
+      const cy = hy - 14;
+      const R = 7.5;
+      shadow();
+      g.fillCircle(s(cx), s(cy), s(R));
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        const at = (r, da) => [s(cx + r * Math.cos(a + da)), s(cy + r * Math.sin(a + da))];
+        g.fillTriangle(...at(R - 0.5, -0.2), ...at(R - 0.5, 0.2), ...at(R + 2.6, 0));
+      }
+      holes(Array.from({ length: 8 }, (_, i) => [cx + 4.4 * Math.cos((i / 8) * Math.PI * 2), cy + 4.4 * Math.sin((i / 8) * Math.PI * 2)]), 0.9);
+      holes([[cx, cy]], 1.5);
+    } else if (c.hold === 'trident') {
+      // A tall trident (Narakasura), its staff resting on the ground.
+      g.lineStyle(s(2), SHADOW, 0.94);
+      g.lineBetween(s(hx + 1), s(0), s(hx - 1), s(-108));
+      shadow();
+      g.fillRect(s(hx - 9), s(-110), s(16), s(3));
+      g.fillPoints(P([[hx - 2.5, -110], [hx + 0.5, -110], [hx - 1, -124]]), true);
+      for (const side of [-1, 1]) {
+        const px = hx - 1 + side * 6.5;
+        g.fillPoints(P([[px - 1.3, -108], [px + 1.3, -108], [px + side * 1.5, -119], [px + side * 0.2, -120]]), true);
+      }
+      holes([[hx - 5, -108.5], [hx - 1, -108.5], [hx + 3, -108.5]], 0.7);
     } else if (c.hold === 'lotus') {
       shadow();
       g.fillCircle(s(hx + 2), s(hy - 3), s(3.2));
@@ -748,6 +994,148 @@ export class PuppetScene extends BaseScene {
     return this.add.container(x, y, [g]);
   }
 
+  // Land standing out of the sea from x0 to x1, h high, sloping down into the waves on its sea side, with grass along
+  // its top.
+  land(x0, x1, h) {
+    const k = this.P / 100;
+    const top = this.floor - h;
+    const slope = (x) => (x > 0 && x < this.S.w ? 14 * k : 0);
+    const g = this.add.graphics();
+    g.fillStyle(SHADOW, 0.9);
+    g.fillPoints(
+      [
+        { x: x0 - slope(x0), y: this.floor + 6 * k },
+        { x: x0, y: top },
+        { x: x1, y: top },
+        { x: x1 + slope(x1), y: this.floor + 6 * k },
+      ],
+      true,
+    );
+    g.lineStyle(1.1 * k, SHADOW, 0.9);
+    for (let x = x0 + 2 * k, i = 0; x < x1 - k; x += 3.4 * k, i++) g.lineBetween(x, top + k, x + (i % 3) * k - k, top - (2.5 + (i % 4)) * k);
+    g.fillStyle(LIGHT, 0.55);
+    for (let x = x0 + 9 * k, i = 0; x < x1 - 6 * k; x += 17 * k, i++) g.fillCircle(x, top + (9 + (i % 3) * 6) * k, 1.1 * k);
+    return this.add.container(0, 0, [g]);
+  }
+
+  // Narakasura's fort: a wall with battlements and a barred gate, between two domed towers with flags.
+  fort(x) {
+    const k = this.P / 100;
+    const s = (v) => v * k;
+    const P = (list) => list.map(([px, py]) => ({ x: s(px), y: s(py) }));
+    const g = this.add.graphics();
+    g.fillStyle(SHADOW, 0.9);
+    g.fillRect(s(-50), s(-42), s(100), s(42));
+    for (let mx = -50; mx < 48; mx += 10) g.fillRect(s(mx + 2), s(-48), s(6), s(6));
+    for (const tx of [-58, 58]) {
+      g.fillRect(s(tx - 11), s(-68), s(22), s(68));
+      g.beginPath();
+      g.arc(s(tx), s(-68), s(11), Math.PI, 0);
+      g.closePath();
+      g.fillPath();
+      g.fillRect(s(tx - 0.8), s(-92), s(1.6), s(14));
+      g.fillPoints(P([[tx + 0.8, -92], [tx + 10, -88.5], [tx + 0.8, -85]]), true);
+    }
+    g.fillStyle(LIGHT, 0.7);
+    g.fillRect(s(-9), s(-22), s(18), s(22));
+    g.fillCircle(s(0), s(-22), s(9));
+    for (const tx of [-58, 58]) for (const ty of [-54, -36, -18]) g.fillRect(s(tx - 1.2), s(ty), s(2.4), s(7));
+    for (let i = 0; i < 9; i++) g.fillCircle(s(-40 + i * 10), s(-36), s(1.1));
+    g.fillStyle(SHADOW, 0.9);
+    for (const bx of [-6, -2, 2, 6]) g.fillRect(s(bx - 0.6), s(-30), s(1.2), s(30));
+    g.fillRect(s(-9), s(-12), s(18), s(1.2));
+    return this.add.container(x, this.floor, [g]);
+  }
+
+  // Garuda, the great eagle, flying right with his wings beating and `riders` ([kind, x]) on his back, among his
+  // feathers. About 1.6 puppets from tail to beak.
+  eagle(riders) {
+    const k = this.P / 100;
+    const s = (v) => v * k;
+    const P = (list) => list.map(([px, py]) => ({ x: s(px), y: s(py) }));
+    const dots = (g, list, r) => list.forEach(([px, py]) => g.fillCircle(s(px), s(py), s(r)));
+    // A wing reaching back from the shoulder, its long flight feathers splayed; it beats between two angles.
+    const wing = (from, to, delay) => {
+      const g = this.add.graphics({ x: s(4), y: s(-8) });
+      g.fillStyle(SHADOW, 0.93);
+      g.fillPoints(P([[0, -5], [-18, -11], [-40, -14], [-62, -12], [-84, -6], [-94, 0], [-80, 3], [-86, 9], [-70, 8], [-73, 15], [-58, 12], [-59, 19], [-46, 14], [-46, 21], [-34, 14], [-33, 19], [-22, 12], [-16, 14], [-6, 8], [2, 4]]), true);
+      g.fillStyle(DYE.red, 0.6);
+      g.fillPoints(P([[-2, -4], [-18, -9], [-40, -11], [-56, -9], [-50, -2], [-36, 1], [-20, 2], [-6, 2]]), true);
+      g.fillStyle(LIGHT, 0.85);
+      dots(g, [[-82, 1], [-70, 5], [-58, 8], [-46, 8], [-34, 8], [-22, 6]], 0.9);
+      dots(g, [[-12, -5], [-24, -7], [-36, -8], [-48, -6]], 0.75);
+      g.setAngle(from);
+      if (!this.still) this.tweens.add({ targets: g, angle: to, duration: 420, yoyo: true, repeat: -1, delay, ease: 'Sine.InOut' });
+      return g;
+    };
+    const far = wing(46, 18, 0);
+    const people = riders.map(([kind, x]) => this.rider(kind, s(x), s(-5), 0.52));
+    const body = this.add.graphics();
+    body.fillStyle(SHADOW, 0.94);
+    // The tail fan, the body and neck, and the crowned head with its hooked beak.
+    body.fillPoints(P([[-46, -7], [-68, -16], [-84, -14], [-76, -8], [-92, -6], [-78, -1], [-90, 4], [-72, 4], [-46, 3]]), true);
+    body.fillPoints(P([[-50, -6], [-30, -12], [-6, -14], [14, -14], [26, -18], [34, -26], [40, -32], [48, -34], [55, -32], [60, -28], [68, -26], [73, -22], [69, -19.5], [63, -21], [58, -18], [50, -14], [40, -8], [28, 0], [10, 6], [-12, 8], [-34, 5], [-50, 2]]), true);
+    body.fillPoints(P([[43, -33], [45, -42], [48.5, -36.5], [51.5, -45], [54, -36], [57.5, -40], [57, -31]]), true);
+    // Talons tucked under him as he flies.
+    body.lineStyle(s(2.2), SHADOW, 0.94);
+    body.lineBetween(s(12), s(4), s(20), s(15));
+    body.lineBetween(s(20), s(15), s(27), s(14));
+    body.lineBetween(s(20), s(15), s(25), s(19));
+    body.fillStyle(DYE.ochre, 0.6);
+    body.fillPoints(P([[-40, -3], [-10, -9], [20, -10], [36, -18], [44, -26], [50, -26], [44, -14], [30, -4], [8, 2], [-20, 3]]), true);
+    body.fillStyle(LIGHT, 0.88);
+    dots(body, [[56, -28]], 1.2);
+    dots(body, [[48, -37], [51.5, -40]], 0.7);
+    dots(body, [[-62, -9], [-74, -10], [-70, -3], [-80, -4], [-66, 1]], 0.8);
+    dots(body, [[38, -20], [33, -14], [26, -8], [16, -4], [4, -2], [-8, -1], [-20, -2], [-32, -2]], 0.8);
+    const near = wing(-6, -30, 210);
+    return this.add.container(0, 0, [far, ...people, body, near]);
+  }
+
+  // The flying chariot: a carved pavilion on a swan-prowed boat, riding on clouds, with `riders` ([kind, x]) aboard.
+  // About 1.4 puppets long.
+  chariot(riders) {
+    const k = this.P / 100;
+    const s = (v) => v * k;
+    const P = (list) => list.map(([px, py]) => ({ x: s(px), y: s(py) }));
+    const back = this.add.graphics();
+    // Clouds under it, then the pavilion: pillars, a lintel, a stepped roof with a dome, and two flags.
+    back.fillStyle(SHADOW, 0.32);
+    for (const [cx, cy, rx, ry] of [[-52, 0, 18, 7], [-28, 4, 22, 8], [2, 3, 24, 8], [30, 5, 20, 8], [52, 1, 15, 6], [-12, 9, 30, 6]]) back.fillEllipse(s(cx), s(cy), s(rx * 2), s(ry * 2));
+    back.fillStyle(SHADOW, 0.92);
+    for (const px of [-46, -26, -2, 18, 40]) back.fillRect(s(px - 1.3), s(-72), s(2.6), s(56));
+    back.fillRect(s(-52), s(-78), s(98), s(6));
+    back.fillPoints(P([[-46, -78], [40, -78], [32, -88], [-38, -88]]), true);
+    back.fillPoints(P([[-34, -88], [28, -88], [20, -97], [-26, -97]]), true);
+    back.fillPoints(P([[-22, -97], [16, -97], [10, -104], [-16, -104]]), true);
+    back.beginPath();
+    back.arc(s(-3), s(-104), s(10), Math.PI, 0);
+    back.closePath();
+    back.fillPath();
+    back.fillRect(s(-3.8), s(-122), s(1.6), s(8));
+    back.fillCircle(s(-3), s(-123), s(2.2));
+    for (const [fx, dir] of [[-50, -1], [44, 1]]) {
+      back.fillRect(s(fx - 0.7), s(-96), s(1.4), s(18));
+      back.fillPoints(P([[fx, -96], [fx + dir * 9, -93], [fx, -90]]), true);
+    }
+    back.fillStyle(LIGHT, 0.8);
+    for (let i = 0; i < 12; i++) back.fillCircle(s(-47 + i * 8), s(-75), s(1));
+    for (const [y, x0, n] of [[-83, -30, 8], [-92.5, -20, 5], [-100.5, -10, 2]]) for (let i = 0; i < n; i++) back.fillCircle(s(x0 + i * 8), s(y), s(1));
+    const people = riders.map(([kind, x]) => this.rider(kind, s(x), s(-6), 0.5));
+    // The boat: a curled tail at the back, a swan's neck and head at the prow, and a dyed band with holes.
+    const hull = this.add.graphics();
+    hull.fillStyle(SHADOW, 0.94);
+    hull.fillPoints(P([[-62, -38], [-58, -28], [-52, -22], [48, -22], [54, -28], [58, -40], [60, -50], [64, -56], [71, -56], [80, -52], [72, -50], [67, -46], [65, -34], [61, -18], [52, -6], [-48, -6], [-58, -14], [-64, -24], [-68, -34], [-66, -42]]), true);
+    hull.fillStyle(DYE.red, 0.7);
+    hull.fillPoints(P([[-54, -19], [52, -19], [50, -12], [-52, -12]]), true);
+    hull.fillStyle(LIGHT, 0.85);
+    for (let i = 0; i < 13; i++) hull.fillCircle(s(-48 + i * 8), s(-15.5), s(0.9));
+    hull.fillCircle(s(69), s(-53), s(1.1));
+    hull.fillCircle(s(-63), s(-36), s(1));
+    hull.fillCircle(s(-60), s(-28), s(1));
+    return this.add.container(0, 0, [back, ...people, hull]);
+  }
+
   // The forest's trees, grown and painted once as the show starts, so the forest scene doesn't pause to paint them.
   // Each stands at a fraction `at` of the way across the cloth, with a box: how far it reaches from its foot
   // ([left, right, up, down], in puppet units, measured from what it grows; anything past the cloth's edges is left
@@ -809,11 +1197,16 @@ export class PuppetScene extends BaseScene {
     return { key, W, H, ox, oy, res };
   }
 
-  // A painted tree standing in its place on the ground, as a shadow `alpha` dark. Near trees sway a little in the
-  // wind (`sway` degrees), rocking from their foot.
-  forestShadow(name, alpha, sway = 0) {
+  // A painted tree standing in its place on the ground (or at x, y, `scale` times its size), as a shadow `alpha`
+  // dark. Near trees sway a little in the wind (`sway` degrees), rocking from their foot.
+  forestShadow(name, alpha, sway = 0, { x, y, scale = 1 } = {}) {
     const t = this.woods[name];
-    const img = this.add.image(this.at(t.at), this.floor, t.key).setOrigin(t.ox / t.W, t.oy / t.H).setScale(1 / t.res).setTint(SHADOW).setAlpha(alpha);
+    const img = this.add
+      .image(x ?? this.at(t.at), y ?? this.floor, t.key)
+      .setOrigin(t.ox / t.W, t.oy / t.H)
+      .setScale(scale / t.res)
+      .setTint(SHADOW)
+      .setAlpha(alpha);
     if (sway && !this.still) {
       img.setAngle(-sway);
       this.tweens.add({ targets: img, angle: sway, duration: Phaser.Math.Between(2400, 3400), yoyo: true, repeat: -1, ease: 'Sine.InOut' });

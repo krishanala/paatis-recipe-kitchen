@@ -10,7 +10,7 @@ flowchart TD
     W --> I["Before we begin<br/>a plate of muruku · words one at a time · Start Chapter 1"]
     I --> C1["2 · Story<br/>Ch 1: What is Deepavali?"]
     C1 --> Q1["3 · Quiz ×3<br/>earns rice flour, urad dal flour, flour"]
-    Q1 --> P["Shadow puppet show, full screen<br/>the Pandavas come home · Rama comes home (about a minute) · Skip"]
+    Q1 --> P["Shadow puppet show, full screen<br/>the Pandavas come home · Rama comes home · Krishna, Satyabhama and Narakasura (under two minutes) · Skip"]
     P --> ST1["4 · Store<br/>3 of 6 collected"]
 
     ST1 --> C2["2 · Story<br/>Ch 2: What is muruku?"]

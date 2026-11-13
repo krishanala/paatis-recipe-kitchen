@@ -32,22 +32,31 @@ export const INTRO = {
   start: 'Start Chapter 1',
 };
 
-// The shadow puppet show, after the chapter 1 quiz: two stories many families tell at Deepavali, from the
-// Mahabharata and the Ramayana, told full screen behind a lit cloth screen as South Indian shadow puppet theatre is,
-// with subtitles. Each line is one scene, shown as long as people need to read it; about a minute in all. The details
-// vary between families, so the last line says so (docs/quiz-research.md → "The puppet show").
+// The shadow puppet show, after the chapter 1 quiz: three stories families tell about why Deepavali's lamps are lit,
+// told full screen behind a lit cloth screen as South Indian shadow puppet theatre is, with subtitles. From the
+// Mahabharata, the Pandavas coming home; from the Ramayana, Rama coming home to Ayodhya; and the story many Tamil
+// families tell, of Krishna and Satyabhama defeating Narakasura, which is why Tamil Deepavali starts with an oil bath
+// before sunrise. Each line is one scene, shown as long as people need to read it; just under two minutes in all.
+// The details vary between families, so the first line says these are stories families tell
+// (docs/quiz-research.md → "The puppet show").
 export const PUPPET = {
-  title: 'Coming home to the lamps',
+  title: 'Why we light the lamps',
   lines: [
-    { id: 'title', text: 'Two stories many families tell at Deepavali, told with shadow puppets.' },
-    { id: 'kingdom', text: 'Long ago, the five Pandava brothers lived happily with Draupadi in their kingdom.' },
-    { id: 'dice', text: 'Their cousins tricked them in a game of dice, and they lost everything.' },
-    { id: 'forest', text: 'They lived in the forest for twelve years, and one more year in hiding.' },
-    { id: 'home', text: 'At last, on a dark new moon night, they came home, and everyone lit lamps to welcome them.' },
-    { id: 'ravana', text: 'In another story, Ravana, the ten-headed king of Lanka, carried Sita away.' },
-    { id: 'bridge', text: 'Rama, his brother Lakshmana and Hanuman crossed the sea to bring her back.' },
-    { id: 'battle', text: 'Rama defeated Ravana, and Sita was free.' },
-    { id: 'ayodhya', text: 'When they came home to Ayodhya, rows of lamps lit their way. Many families say that is why we light lamps at Deepavali.' },
+    { id: 'title', text: 'On the darkest night of the year, we light the most lamps. Families tell three stories of why.' },
+    { id: 'kingdom', text: 'Long ago, five brothers, the Pandavas, lived happily with Draupadi in their kingdom.' },
+    { id: 'dice', text: 'Then their cousin Duryodhana tricked them in a game of dice, and they lost everything.' },
+    { id: 'forest', text: 'For twelve years they lived in the forest, and for one more year they hid in disguise.' },
+    { id: 'home', text: 'On a dark new moon night they came home at last, and the whole city lit lamps to welcome them.' },
+    { id: 'ravana', text: 'The second story: Ravana, the ten-headed king of Lanka, carried Sita away from Prince Rama.' },
+    { id: 'hanuman', text: 'Brave Hanuman leapt across the sea and found Sita in a garden. He gave her Rama\'s ring: help was coming.' },
+    { id: 'bridge', text: 'Stone by stone, a bridge was built across the sea, and Rama, Lakshmana and Hanuman crossed to Lanka.' },
+    { id: 'battle', text: 'Rama\'s arrow flew true. Ravana fell, and Sita was free.' },
+    { id: 'ayodhya', text: 'They flew home in a flying chariot. Ayodhya had waited fourteen years, and lit rows of lamps to welcome them.' },
+    { id: 'naraka', text: 'The third story, told in many Tamil homes: Narakasura, a proud king, was frightening heaven and earth.' },
+    { id: 'garuda', text: 'Krishna and his wife Satyabhama flew to stop him, riding Garuda, the great eagle.' },
+    { id: 'fight', text: 'When Krishna fell in the battle, Satyabhama raised her bow, and together they defeated Narakasura.' },
+    { id: 'wish', text: 'Narakasura\'s last wish: remember this day not with tears, but with lamps and joy.' },
+    { id: 'dawn', text: 'Krishna came home at dawn and bathed in warm oil, so Tamil Deepavali starts with an oil bath before sunrise.' },
   ],
 };
 
