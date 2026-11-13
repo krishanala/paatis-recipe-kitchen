@@ -1,4 +1,4 @@
-import { ADD_ORDER, ASK_LINES, COOK_LINES, COOK_QUESTIONS, EXTRA_FACTS, FINALE, PUPPET, QUIZ_BANK, QUIZ_LINES, RESULT_LINES, STORE_LINES, STORIES, ingredient } from './content.js';
+import { ADD_ORDER, ASK_LINES, COOK_LINES, COOK_QUESTIONS, EXTRA_FACTS, FINALE, NAME, PUPPET, QUIZ_BANK, QUIZ_LINES, RESULT_LINES, STORE_LINES, STORIES, ingredient } from './content.js';
 import { settings } from './state.js';
 
 // Voice-over hooks. Every line Paati says goes through speak() (PaatiBubble.say calls it), so recordings can be
@@ -48,10 +48,10 @@ export function voiceScript() {
   const lines = [];
   const add = (where, text) => text && lines.push({ where, key: lineKey(text), text });
   for (const [id, story] of Object.entries(STORIES)) {
-    story.lines.forEach((t) => add(`story ${id}`, t));
+    story.lines.forEach((t) => add(`story ${id}`, t.ask ? NAME.ask : t));
   }
-  add('puppet show', PUPPET.pick);
-  add('puppet show', PUPPET.again);
+  const P = PUPPET.paati;
+  [P.first, ...Object.values(P.after), P.more, P.allDone].forEach((t) => add('puppet show: Paati', t));
   PUPPET.stories.forEach((st) => st.lines.forEach((l) => add(`puppet show: ${st.title}`, l.text)));
   const facts = [...EXTRA_FACTS];
   for (const [ch, bank] of Object.entries(QUIZ_BANK)) {

@@ -27,7 +27,7 @@ export class BaseScene extends Phaser.Scene {
     if (!settings.reduceMotion) cam.fadeIn(180, ...rgb(this.mood.bg));
     // Scene events outlive a restart, so drop this visit's listeners when the screen closes.
     this.events.once('shutdown', () => {
-      for (const name of ['settings-closed', 'settings-changed', 'escape', 'view-resize']) this.events.off(name);
+      for (const name of ['settings-opened', 'settings-closed', 'settings-changed', 'escape', 'view-resize']) this.events.off(name);
       this.scale.off('resize', this.fitCamera, this);
     });
   }
@@ -103,6 +103,7 @@ export class BaseScene extends Phaser.Scene {
 
   openSettings() {
     if (this.sheet) return;
+    this.events.emit('settings-opened');
     this.sheet = new SettingsSheet(this, () => {
       this.sheet = null;
       this.events.emit('settings-closed');

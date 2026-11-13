@@ -1,8 +1,8 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { SERIF, art, chip, rocket, sparkle } from '../ui/widgets.js';
+import { PaatiBubble, SERIF, art, chip, glow as rays, paati, rocket, sparkle } from '../ui/widgets.js';
 import { fontSize, makeText } from '../ui/text.js';
-import { PUPPET } from '../content.js';
+import { PAATI, PUPPET } from '../content.js';
 import { BLEED, COLOR, RES, STAGE, css, pick } from '../theme.js';
 import { settings } from '../state.js';
 import { Shadow, banyan, broadleaf, distantForest, palm, undergrowth } from '../trees.js';
@@ -58,6 +58,13 @@ const THUMBS = {
 };
 const CURTAIN_MS = 1200;
 const BAND_DEPTH = 10; // the subtitle band and its button, above the crackers (depth 5) at the end
+const PAGE_DEPTH = 20; // the card page, in front of the closed curtains
+// The card page: Paati on the left, her bubble and the cards to her right, and Skip / Next at the bottom right. On
+// phones Paati is smaller, so the bubble and cards are wider and their bigger text fits.
+const PAGE = pick(
+  { x: 340, w: 900, top: 44, bottom: 610, paati: { x: 175, h: 500, glow: 220 }, bubbleMax: 250, button: { x: 1110, y: 664, w: 260 } },
+  { x: 258, w: 1004, top: 38, bottom: 612, paati: { x: 130, h: 400, glow: 170 }, bubbleMax: 200, button: { x: 1112, y: 664, w: 260 } },
+);
 
 // Who each puppet is: its dye, crown, what it holds, and how big it is.
 const CAST = {
@@ -80,12 +87,12 @@ const CAST = {
   vanara: { dye: DYE.ochre, crown: 'none', monkey: true, size: 0.72, left: true },
 };
 
-// The shadow puppet show (after the chapter 1 quiz), full screen. Curtains open on a lit cloth screen showing three
-// story cards: the Pandavas coming home, Rama coming home to Ayodhya, and Krishna and Satyabhama defeating
-// Narakasura. Each story explains who everyone is and why things happen, and ends on a different part of Deepavali.
-// A story's puppets come and go scene by scene, with a subtitle on a dark band at the bottom; Skip story goes back to
-// the cards. Back at the cards, the watched stories are ticked, and Next (Skip before any story) carries on. With
-// Reduce motion the scenes change without the puppets moving or the lamp light flickering.
+// The shadow puppet show (after the chapter 1 quiz), full screen. It opens on a card page in front of the closed red
+// curtains: Paati says what the stories mean, beside a card for each one (the Pandavas coming home, Rama coming home
+// to Ayodhya, and Krishna and Satyabhama defeating Narakasura). Picking a card opens the curtains on that story; its
+// puppets come and go scene by scene, with a subtitle on a dark band at the bottom. At its end (or Skip story) the
+// curtains close and the card page comes back, the story ticked, and Paati says why it matters to us. Next (Skip
+// before any story) carries on. With Reduce motion the curtains and scenes change without moving.
 export class PuppetScene extends BaseScene {
   constructor() {
     super('Puppet');
@@ -103,7 +110,7 @@ export class PuppetScene extends BaseScene {
     this.S = S;
     const btnW = pick(200, 230);
     const textW = S.w - 80 - btnW - 30;
-    const lines = [PUPPET.pick, PUPPET.again, ...PUPPET.stories.flatMap((st) => st.lines.map((l) => l.text))];
+    const lines = PUPPET.stories.flatMap((st) => st.lines.map((l) => l.text));
     const tallest = Math.max(...lines.map((l) => this.measure(l, textW)));
     const bandH = tallest + pick(36, 28);
     this.band = { y: S.y + S.h - bandH, h: bandH, textW, btnX: S.x + S.w - 40 - btnW / 2, btnW };
@@ -119,9 +126,8 @@ export class PuppetScene extends BaseScene {
     this.timers = [];
     this.watched = new Set();
     this.cards = [];
-    // The curtains open on a dim cloth and the story cards; the show's lamps come up once its diyas are lit.
-    this.applyNight(0.45);
-    this.openCurtains(() => this.showPicker());
+    this.page = [];
+    this.showPage();
   }
 
   measure(str, width) {
@@ -216,77 +222,98 @@ export class PuppetScene extends BaseScene {
       c.fillStyle(COLOR.yellow500, 1);
       c.fillRect(x0, h - 14, cw, 6);
       c.side = side;
+      c.homeX = c.x;
       return c.setDepth(BAND_DEPTH + 1);
     });
   }
 
-  openCurtains(onDone) {
-    if (this.still) {
-      this.curtains.forEach((c) => c.setVisible(false));
-      onDone();
-      return;
-    }
+  // The curtains draw back to the sides (and close again over the cloth).
+  openCurtains() {
     this.curtains.forEach((c) => {
-      this.tweens.add({ targets: c, x: c.x + c.side * (this.S.w / 2 + 40), scaleX: 0.3, duration: CURTAIN_MS, ease: 'Cubic.InOut' });
+      this.tweens.killTweensOf(c);
+      if (this.still) return c.setVisible(false);
+      this.tweens.add({ targets: c, x: c.homeX + c.side * (this.S.w / 2 + 40), scaleX: 0.3, duration: CURTAIN_MS, ease: 'Cubic.InOut' });
       this.tweens.add({ targets: c, alpha: 0, duration: 400, delay: CURTAIN_MS - 400, onComplete: () => c.setVisible(false) });
     });
-    this.later(CURTAIN_MS - 300, onDone);
   }
 
-  // ---- the story cards ------------------------------------------------------------------------------
+  closeCurtains(onDone) {
+    this.curtains.forEach((c) => {
+      this.tweens.killTweensOf(c);
+      c.setVisible(true);
+      if (this.still) return c.setPosition(c.homeX, c.y).setScale(1).setAlpha(1);
+      if (c.alpha === 0) c.setPosition(c.homeX + c.side * (this.S.w / 2 + 40), c.y).setScale(0.3, 1);
+      this.tweens.add({ targets: c, alpha: 1, duration: 300 });
+      this.tweens.add({ targets: c, x: c.homeX, scaleX: 1, duration: CURTAIN_MS, ease: 'Cubic.InOut' });
+    });
+    if (this.still) onDone();
+    else this.later(CURTAIN_MS, onDone);
+  }
 
-  // The cards: the show's title across the top of the cloth, a card for each story, and the theatre's own diyas lit
-  // along the bottom. After a story the band says to pick another or carry on, and watched stories are ticked.
-  showPicker() {
+  // ---- the card page ---------------------------------------------------------------------------------
+
+  // The card page, in front of the closed curtains: Paati, telling what the stories mean (and, after one, why that
+  // story matters to us), beside a card for each story. Skip (Next once a story has been watched) carries on.
+  showPage(after) {
     this.story = null;
-    this.clearTimers();
-    this.tweens.killTweensOf(this.light);
     const first = !this.watched.size;
-    this.setNight(0, first ? 1600 : 900, first ? 1500 : 0);
-    this.say(first ? PUPPET.pick : PUPPET.again);
-    const { w } = this.S;
-    const title = makeText(this, w / 2, 0, PUPPET.title, 'h2', { color: SHADOW, weight: 700, origin: [0.5, 0], align: 'center' }).setFontFamily(SERIF);
-    title.setY(Math.max(10, this.floor * 0.05));
-    this.cardTop = title.y + title.height + pick(16, 10);
-    this.setCast([title], this.lamps(this.row(9), this.floor, first ? 400 : 0, 1, first ? 140 : 0));
-    this.cards.forEach((c) => c.destroy());
+    const P = PUPPET.paati;
+    const line = after ? `${P.after[after]} ${this.watched.size === PUPPET.stories.length ? P.allDone : P.more}` : P.first;
+    const halo = rays(this, PAGE.paati.x, 712 - PAGE.paati.h * 0.5, PAGE.paati.glow);
+    const figure = paati(this, PAGE.paati.x, 712, PAATI.teaching, PAGE.paati.h);
+    const bubble = new PaatiBubble(this, PAGE.x, PAGE.top, PAGE.w, { avatar: false });
+    bubble.maxH = PAGE.bubbleMax;
+    bubble.say(line);
+    this.cardTop = PAGE.top + bubble.bubbleHeight + 20;
     this.cards = PUPPET.stories.map((st, i) => this.card(st, i));
+    const b = PAGE.button;
+    const go = new Button(this, b.x, b.y, { label: first ? 'Skip' : 'Next', variant: first ? 'outline' : 'filled', width: b.w, dark: false, onClick: () => this.advance() });
+    this.page = [halo, figure, bubble, ...this.cards, go];
+    this.page.forEach((o) => o.setDepth(PAGE_DEPTH));
     if (!this.still) {
-      this.cards.forEach((c, i) => {
-        c.setAlpha(0);
-        this.tweens.add({ targets: c, alpha: 1, duration: 450, delay: 250 + i * 120 });
+      this.page.forEach((o, i) => {
+        const a = o.alpha;
+        o.setAlpha(0);
+        this.tweens.add({ targets: o, alpha: a, duration: 450, delay: i < 3 ? 0 : 150 + (i - 3) * 100 });
       });
     }
-    this.bandButton(first ? 'Skip' : 'Next', !first, () => this.advance());
-    if (this.focus.visible) this.focus.focus(this.cards.find((c) => !this.watched.has(c.story)) ?? this.skip);
+    if (this.focus.visible) this.focus.focus(this.cards.find((c) => !this.watched.has(c.story)) ?? go);
+  }
+
+  // Clears the card page away (fading, unless Reduce motion is on).
+  hidePage() {
+    const page = this.page;
+    this.page = [];
+    this.cards = [];
+    page.forEach((o) => o.setEnabled?.(false));
+    if (this.still) return page.forEach((o) => o.destroy());
+    this.tweens.add({ targets: page, alpha: 0, duration: 300, onComplete: () => page.forEach((o) => o.destroy()) });
   }
 
   // A story's card: a little lit cloth with its puppets, its name, what it tells about Deepavali, and a tick once it
   // has been watched. The whole card is one button.
   card(st, i) {
-    const { w } = this.S;
-    const gap = pick(34, 26);
-    const margin = pick(46, 40);
-    const cw = (w - 2 * margin - 2 * gap) / 3;
+    const gap = pick(22, 18);
+    const cw = (PAGE.w - 2 * gap) / 3;
     const top = this.cardTop;
-    const ch = this.floor - 0.2 * this.P - top;
+    const ch = PAGE.bottom - top;
     const pad = 14;
     const textW = cw - 2 * pad - 8;
     const name = makeText(this, 0, 0, st.title, 'h5', { weight: 700, width: textW, align: 'center', origin: [0.5, 0], color: COLOR.grey900 });
     const teaser = makeText(this, 0, 0, st.teaser, 'b1', { width: textW, align: 'center', origin: [0.5, 0], color: COLOR.grey600 });
     const tick = this.watched.has(st.id) ? chip(this, 0, 0, '✓ Watched', 'success') : null;
-    // Every card has the same picture size, sized for the card with the most text, with room kept for the tick.
+    // Every card has the same picture size, sized for the card with the most text.
     this.cardText ??= Math.max(
       ...PUPPET.stories.map((other) => {
         const a = makeText(this, 0, 0, other.title, 'h5', { weight: 700, width: textW });
         const b = makeText(this, 0, 0, other.teaser, 'b1', { width: textW });
-        const h = a.height + 4 + b.height + 10 + 32;
+        const h = a.height + 4 + b.height;
         a.destroy();
         b.destroy();
         return h;
       }),
     );
-    const thumbH = Math.max(80, ch - 2 * pad - 12 - this.cardText);
+    const thumbH = Math.max(70, ch - 2 * pad - 12 - this.cardText);
     const thumbW = cw - 2 * pad;
     const y0 = -ch / 2 + pad;
     const cloth = this.add.image(0, y0 + thumbH / 2, 'puppet-cloth').setDisplaySize(thumbW, thumbH);
@@ -294,8 +321,9 @@ export class PuppetScene extends BaseScene {
     const puppets = THUMBS[st.id].map(([kind, f]) => this.rider(kind, f * thumbW, y0 + thumbH - 4, scale));
     name.setY(y0 + thumbH + 12);
     teaser.setY(name.y + name.height + 4);
-    tick?.setY(teaser.y + teaser.height + 10 + 16);
-    const card = new Button(this, this.S.x + margin + cw / 2 + i * (cw + gap), this.S.y + top + ch / 2, {
+    // The tick sits in the picture's top corner.
+    tick?.setPosition(thumbW / 2 - (tick.list[1].width + 28) / 2 - 8, y0 + 8 + (tick.list[1].height + 10) / 2);
+    const card = new Button(this, PAGE.x + cw / 2 + i * (cw + gap), top + ch / 2, {
       variant: 'outline',
       dark: false,
       width: cw,
@@ -308,32 +336,47 @@ export class PuppetScene extends BaseScene {
     return card;
   }
 
-  // Plays one story from the start. Its card is ticked from now on.
+  // Plays one story from the start: the card page goes, the curtains open on its first scene. Its card is ticked
+  // from now on.
   play(id) {
     this.clearTimers();
     this.story = PUPPET.stories.find((st) => st.id === id);
     this.watched.add(id);
-    const cards = this.cards;
-    this.cards = [];
-    cards.forEach((c) => c.setEnabled(false));
-    if (this.still) cards.forEach((c) => c.destroy());
-    else this.tweens.add({ targets: cards, alpha: 0, duration: 300, onComplete: () => cards.forEach((c) => c.destroy()) });
-    this.setNight(0, 400);
-    this.bandButton('Skip story', false, () => this.showPicker());
+    this.hidePage();
+    this.tweens.killTweensOf(this.light);
+    this.applyNight(0);
+    this.bandButton('Skip story', false, () => this.endStory());
     if (this.focus.visible) this.focus.focus(this.skip);
     this.index = -1;
     this.next();
+    this.openCurtains();
   }
 
   next() {
     if (!this.story) return;
     this.index++;
     const line = this.story.lines[this.index];
-    if (!line) return this.showPicker();
+    if (!line) return this.endStory();
     this.say(line.text);
     this.hold = holdFor(line);
     this[line.id]();
     this.later(this.hold, () => this.next());
+  }
+
+  // The story is over (or skipped): the curtains close on its last scene, and the card page comes back.
+  endStory() {
+    const done = this.story?.id;
+    if (!done) return;
+    this.story = null;
+    this.clearTimers();
+    this.skip?.destroy();
+    this.skip = null;
+    this.closeCurtains(() => {
+      this.tweens.killTweensOf(this.light);
+      this.setCast([]);
+      this.subtitle.setText('');
+      this.showPage(done);
+    });
   }
 
   // Shows (and speaks) a line on the subtitle band.
@@ -343,7 +386,7 @@ export class PuppetScene extends BaseScene {
     if (!this.still) this.tweens.add({ targets: this.subtitle, alpha: { from: 0, to: 1 }, duration: 300 });
   }
 
-  // The band's button: an outline (Skip, Skip story) or filled (Next). Keyboard focus stays on it when it changes.
+  // The band's button during a story (Skip story). Keyboard focus stays on it when it changes.
   bandButton(label, filled, onClick) {
     const b = this.band;
     const focused = this.skip && this.focus.current === this.skip;

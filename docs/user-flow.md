@@ -4,13 +4,13 @@ The journey is one straight path through four chapters, followed by an optional 
 
 ```mermaid
 flowchart TD
-    T["1 · Title<br/>Play · Sound · Help"] --> W["2 · Paati's story<br/>Welcome"]
+    T["1 · Title<br/>Play · Sound · Help"] --> W["2 · Paati's story<br/>Welcome · what should I call you?"]
     T -. Help .-> S(["Settings action sheet<br/>sound · captions · text size · language"])
 
     W --> I["Before we begin<br/>a plate of muruku · words one at a time · Start Chapter 1"]
     I --> C1["2 · Story<br/>Ch 1: What is Deepavali?"]
     C1 --> Q1["3 · Quiz ×3<br/>earns rice flour, urad dal flour, flour"]
-    Q1 --> P["Shadow puppet show, full screen<br/>three story cards: the Pandavas · Rama · Krishna and Satyabhama<br/>watch any, back to the cards · Next (Skip before any)"]
+    Q1 --> P["Shadow puppet show, full screen<br/>Paati and three story cards before the curtains<br/>a card opens the curtains on its story · back to Paati · Next (Skip before any)"]
     P --> ST1["4 · Store<br/>3 of 6 collected"]
 
     ST1 --> C2["2 · Story<br/>Ch 2: What is muruku?"]
@@ -41,7 +41,8 @@ flowchart TD
 |---|---|
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Stories are two short lines each, read with Next | Story |
-| The puppet show fills the screen and opens on three story cards. A story plays scene by scene with a subtitle for each, shown long enough to read, then the cards come back with it ticked. Skip story goes back to the cards; Next (Skip before any story is watched) moves on | Puppet |
+| The puppet show fills the screen. It opens on Paati and three story cards in front of the closed curtains; Paati says what the stories mean. A card opens the curtains on its story, which plays scene by scene with a subtitle for each, shown long enough to read. At its end (or Skip story) the curtains close, the card is ticked, and Paati says why that story matters. Next (Skip before any story is watched) moves on | Puppet |
+| Paati asks what to call the player on the Welcome page (or Skip). She uses the name wherever she would say "dear"; it is kept for this visit only | Welcome, then every screen |
 | Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
@@ -64,4 +65,5 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's cards appear without fading in, and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. When Paati tastes the muruku, her pictures change in place without movement |
+| Player skips the name, or leaves it empty | Paati calls them "dear", as before |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's curtains open and close at once, its cards appear without fading in, and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. When Paati tastes the muruku, her pictures change in place without movement |

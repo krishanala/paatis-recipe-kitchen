@@ -1,7 +1,7 @@
 import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, STAGE, css } from '../theme.js';
 import { fitText, fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
-import { settings, progress } from '../state.js';
+import { personal, progress, settings } from '../state.js';
 import { speak } from '../voice.js';
 
 export const HEADER_H = 84;
@@ -149,7 +149,7 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
     } else {
       this.labelText.setVisible(false);
     }
-    this.body.setText(str).setY(y);
+    this.body.setText(personal(str)).setY(y);
     // A screen can cap the bubble's height (maxH): bigger text then steps down to fit, never below the default.
     fitText(this.body, 's1', this.maxH ? this.maxH - y - 18 : Infinity);
     const h = Math.max(96, y + this.body.height + 18);

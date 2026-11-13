@@ -43,6 +43,7 @@ function freshProgress() {
     freeKitchen: false,
     plate: 0, // muruku made in the free kitchen
     factIndex: 0,
+    name: '', // what Paati calls the player (the Welcome asks); kept for this visit only, like the rest
   };
 }
 
@@ -50,6 +51,17 @@ export const progress = freshProgress();
 
 export function resetProgress() {
   Object.assign(progress, freshProgress());
+}
+
+// Paati calls the player by the name they gave her, and "dear" when they gave none. Her lines say "dear" wherever she
+// speaks to the player, so swapping that word is all it takes.
+export function personal(str) {
+  return progress.name ? String(str).replace(/\bdear\b/g, () => progress.name) : str;
+}
+
+// A name as typed: inner spaces collapsed, trimmed, at most 24 characters.
+export function cleanName(raw) {
+  return String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, 24);
 }
 
 export function markChapterDone(id) {

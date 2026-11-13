@@ -33,6 +33,33 @@
         touch-action: none;
         background: #fffbf5; /* also the full-screen backdrop; each screen sets its own colour */
       }
+      /* Text typed into the game (the player's name): a field laid over the canvas (src/ui/field.js places it). */
+      .text-field {
+        position: fixed;
+        z-index: 5;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0 0.6em;
+        border: 2px solid #c9ccd6;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #131927;
+        caret-color: #d96500;
+        font-family: Inter, system-ui, sans-serif;
+        font-weight: 600;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        touch-action: manipulation;
+      }
+      .text-field::placeholder {
+        color: #8a8f9c;
+        font-weight: 500;
+      }
+      .text-field:focus {
+        border-color: #4e61f6;
+        box-shadow: 0 0 0 3px rgba(78, 97, 246, 0.25);
+      }
       /* The kitchen is landscape. On a phone or small tablet held upright, ask for a turn. */
       #rotate {
         display: none;

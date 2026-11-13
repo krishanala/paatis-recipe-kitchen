@@ -4,7 +4,7 @@ import { PaatiBubble, art, bokeh, burst, fireworks, garland, glow, hangingGarlan
 import { BUTTON_FONT, fontSize } from '../ui/text.js';
 import { FINALE, PAATI } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
-import { progress, resetProgress, settings } from '../state.js';
+import { personal, progress, resetProgress, settings } from '../state.js';
 import { paintMuruku } from '../draw.js';
 
 // Screen 7 · Finale, in modes:
@@ -222,7 +222,7 @@ export class FinaleScene extends BaseScene {
   choice() {
     this.welcomeLayout({
       pose: PAATI.celebrating,
-      ribbonText: FINALE.choiceRibbon,
+      ribbonText: personal(FINALE.choiceRibbon),
       title: FINALE.choiceTitle,
       text: FINALE.choiceText,
       buttons: [
@@ -278,7 +278,7 @@ export class FinaleScene extends BaseScene {
     });
     const count = (progress.lastMuruku ? 1 : 0) + progress.plate;
     const made = this.text(640, again.y - again.bh / 2 - 16, `You made ${count} muruku with Paati.`, 'b1', { origin: [0.5, 1], color: COLOR.grey600 });
-    const line = this.text(640, made.y - made.height - 6, FINALE.goodbye, 's1', { origin: [0.5, 1], width: 760, align: 'center' });
+    const line = this.text(640, made.y - made.height - 6, personal(FINALE.goodbye), 's1', { origin: [0.5, 1], width: 760, align: 'center' });
     const bottom = line.y - line.height - 12;
     const top = head.y + head.textHeight + 10;
     const h = Math.min(340, bottom - top);

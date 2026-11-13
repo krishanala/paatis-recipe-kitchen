@@ -89,7 +89,7 @@ src/
   scoring.js          dough 40 / twist 30 / fry 30 → stars, with one-line reasons
   draw.js             draws the player's own spiral as their muruku
   trees.js            grows the puppet show's forest: palm, forest tree, banyan, far trees, grass and ferns
-  ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet
+  ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet, text field
   scenes/             Title, Story, Intro (before we begin), Quiz, Puppet (the shadow puppet show), Store,
                       Cook (6 steps), Result, Finale
 assets/
@@ -127,6 +127,9 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **14 Nov 2026, Paati knows your name, and opens the curtains:**
+  - **Your name.** On the Welcome page, after she introduces herself, Paati asks "what should I call you?". A real text field sits under her bubble (`src/ui/field.js`): Enter or That's me keeps the name, and Skip carries on without one. From then on she uses the name wherever she would say "dear", from "Welcome, Meena" and "Lovely to meet you, Meena!" through the quiz, the kitchen and the finale (`personal()` in `src/state.js`). With no name she says "dear", as before. The name is kept for this visit only, with the rest of the progress, so it isn't stored on the device and a shared computer won't greet the next person by it.
+  - **Puppet show.** It now opens on a card page in front of the closed red curtains, with no diyas. Paati stands on the left and says what the stories mean: in each, light wins over darkness, and each explains something we still do today. Picking a card opens the curtains on that story. At its end (or Skip story) they close again, the card is ticked, and Paati says why that story matters: visiting the elders and sharing sweets, rows of lamps at every doorstep, the oil bath before sunrise. On phones the page has its own roomier layout.
 - **14 Nov 2026, story cards, and stories that explain themselves:** After user feedback that the stories left people confused, and that they shouldn't all be about lamps:
   - **Story cards.** The puppet show now opens on three cards: "The Pandavas come home", "Rama comes home" and "Krishna and Satyabhama". Each card shows its puppets on a little lit cloth, says what the story tells about Deepavali, and is ticked once watched. A story plays on its own, then the cards come back, so people can pick another or carry on with Next (Skip before any story). Skip story goes back to the cards.
   - **Stories that explain themselves.** Each story now says who everyone is and why things happen:
