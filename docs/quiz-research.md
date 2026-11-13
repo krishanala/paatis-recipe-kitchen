@@ -104,15 +104,16 @@ Paati asks one question at the start of five cooking steps (not in the free kitc
 
 ## The puppet show (after the chapter 1 quiz)
 
-Not a quiz question. Paati tells a story from the Mahabharata as a shadow puppet show, in six short lines (under a minute): the five Pandava brothers and Draupadi lose their kingdom to their cousins in a game of dice, live twelve years in the forest and one more in hiding, and come home on a dark new moon night, when everyone lights rows of lamps to welcome them.
+Not a quiz question. A full-screen shadow puppet show, with subtitles, of two stories many families tell at Deepavali (about a minute in all). From the Mahabharata: the five Pandava brothers and Draupadi lose their kingdom to their cousins in a game of dice, live twelve years in the forest and one more in hiding, and come home on a dark new moon night to lamps. From the Ramayana: Ravana, the ten-headed king of Lanka, carries Sita away; Rama, Lakshmana and Hanuman cross the sea; Rama defeats Ravana; and rows of lamps light their way home to Ayodhya.
 
 | Fact | Sources |
 |---|---|
 | Many families tell that the Pandavas came home from exile on the new moon night of Kartika, Deepavali's night, and that people lit lamps to welcome them. It is a well-known but secondary Deepavali story, beside Rama's return and Narakasura. | [Google Arts & Culture](https://artsandculture.google.com/story/0QVxpSl4NnfrEQ); [Sahapedia: Diwali origins](https://www.sahapedia.org/diwali-origins-and-the-evolution-of-the-festival-of-lights); [Hindutone: the stories behind Diwali](https://hindutone.com/festivals/the-sacred-stories-behind-diwali-festival/) |
+| Many families, especially in North India, remember Rama, Sita and Lakshmana coming home to Ayodhya after Rama defeated Ravana, with rows of lamps lighting their way. | [Wikipedia: Diwali](https://en.wikipedia.org/wiki/Diwali); [Science Museum blog](https://blog.sciencemuseum.org.uk/happy-diwali/) |
 | The exile after the game of dice: twelve years in the forest and one year in hiding. | [Facts and Details](https://factsanddetails.com/india/People_and_Life/sub7_3b/entry-5656.html) |
 | South Indian shadow puppet theatre is played behind a white cloth screen, lit from behind by a row of oil lamps; the leather puppets have small holes punched in them that let the light through. | [Wikipedia: Tholpavakoothu](https://en.wikipedia.org/wiki/Tholpavakoothu); [Wikipedia: Tholu bommalata](https://en.wikipedia.org/wiki/Tholu_bommalata) |
 
-Sources disagree on details (thirteen or fourteen years, and which city they came home to), so Paati keeps to what they share, names no city, and ends with "many families say that is one reason we light lamps". The game uses no Tamil word for the puppet theatre.
+Sources disagree on details of the Pandavas' story (thirteen or fourteen years, and which city they came home to), so the show keeps to what they share and names no city. It ends with "many families say that is why we light lamps at Deepavali". The Ramayana is also the traditional repertoire of South Indian shadow puppet theatre. The game uses no Tamil word for the puppet theatre.
 
 ## Remembering loved ones (no longer in the game)
 
@@ -146,4 +147,4 @@ Please check these closely:
 7. **Distractors** (the silly wrong answers). Make sure none could be read as mocking a tradition.
 8. **Paati's humour** (stories, store, kitchen, results). The jokes are on Paati, the food or the moment, never on the player or the tradition. Do any land wrong in your families, or read as unkind to grandparents? For example: "Shoes off, appetite on.", "Older cooks, call your common sense.", "Nobody can un-water dough." and "Most of them were me."
 9. **The new wrong answers and the kitchen questions.** Is each wrong answer believable but clearly wrong once explained? Check especially "A new year" (some families do start a new year around Deepavali, so the nudge says so), "Wheat does not grow in India", Mysuru and Kolkata for the muruku town, and "At the edge, then round and in" for the spiral. Are the ghee, water and spiral answers true to how your families make muruku?
-10. **The puppet show.** Do your families tell the Pandavas' homecoming as a Deepavali story? Are the shadow puppets (crowns, Bhima's mace, Arjuna's bow, Draupadi's sari) respectful?
+10. **The puppet show.** Do your families tell the Pandavas' homecoming as a Deepavali story? Are the shadow puppets respectful: the crowns, Bhima's mace, Arjuna's bow, Draupadi's and Sita's saris, Rama dyed blue, Hanuman, and Ravana's ten heads and fall?

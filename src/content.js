@@ -32,19 +32,22 @@ export const INTRO = {
   start: 'Start Chapter 1',
 };
 
-// Paati's shadow puppet show, after the chapter 1 quiz: a story from the Mahabharata, told behind a lit cloth
-// screen as South Indian shadow puppet theatre is. Each line is one scene, shown as long as people need to read it.
-// Many families tell this story; the details vary, so Paati says so (docs/quiz-research.md → "The puppet show").
+// The shadow puppet show, after the chapter 1 quiz: two stories many families tell at Deepavali, from the
+// Mahabharata and the Ramayana, told full screen behind a lit cloth screen as South Indian shadow puppet theatre is,
+// with subtitles. Each line is one scene, shown as long as people need to read it; about a minute in all. The details
+// vary between families, so the last line says so (docs/quiz-research.md → "The puppet show").
 export const PUPPET = {
-  header: "Chapter 1 · Paati's puppet show",
-  title: 'The Pandavas come home',
+  title: 'Coming home to the lamps',
   lines: [
-    { id: 'title', text: 'Come, sit. Tonight, a story from the Mahabharata, told with shadow puppets.' },
-    { id: 'kingdom', text: 'Long ago, five brothers called the Pandavas lived happily with Draupadi in their kingdom.' },
-    { id: 'dice', text: 'Then their cousins tricked them in a game of dice, and they lost everything.' },
-    { id: 'forest', text: 'They had to live in the forest for twelve years, and one more year in hiding.' },
-    { id: 'home', text: 'At last, on a dark new moon night, they came home.' },
-    { id: 'lamps', text: 'Everyone lit rows of lamps to welcome them. Many families say that is one reason we light lamps at Deepavali.' },
+    { id: 'title', text: 'Two stories many families tell at Deepavali, told with shadow puppets.' },
+    { id: 'kingdom', text: 'Long ago, the five Pandava brothers lived happily with Draupadi in their kingdom.' },
+    { id: 'dice', text: 'Their cousins tricked them in a game of dice, and they lost everything.' },
+    { id: 'forest', text: 'They lived in the forest for twelve years, and one more year in hiding.' },
+    { id: 'home', text: 'At last, on a dark new moon night, they came home, and everyone lit lamps to welcome them.' },
+    { id: 'ravana', text: 'In another story, Ravana, the ten-headed king of Lanka, carried Sita away.' },
+    { id: 'bridge', text: 'Rama, his brother Lakshmana and Hanuman crossed the sea to bring her back.' },
+    { id: 'battle', text: 'Rama defeated Ravana, and Sita was free.' },
+    { id: 'ayodhya', text: 'When they came home to Ayodhya, rows of lamps lit their way. Many families say that is why we light lamps at Deepavali.' },
   ],
 };
 
