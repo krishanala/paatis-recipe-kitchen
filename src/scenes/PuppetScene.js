@@ -3,19 +3,23 @@ import { Button } from '../ui/Button.js';
 import { SERIF, art, sparkle } from '../ui/widgets.js';
 import { fontSize, makeText } from '../ui/text.js';
 import { PUPPET } from '../content.js';
-import { BLEED, COLOR, STAGE, lerpColor, pick } from '../theme.js';
+import { BLEED, COLOR, STAGE, css, lerpColor, pick } from '../theme.js';
 import { settings } from '../state.js';
 import { speak } from '../voice.js';
 
-// Shadow puppets: leather figures behind a cloth screen lit by oil lamps. Small holes punched in them let the light
-// through, and their clothes are faintly dyed, so the colour glows through the shadow.
+// Shadow puppets: leather figures pressed against a cloth screen, with a row of oil lamps burning behind it. Small
+// holes punched in the puppets let the light through, and their clothes are dyed leather, so the colour glows.
 const SHADOW = 0x2a160b;
 const LIGHT = 0xfff1cc; // the lamp light, through the punched holes
-const SCREEN = { mid: 0xffeac0, edge: 0xdc9f52 };
+const CLOTH = { mid: 0xf8d9a0, warm: 0xe6ad62, edge: 0xb06428 };
+const BACKLIGHT = 0xffdca6; // the lamps behind the cloth
+const NIGHT = 0x1c0b05; // the lamps shaded: the cloth goes a deep umber
+const FLAME = { outer: 0xffa63a, inner: 0xffe49a, core: 0xfffbea, halo: 0xffa640, pool: 0xff962c };
 const WOOD = 0x4a1d0c;
 const CURTAIN = 0xa3172f;
 const CURTAIN_DARK = 0x7a0f22;
-const DYE = { maroon: 0x8a1c14, ochre: 0xb8661a, teal: 0x1d6a6a, indigo: 0x24407a, green: 0x2f6a2a, red: 0xb0221e };
+// The dyes as they look with lamp light shining through the leather.
+const DYE = { maroon: 0xb8322a, ochre: 0xd88a26, teal: 0x23887e, indigo: 0x3a5cae, green: 0x4c8c2c, red: 0xd2352b };
 
 // How long each scene stays up, in ms: long enough to read its subtitle, about a minute in all.
 const HOLD = { title: 5000, kingdom: 6500, dice: 6500, forest: 6500, home: 8000, ravana: 6500, bridge: 6500, battle: 6000, ayodhya: 9000 };
@@ -64,10 +68,15 @@ export class PuppetScene extends BaseScene {
     this.ground = this.band.y - 8;
     this.P = Math.round((this.ground - S.y) * 0.58); // a puppet's height, without its crown
 
+    // How dark the cloth is (0 day to 1), and the lit parts of the puppets, which dim with it.
+    this.light = { night: 0 };
+    this.lights = [];
     this.drawTheatre(valance);
     this.cast = [];
     this.timers = [];
     this.index = -1;
+    // The curtains open on a dim cloth; the show's lamps come up once the title's diyas are lit.
+    this.applyNight(0.45);
     this.openCurtains(() => this.next());
   }
 
@@ -102,33 +111,38 @@ export class PuppetScene extends BaseScene {
       art(this, fx, valance / 2 - 1, i % 2 ? 'marigold-yellow' : 'marigold-orange', valance * 0.92);
     }
 
-    // The cloth, brightest where the lamps behind it are, with a faint weave.
-    const screen = this.add.graphics();
-    screen.fillStyle(SCREEN.edge, 1);
-    screen.fillRect(x, y, w, h);
-    for (let i = 28; i >= 1; i--) {
-      const k = i / 28;
-      screen.fillStyle(lerpColor(SCREEN.mid, SCREEN.edge, k), 1);
-      screen.fillEllipse(x + w / 2, y + h * 0.58, w * 1.1 * k, h * 1.6 * k);
-    }
-    screen.lineStyle(1, 0x8a5a20, 0.05);
-    for (let lx = x + 4; lx < x + w; lx += 5) screen.lineBetween(lx, y, lx, y + h);
+    // The cloth, lit from behind: a row of oil lamps glows through it in bright patches that flicker, and the cloth
+    // shows its folds, the seams between its panels and a faint weave.
     const mask = this.make.graphics({}, false);
     mask.fillStyle(0xffffff, 1);
     mask.fillRect(x, y, w, h);
-    screen.setMask(mask.createGeometryMask());
-
-    // Everything on the cloth lives in these containers, clipped to it.
-    this.stage = this.add.container(x, y);
-    this.stage.setMask(mask.createGeometryMask());
-    this.flicker = this.add.rectangle(x + w / 2, y + h / 2, w, h, 0xffffff, 1).setAlpha(0);
-    this.night = this.add.rectangle(x + w / 2, y + h / 2, w, h, 0x1c1030, 1).setAlpha(0);
-    // Lit lamps sit above the night, so they glow through it.
-    this.front = this.add.container(x, y);
-    this.front.setMask(mask.createGeometryMask());
-    if (!this.still) {
-      this.tweens.add({ targets: this.flicker, alpha: { from: 0, to: 0.07 }, duration: 260, yoyo: true, repeat: -1, repeatDelay: 900, ease: 'Sine.InOut' });
+    const clip = (o) => o.setMask(mask.createGeometryMask());
+    this.add.image(x, y, this.clothTexture()).setOrigin(0).setDisplaySize(w, h);
+    this.backlight = clip(this.add.container(x, y));
+    const spots = 5;
+    for (let i = 0; i < spots; i++) {
+      const spot = this.glow(w * (0.1 + (0.8 * i) / (spots - 1)), h * 0.5, w * 0.42, h * 1.05, BACKLIGHT, 0.36);
+      this.backlight.add(spot);
+      if (this.still) continue;
+      const R = Phaser.Math;
+      this.tweens.add({ targets: spot, alpha: { from: 0.3, to: 0.4 }, duration: R.Between(120, 260), yoyo: true, repeat: -1, repeatDelay: R.Between(80, 700), delay: R.Between(0, 600), ease: 'Sine.InOut' });
+      this.tweens.add({ targets: spot, scaleX: spot.scaleX * 1.04, scaleY: spot.scaleY * 1.06, duration: R.Between(900, 1600), yoyo: true, repeat: -1, ease: 'Sine.InOut' });
     }
+    const weave = this.add.graphics();
+    weave.lineStyle(1, 0x6a3a10, 0.05);
+    for (let lx = x + 4; lx < x + w; lx += 5) weave.lineBetween(lx, y, lx, y + h);
+    weave.lineStyle(1, 0x6a3a10, 0.018);
+    for (let ly = y + 3; ly < y + h; ly += 5) weave.lineBetween(x, ly, x + w, ly);
+    weave.lineStyle(2, 0x6a3a10, 0.1);
+    for (const f of [1 / 3, 2 / 3]) weave.lineBetween(x + w * f, y, x + w * f, y + h);
+
+    // Night: the lamps behind the cloth are shaded, so the cloth goes dark (see applyNight).
+    this.night = this.add.rectangle(x + w / 2, y + h / 2, w, h, NIGHT, 1).setAlpha(0);
+    // Everything on the cloth lives in these containers, clipped to it: the light that lit diyas throw on the cloth
+    // (above the night, so it glows through it), the puppets and props, and the diyas in front of them.
+    this.pools = clip(this.add.container(x, y));
+    this.stage = clip(this.add.container(x, y));
+    this.front = clip(this.add.container(x, y));
 
     // The subtitle band, with Skip (then Next) at its right.
     const b = this.band;
@@ -192,18 +206,22 @@ export class PuppetScene extends BaseScene {
     if (!this.still) this.tweens.add({ targets: next, alpha: { from: 0, to: 1 }, duration: 300 });
   }
 
-  // Swap the puppets on the cloth: the old ones fade away as the new ones arrive.
-  setCast(objs, front = []) {
+  // Swap the puppets on the cloth: the old ones fade away as the new ones arrive. `front` holds diyas, which stand in
+  // front of the puppets, and `pools` the light they throw on the cloth (each fades in as its diya is lit).
+  setCast(objs, { front = [], pools = [] } = {}) {
     const old = this.cast;
-    this.cast = [...objs, ...front];
+    this.cast = [...objs, ...front, ...pools];
     this.stage.add(objs);
     this.front.add(front);
-    if (this.still) {
-      old.forEach((o) => o.destroy());
-      return;
-    }
-    this.tweens.add({ targets: old, alpha: 0, duration: 400, onComplete: () => old.forEach((o) => o.destroy()) });
-    objs.forEach((o) => {
+    this.pools.add(pools);
+    const drop = () =>
+      old.forEach((o) => {
+        this.tweens.killTweensOf([o, ...(o.list ?? [])]);
+        o.destroy();
+      });
+    if (this.still) return drop();
+    this.tweens.add({ targets: old, alpha: 0, duration: 400, onComplete: drop });
+    [...objs, ...front].forEach((o) => {
       const a = o.alpha;
       o.setAlpha(0);
       this.tweens.add({ targets: o, alpha: a, duration: 500, delay: 250 });
@@ -211,9 +229,18 @@ export class PuppetScene extends BaseScene {
   }
 
   // Night falls on the cloth (the new moon), or lifts.
-  setNight(alpha, ms = 1600, delay = 0) {
-    if (this.still) return this.night.setAlpha(alpha);
-    this.tweens.add({ targets: this.night, alpha, duration: ms, delay });
+  setNight(level, ms = 1600, delay = 0) {
+    if (this.still) return this.applyNight(level);
+    this.tweens.add({ targets: this.light, night: level, duration: ms, delay, ease: 'Sine.InOut', onUpdate: () => this.applyNight(this.light.night) });
+  }
+
+  // The lamps behind the cloth are shaded: the cloth darkens, and so does the light through the puppets' holes and
+  // dyed leather. Lit diyas keep glowing.
+  applyNight(v) {
+    this.light.night = v;
+    this.night.setAlpha(v);
+    this.lights = this.lights.filter((l) => l.scene);
+    this.lights.forEach((l) => l.setAlpha(1 - v * 0.75));
   }
 
   // A puppet walks: it moves along, bobbing as the puppeteer steps it forward.
@@ -229,27 +256,24 @@ export class PuppetScene extends BaseScene {
     this.tweens.add({ targets: p, angle: { from: -2, to: 2 }, duration: 1100 + i * 90, yoyo: true, repeat: -1, ease: 'Sine.InOut', delay: i * 120 });
   }
 
-  // Lamps along the ground, lit one by one from `delay` ms (all at once with Reduce motion).
-  lamps(n, delay) {
+  // Diyas at each x, standing at y, lit one by one from `delay` ms (all at once with Reduce motion).
+  lamps(xs, y, delay, size = 1) {
+    const front = [];
+    const pools = [];
+    xs.forEach((x, i) => {
+      const { lamp, pool } = this.diya(x, y, size);
+      front.push(lamp);
+      pools.push(pool);
+      if (this.still) return lamp.light();
+      this.later(delay + i * 280, () => lamp.light());
+    });
+    return { front, pools };
+  }
+
+  // n positions spread across the cloth, for a row of diyas.
+  row(n) {
     const { w } = this.S;
-    const k = this.P / 300;
-    const lit = [];
-    for (let i = 0; i < n; i++) {
-      const lx = w * 0.04 + (i * w * 0.92) / (n - 1);
-      const ly = this.floor - 18 * k;
-      const glowC = this.add.circle(lx, ly - 14 * k, 48 * k, COLOR.yellow300, 0.4);
-      const lamp = art(this, lx, ly, 'diya', 54 * k);
-      lamp.home = lamp.scaleX;
-      lit.push(glowC, lamp);
-      if (this.still) continue;
-      glowC.setAlpha(0);
-      lamp.setScale(0);
-      this.later(delay + i * 300, () => {
-        this.tweens.add({ targets: glowC, alpha: 0.4, duration: 400 });
-        this.tweens.add({ targets: lamp, scale: lamp.home, duration: 320, ease: 'Back.Out' });
-      });
-    }
-    return lit;
+    return Array.from({ length: n }, (_, i) => w * 0.04 + (i * w * 0.92) / (n - 1));
   }
 
   // A fraction of the cloth's width, in the stage containers' space.
@@ -267,8 +291,10 @@ export class PuppetScene extends BaseScene {
     const t = makeText(this, w / 2, this.floor * 0.36, PUPPET.title, 'h1', { color: SHADOW, weight: 700, origin: 0.5, align: 'center', width: w - 120 })
       .setFontFamily(SERIF)
       .setFontSize(Math.round(fontSize('h1') * 1.15));
-    const lamps = [-3, -2, -1, 0, 1, 2, 3].map((k) => this.lampShape(w / 2 + k * this.P * 0.32, this.floor * 0.72));
-    this.setCast([t, ...lamps]);
+    // Seven diyas are lit one by one, then the lamps behind the cloth come up.
+    const xs = [-3, -2, -1, 0, 1, 2, 3].map((k) => w / 2 + k * this.P * 0.34 - this.P * 0.03);
+    this.setCast([t], this.lamps(xs, this.floor * 0.76, 700, 1.3));
+    this.setNight(0, 1600, 2700);
   }
 
   // The five Pandava brothers and Draupadi, side by side, facing right.
@@ -284,11 +310,11 @@ export class PuppetScene extends BaseScene {
   }
 
   dice() {
-    const fam = this.family(this.at(0.04), this.P * 0.34);
+    const fam = this.family(this.at(0.075), this.P * 0.33);
     const cousin = this.puppet('duryodhana', this.at(0.88));
-    const dice = [0, 1].map((k) => this.die(this.at(0.62) + k * 0.12 * this.P, this.floor * 0.18));
+    const dice = [0, 1].map((k) => this.die(this.at(0.64) + k * 0.12 * this.P, this.floor * 0.18));
     this.sway(cousin, 2);
-    const landX = (k) => this.at(0.6) + k * 0.16 * this.P;
+    const landX = (k) => this.at(0.62) + k * 0.16 * this.P;
     if (this.still) {
       dice.forEach((d, k) => d.setPosition(landX(k), this.floor - 0.06 * this.P));
     } else {
@@ -296,7 +322,7 @@ export class PuppetScene extends BaseScene {
       dice.forEach((d, k) =>
         this.tweens.add({ targets: d, x: landX(k), y: this.floor - 0.06 * this.P, angle: 540 + k * 90, duration: 1400, delay: 600 + k * 200, ease: 'Bounce.Out' }),
       );
-      this.later(2300, () => fam.forEach((p, i) => this.tweens.add({ targets: p, angle: -9, y: p.y + 0.03 * this.P, duration: 700, delay: i * 60, ease: 'Sine.InOut' })));
+      this.later(2300, () => fam.forEach((p, i) => this.tweens.add({ targets: p, angle: 7, y: p.y + 0.03 * this.P, duration: 700, delay: i * 60, ease: 'Sine.InOut' })));
     }
     this.setCast([...fam, cousin, ...dice]);
   }
@@ -312,14 +338,15 @@ export class PuppetScene extends BaseScene {
   }
 
   home() {
-    // The new moon: the cloth goes dark, they walk home, and the lamps come on as the light returns.
-    this.setNight(0.5);
+    // The new moon: the cloth goes dark, they walk home, and a row of diyas is lit to welcome them. The cloth lightens a
+    // little, but it stays night, so the diyas keep glowing.
+    this.setNight(0.72);
     const palace = this.palace(this.at(0.85), 1);
     const fam = this.family(-0.3 * this.P, this.P * 0.38);
     fam.forEach((p, i) => this.walk(p, this.at(0.06) + i * this.P * 0.38, 3600));
-    const lit = this.lamps(9, 3400);
-    this.setNight(0, 2200, 3600);
-    this.setCast([palace, ...fam], lit);
+    const lamps = this.lamps(this.row(9), this.floor, 3400, 1.2);
+    this.setNight(0.45, 2600, 3800);
+    this.setCast([palace, ...fam], lamps);
   }
 
   ravana() {
@@ -343,44 +370,51 @@ export class PuppetScene extends BaseScene {
   }
 
   battle() {
-    const rama = this.puppet('rama', this.at(0.22), 0, { pose: 'draw' });
-    const lakshmana = this.puppet('lakshmana', this.at(0.1));
-    const hanuman = this.puppet('hanuman', this.at(0.34));
-    const ravana = this.puppet('ravana', this.at(0.74));
-    const sita = this.puppet('sita', this.at(0.93));
-    sita.setAlpha(0.35);
-    const arrow = this.arrow(this.at(0.28), this.floor - 0.7 * this.P);
-    const objs = [lakshmana, rama, hanuman, ravana, sita, arrow];
+    // Rama stands at the front of his side, so it is clearly his arrow, with Hanuman (and his tail) at the back.
+    const hanuman = this.puppet('hanuman', this.at(0.1));
+    const lakshmana = this.puppet('lakshmana', this.at(0.24));
+    const rama = this.puppet('rama', this.at(0.36), 0, { pose: 'draw' });
+    const ravana = this.puppet('ravana', this.at(0.72));
+    const sita = this.puppet('sita', this.at(0.92)).setAlpha(0.35);
+    const k = this.P / 100;
+    const arrow = this.arrow(rama.x + 25 * k, this.floor - 72 * k);
+    const objs = [hanuman, lakshmana, rama, ravana, sita, arrow];
     if (this.still) {
       arrow.setVisible(false);
-      ravana.setAngle(70).setAlpha(0.3);
-      sita.setAlpha(1);
+      ravana.setVisible(false);
+      sita.setAlpha(1).setX(this.at(0.6));
     } else {
-      // Rama's arrow flies, Ravana falls back, and Sita steps out, free.
+      // Rama's arrow flies, Ravana falls back and fades away, and Sita steps out, free, towards Rama.
       arrow.setAlpha(0);
       this.later(1300, () => {
         arrow.setAlpha(1);
-        this.tweens.add({ targets: arrow, x: this.at(0.7), duration: 750, ease: 'Quad.In', onComplete: () => arrow.setVisible(false) });
+        this.tweens.add({ targets: arrow, x: ravana.x - 20 * k, duration: 750, ease: 'Quad.In', onComplete: () => arrow.setVisible(false) });
       });
-      // He falls backwards, away from Rama.
-      this.later(2100, () => {
-        sparkle(this, this.S.x + this.at(0.72), this.S.y + this.floor - 0.6 * this.P, { radius: 60, count: 14 });
-        this.tweens.add({ targets: ravana, angle: 70, alpha: 0.25, y: ravana.y + 0.04 * this.P, duration: 1200, ease: 'Cubic.In' });
+      this.later(2050, () => {
+        sparkle(this, this.S.x + ravana.x, this.S.y + this.floor - 0.6 * this.P, { radius: 60, count: 14 });
+        this.tweens.add({ targets: ravana, angle: 75, y: ravana.y + 0.04 * this.P, duration: 1300, ease: 'Cubic.In' });
+        this.tweens.add({ targets: ravana, alpha: 0, duration: 900, delay: 400 });
       });
-      this.later(3000, () => this.tweens.add({ targets: sita, alpha: 1, x: this.at(0.82), duration: 900, ease: 'Sine.Out' }));
+      this.later(3200, () => {
+        this.tweens.add({ targets: sita, alpha: 1, duration: 400 });
+        this.walk(sita, this.at(0.6), 1800);
+      });
     }
     this.setCast(objs);
   }
 
   ayodhya() {
-    this.setNight(0.5);
+    // Home on a dark night: rows of diyas light their way, and the show ends in their glow.
+    this.setNight(0.72);
     const palace = this.palace(this.at(0.86), 1.05);
-    const party = ['hanuman', 'lakshmana', 'sita', 'rama'].map((k, i) => this.puppet(k, -0.3 * this.P - i * 0.42 * this.P));
-    party.forEach((p, i) => this.walk(p, this.at(0.56) - i * this.P * 0.42, 3600));
-    const lit = this.lamps(11, 3000);
-    this.setNight(0, 2600, 3200);
-    this.later(3000 + 11 * 300, () => sparkle(this, this.S.x + this.S.w / 2, this.S.y + this.floor * 0.45, { radius: this.S.w * 0.4, count: 30 }));
-    this.setCast([palace, ...party], lit);
+    // Rama and Sita lead; Hanuman walks at the back, with room for his tail and mace.
+    const back = [0, 0.42, 0.84, 1.4];
+    const party = ['rama', 'sita', 'lakshmana', 'hanuman'].map((k, i) => this.puppet(k, (-0.3 - back[i]) * this.P));
+    party.forEach((p, i) => this.walk(p, this.at(0.56) - back[i] * this.P, 3600));
+    const lamps = this.lamps(this.row(11), this.floor, 3000, 1.2);
+    this.setNight(0.48, 2800, 3400);
+    this.later(3000 + 11 * 280, () => sparkle(this, this.S.x + this.S.w / 2, this.S.y + this.floor * 0.45, { radius: this.S.w * 0.4, count: 30 }));
+    this.setCast([palace, ...party], lamps);
   }
 
   // ---- puppets and props, drawn as shadows -----------------------------------------------------------
@@ -391,23 +425,39 @@ export class PuppetScene extends BaseScene {
   puppet(kind, x, lift = 0, { pose } = {}) {
     const c = CAST[kind];
     const k = (this.P / 100) * (c.size ?? 1);
+    // The rod the puppeteer holds, running down off the cloth.
+    const rod = this.add.graphics();
+    rod.lineStyle(1.8 * k, SHADOW, 0.55);
+    rod.lineBetween(0, -55 * k, -8 * k, 140 * k);
+    // Drawn twice: as a plain shadow, and again with the light through its holes and dyed leather, which fades when
+    // the lamps behind the cloth are shaded for night.
+    const plain = this.add.graphics();
+    this.paintPuppet(plain, c, k, pose, false);
+    const lit = this.add.graphics();
+    this.paintPuppet(lit, c, k, pose, true);
+    lit.setAlpha(1 - this.light.night * 0.75);
+    this.lights.push(lit);
+    const ct = this.add.container(x, this.floor - lift, [rod, plain, lit]);
+    if (c.left) ct.setScale(-1, 1);
+    return ct;
+  }
+
+  // Draws a puppet into g at k pixels a unit; `lit` adds the holes and dyed leather the light shines through.
+  paintPuppet(g, c, k, pose, lit) {
     const s = (v) => v * k;
     const P = (list) => list.map(([px, py]) => ({ x: s(px), y: s(py) }));
-    const g = this.add.graphics();
     const shadow = (a = 0.94) => g.fillStyle(SHADOW, a);
     const holes = (list, r = 0.9) => {
-      g.fillStyle(LIGHT, 0.85);
+      if (!lit) return;
+      g.fillStyle(LIGHT, 0.9);
       list.forEach(([hx, hy]) => g.fillCircle(s(hx), s(hy), s(r)));
     };
     const dots = (x0, y0, x1, y1, n, r = 0.8) => holes(Array.from({ length: n }, (_, i) => [x0 + ((x1 - x0) * i) / (n - 1), y0 + ((y1 - y0) * i) / (n - 1)]), r);
-    const dye = (list, colour = c.dye, a = 0.42) => {
+    const dye = (list, colour = c.dye, a = 0.72) => {
+      if (!lit) return;
       g.fillStyle(colour, a);
       g.fillPoints(P(list), true);
     };
-
-    // The rod the puppeteer holds, running down off the cloth.
-    g.lineStyle(s(1.8), SHADOW, 0.55);
-    g.lineBetween(s(0), s(-55), s(-8), s(140));
 
     // The tail (Hanuman), behind everything: a long curl rising over his back.
     if (c.monkey) {
@@ -431,20 +481,24 @@ export class PuppetScene extends BaseScene {
       // A sari to the ground with a patterned border, its end over the shoulder, and hair in a bun with flowers.
       g.fillPoints(P([[-9, -50], [9, -50], [17, 0], [-15, 0]]), true);
       dye([[-9, -50], [9, -50], [17, 0], [-15, 0]]);
-      g.fillStyle(LIGHT, 0.5);
-      g.fillPoints(P([[-15, -3], [17, -3], [16.6, -1.5], [-14.6, -1.5]]), true);
+      if (lit) {
+        g.fillStyle(LIGHT, 0.55);
+        g.fillPoints(P([[-15, -3], [17, -3], [16.6, -1.5], [-14.6, -1.5]]), true);
+      }
       dots(-13, -7, 15, -7, 10);
       for (let i = 0; i < 5; i++) dots(-6 + i * 4.5, -46, -9 + i * 6, -10, 6, 0.55);
       shadow();
       g.fillPoints(P([[8, -76], [12, -72], [-11, -32], [-16, -36]]), true);
-      dye([[8, -76], [12, -72], [-11, -32], [-16, -36]], c.dye, 0.5);
+      dye([[8, -76], [12, -72], [-11, -32], [-16, -36]], c.dye, 0.8);
       dots(9, -73, -13, -35, 8, 0.75);
     } else {
       // A pleated dhoti, legs, anklets and feet.
       g.fillPoints(P([[-9, -49], [10, -49], [13, -12], [-11, -12]]), true);
       dye([[-9, -49], [10, -49], [13, -12], [-11, -12]]);
-      g.lineStyle(s(0.6), LIGHT, 0.45);
-      for (let i = 0; i < 4; i++) g.lineBetween(s(-5 + i * 5), s(-46), s(-6 + i * 6), s(-14));
+      if (lit) {
+        g.lineStyle(s(0.6), LIGHT, 0.5);
+        for (let i = 0; i < 4; i++) g.lineBetween(s(-5 + i * 5), s(-46), s(-6 + i * 6), s(-14));
+      }
       shadow();
       g.fillRect(s(-6), s(-13), s(4), s(12));
       g.fillRect(s(4), s(-13), s(4), s(12));
@@ -463,22 +517,18 @@ export class PuppetScene extends BaseScene {
     shadow();
     const chest = c.monkey ? [[-10, -76], [12, -76], [14, -62], [10, -48], [-10, -48]] : [[-8, -76], [11, -76], [13, -63], [9, -48], [-8, -48]];
     g.fillPoints(P(chest), true);
-    if (c.skin) dye(chest, c.skin, 0.38);
+    if (c.skin) dye(chest, c.skin, 0.55);
     shadow();
     g.fillRect(s(-1), s(-81), s(5), s(6));
     const head = c.monkey
       ? [[-6, -88], [-1, -94], [6, -93], [9, -89], [14, -86], [15, -82], [11, -79], [7, -78], [2, -77], [-4, -79], [-7, -83]]
       : [[-6, -87], [-2, -93], [5, -92], [8, -88], [8, -86], [11, -83], [8.5, -82], [9, -80.5], [7, -78], [2, -77], [-4, -79], [-7, -83]];
     g.fillPoints(P(head), true);
-    if (c.skin) dye(head, c.skin, 0.38);
+    if (c.skin) dye(head, c.skin, 0.55);
     holes([[5.5, -86]], 0.9); // the eye
     // A necklace with a pendant, and an ear ornament.
-    g.fillStyle(LIGHT, 0.85);
-    for (let i = 0; i <= 6; i++) {
-      const a = Math.PI * (0.15 + (i / 6) * 0.7);
-      g.fillCircle(s(2 + 7 * Math.cos(a)), s(-74 + 6 * Math.sin(a)), s(0.75));
-    }
-    g.fillCircle(s(2), s(-66), s(1.3));
+    holes(Array.from({ length: 7 }, (_, i) => Math.PI * (0.15 + (i / 6) * 0.7)).map((a) => [2 + 7 * Math.cos(a), -74 + 6 * Math.sin(a)]), 0.75);
+    holes([[2, -66]], 1.3);
     holes([[-1, -82.5]], 1.2);
     shadow();
     g.fillCircle(s(-1), s(-82.5), s(0.6));
@@ -541,16 +591,23 @@ export class PuppetScene extends BaseScene {
       g.fillPoints(P([[hx + 7, hy - 41], [hx + 10, hy - 41], [hx + 8.5, hy - 47]]), true);
       holes([[hx + 8.5, hy - 35], [hx + 5.5, hy - 35], [hx + 11.5, hy - 35], [hx + 8.5, hy - 38]], 0.8);
     } else if (c.hold === 'bow') {
-      const R = 30;
-      const bx = draw ? hx - 2 : hx - 6;
+      // A long bow gripped in the middle, standing upright in front of the body; drawn, its string is pulled back
+      // to the cheek.
+      const R = draw ? 50 : 56;
+      const spread = draw ? 0.6 : 0.55;
+      const bx = hx - R + 1;
       g.beginPath();
-      g.arc(s(bx), s(hy), s(R), -1.1, 1.1);
+      g.arc(s(bx), s(hy), s(R), -spread, spread);
       g.strokePath();
       g.lineStyle(s(0.6), SHADOW, 0.94);
-      const sx = draw ? -12 : 0; // the string pulled back when drawing
-      g.lineBetween(s(bx + R * Math.cos(-1.1)), s(hy + R * Math.sin(-1.1)), s(bx + sx), s(hy));
-      g.lineBetween(s(bx + sx), s(hy), s(bx + R * Math.cos(1.1)), s(hy + R * Math.sin(1.1)));
-      holes([[bx + R, hy]], 0.9);
+      const tip = (sign) => [s(bx + R * Math.cos(spread)), s(hy + sign * R * Math.sin(spread))];
+      if (draw) {
+        g.lineBetween(...tip(-1), s(-2), s(hy));
+        g.lineBetween(s(-2), s(hy), ...tip(1));
+      } else {
+        g.lineBetween(...tip(-1), ...tip(1));
+      }
+      holes([-0.3, 0.3].map((a) => [bx + R * Math.cos(a), hy + R * Math.sin(a)]), 0.75);
     } else if (c.hold === 'sword') {
       shadow();
       g.fillPoints(P([[hx - 1, hy + 1], [hx + 2, hy - 1], [hx + 20, hy - 24], [hx + 17, hy - 25]]), true);
@@ -574,10 +631,6 @@ export class PuppetScene extends BaseScene {
       for (let i = 0; i < 3; i++) g.lineBetween(s(-8 + i), s(-77), s(-5 + i * 2), s(-84));
       holes([[-10, -64], [-11, -58]], 0.7);
     }
-
-    const ct = this.add.container(x, this.floor - lift, [g]);
-    if (c.left) ct.setScale(-1, 1);
-    return ct;
   }
 
   // A palace with a temple-like tower, two domes, flags and lit windows. scale 1 is about 1.2 puppets tall.
@@ -635,13 +688,15 @@ export class PuppetScene extends BaseScene {
     return this.add.container(x, this.floor, [g]);
   }
 
-  // The sea: rolling waves across the bottom of the cloth.
+  // The sea: rolling waves across the bottom of the cloth, on a panel of blue-dyed leather.
   sea() {
     const { w } = this.S;
     const k = this.P / 100;
     const g = this.add.graphics();
     const top = this.floor - 30 * k;
-    g.fillStyle(SHADOW, 0.55);
+    g.fillStyle(SHADOW, 0.5);
+    g.fillRect(0, top + 6 * k, w, this.S.h);
+    g.fillStyle(0x2f78a8, 0.5);
     g.fillRect(0, top + 6 * k, w, this.S.h);
     g.lineStyle(2.4 * k, SHADOW, 0.7);
     for (let row = 0; row < 4; row++) {
@@ -689,7 +744,7 @@ export class PuppetScene extends BaseScene {
     const k = (this.P / 100) * scale;
     const s = (v) => v * k;
     const g = this.add.graphics();
-    g.fillStyle(lerpColor(SHADOW, SCREEN.mid, 0.62), 1);
+    g.fillStyle(lerpColor(SHADOW, CLOTH.mid, 0.62), 1);
     g.fillPoints([{ x: s(-4), y: 0 }, { x: s(4), y: 0 }, { x: s(3), y: s(-50) }, { x: s(-3), y: s(-50) }], true);
     for (const [cx, cy, r] of [[0, -84, 26], [-21, -66, 19], [21, -66, 19], [-12, -104, 16], [13, -102, 16]]) g.fillCircle(s(cx), s(cy), s(r));
     g.fillStyle(LIGHT, 0.35);
@@ -708,14 +763,121 @@ export class PuppetScene extends BaseScene {
     return this.add.container(x, y, [g]);
   }
 
-  // An unlit lamp's shadow, for the title.
-  lampShape(x, y) {
-    const k = this.P / 100;
-    const s = (v) => v * k;
+  // A clay diya's shadow standing at (x, y), unlit until lamp.light(): then its flame grows and flickers, glowing
+  // through the cloth, and it throws a pool of warm light on the cloth around it (`pool`, for the pools layer).
+  // size 1 is about a fifth of a puppet wide.
+  diya(x, y, size = 1) {
+    const u = (this.P / 210) * size;
+    const s = (v) => v * u;
+    const P = (list) => list.map(([px, py]) => ({ x: s(px), y: s(py) }));
     const g = this.add.graphics();
-    g.fillStyle(SHADOW, 0.85);
-    g.fillPoints([{ x: s(-10), y: s(-4) }, { x: s(10), y: s(-4) }, { x: s(6), y: s(3) }, { x: s(-6), y: s(3) }], true);
-    g.fillEllipse(s(0), s(-8), s(4), s(8));
-    return this.add.container(x, y, [g]);
+    // The bowl, pinched into a spout at the right, on a small foot.
+    g.fillStyle(SHADOW, 0.95);
+    g.fillPoints(P([[-19, -11], [12, -11], [17, -12.5], [23, -15], [20, -10], [14, -4.5], [7, -2], [-7, -2], [-13, -4.5], [-17, -8]]), true);
+    g.fillRect(s(-7), s(-2.5), s(14), s(2.5));
+    g.fillRect(s(-10), s(-1.2), s(20), s(1.2));
+    // A band of dyed clay round the bowl, and a row of punched holes under it.
+    g.fillStyle(DYE.ochre, 0.8);
+    g.fillPoints(P([[-16.5, -9], [13, -9], [11, -6.5], [-14.5, -6.5]]), true);
+    g.fillStyle(LIGHT, 0.9);
+    for (let i = 0; i < 6; i++) g.fillCircle(s(-10.5 + i * 4.2), s(-4.2), s(0.8));
+
+    // The flame on the wick at the spout: layers of orange, yellow and white, with a halo where it shines through.
+    const fx = s(19.5);
+    const fy = s(-14);
+    const halo = this.glow(fx, fy - s(6), s(48), s(56), FLAME.halo, 0);
+    const flame = this.add.graphics({ x: fx, y: fy });
+    const drop = (h, r, colour, a) => {
+      flame.fillStyle(colour, a);
+      flame.fillCircle(0, -r, r);
+      flame.fillTriangle(-r * 0.97, -r * 1.25, r * 0.97, -r * 1.25, 0, -h);
+    };
+    drop(s(17), s(4.6), FLAME.outer, 0.95);
+    drop(s(12.5), s(3.2), FLAME.inner, 1);
+    drop(s(7.5), s(1.8), FLAME.core, 1);
+    flame.setScale(0);
+    const pool = this.glow(x + fx, y + fy - s(8), s(200), s(170), FLAME.pool, 0);
+    const lamp = this.add.container(x, y, [g, halo, flame]);
+
+    const R = Phaser.Math;
+    const flicker = (targets, props, min, max) => this.tweens.add({ targets, ...props, duration: R.Between(min, max), yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+    lamp.light = () => {
+      if (this.still) {
+        flame.setScale(1);
+        halo.setAlpha(0.85);
+        pool.setAlpha(0.42);
+        return;
+      }
+      this.tweens.add({
+        targets: flame,
+        scale: 1,
+        duration: 380,
+        ease: 'Back.Out',
+        onComplete: () => {
+          flicker(flame, { scaleY: { from: 0.9, to: 1.1 }, scaleX: { from: 1.05, to: 0.95 } }, 130, 240);
+          flicker(flame, { angle: { from: -5, to: 5 } }, 420, 700);
+          flicker(halo, { alpha: { from: 0.7, to: 0.95 } }, 150, 280);
+        },
+      });
+      this.tweens.add({ targets: halo, alpha: 0.85, duration: 380 });
+      this.tweens.add({ targets: pool, alpha: 0.42, duration: 900, ease: 'Sine.Out', onComplete: () => flicker(pool, { alpha: { from: 0.36, to: 0.46 } }, 200, 380) });
+    };
+    return { lamp, pool };
+  }
+
+  // A soft round glow, added to the light of whatever is under it.
+  glow(x, y, w, h, tint, alpha) {
+    return this.add.image(x, y, this.glowTexture()).setBlendMode(Phaser.BlendModes.ADD).setTint(tint).setDisplaySize(w, h).setAlpha(alpha);
+  }
+
+  glowTexture() {
+    const key = 'soft-glow';
+    if (this.textures.exists(key)) return key;
+    const N = 256;
+    const tex = this.textures.createCanvas(key, N, N);
+    const ctx = tex.getContext();
+    const grad = ctx.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2);
+    for (const [at, a] of [[0, 1], [0.18, 0.78], [0.4, 0.36], [0.65, 0.12], [1, 0]]) grad.addColorStop(at, `rgba(255,255,255,${a})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, N, N);
+    tex.refresh();
+    return key;
+  }
+
+  // The cloth as the lamps behind it light it: warm in the middle, deep orange at the edges, with soft folds and a
+  // shade under the valance.
+  clothTexture() {
+    const key = 'puppet-cloth';
+    if (this.textures.exists(key)) return key;
+    const W = 1024;
+    const H = 512;
+    const tex = this.textures.createCanvas(key, W, H);
+    const ctx = tex.getContext();
+    const base = ctx.createRadialGradient(W / 2, H * 0.55, 0, W / 2, H * 0.55, W * 0.62);
+    base.addColorStop(0, css(CLOTH.mid));
+    base.addColorStop(0.5, css(CLOTH.warm));
+    base.addColorStop(1, css(CLOTH.edge));
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, W, H);
+    for (const f of [0.17, 0.42, 0.58, 0.83]) {
+      const fold = ctx.createLinearGradient(W * f - 36, 0, W * f + 36, 0);
+      fold.addColorStop(0, 'rgba(90,40,10,0)');
+      fold.addColorStop(0.5, 'rgba(90,40,10,0.08)');
+      fold.addColorStop(1, 'rgba(90,40,10,0)');
+      ctx.fillStyle = fold;
+      ctx.fillRect(W * f - 36, 0, 72, H);
+    }
+    const top = ctx.createLinearGradient(0, 0, 0, H * 0.24);
+    top.addColorStop(0, 'rgba(60,20,5,0.35)');
+    top.addColorStop(1, 'rgba(60,20,5,0)');
+    ctx.fillStyle = top;
+    ctx.fillRect(0, 0, W, H * 0.24);
+    const corners = ctx.createRadialGradient(W / 2, H * 0.55, W * 0.4, W / 2, H * 0.55, W * 0.72);
+    corners.addColorStop(0, 'rgba(50,15,0,0)');
+    corners.addColorStop(1, 'rgba(50,15,0,0.35)');
+    ctx.fillStyle = corners;
+    ctx.fillRect(0, 0, W, H);
+    tex.refresh();
+    return key;
   }
 }

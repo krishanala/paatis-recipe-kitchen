@@ -64,4 +64,4 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's scenes change without the puppets walking or the lamp light flickering. When Paati tastes the muruku, her pictures change in place without movement |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's scenes change without the puppets walking or the lamp light flickering, and its diyas are already lit. When Paati tastes the muruku, her pictures change in place without movement |
