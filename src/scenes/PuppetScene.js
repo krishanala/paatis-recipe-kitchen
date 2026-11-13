@@ -3,8 +3,9 @@ import { Button } from '../ui/Button.js';
 import { SERIF, art, sparkle } from '../ui/widgets.js';
 import { fontSize, makeText } from '../ui/text.js';
 import { PUPPET } from '../content.js';
-import { BLEED, COLOR, STAGE, css, lerpColor, pick } from '../theme.js';
+import { BLEED, COLOR, RES, STAGE, css, pick } from '../theme.js';
 import { settings } from '../state.js';
+import { Shadow, banyan, broadleaf, distantForest, palm, undergrowth } from '../trees.js';
 import { speak } from '../voice.js';
 
 // Shadow puppets: leather figures pressed against a cloth screen, with a row of oil lamps burning behind it. Small
@@ -67,6 +68,7 @@ export class PuppetScene extends BaseScene {
     this.band = { y: S.y + S.h - bandH, h: bandH, textW, btnX: S.x + S.w - 40 - btnW / 2, btnW };
     this.ground = this.band.y - 8;
     this.P = Math.round((this.ground - S.y) * 0.58); // a puppet's height, without its crown
+    this.paintForest();
 
     // How dark the cloth is (0 day to 1), and the lit parts of the puppets, which dim with it.
     this.light = { night: 0 };
@@ -328,13 +330,21 @@ export class PuppetScene extends BaseScene {
   }
 
   forest() {
-    const trees = [0.06, 0.27, 0.5, 0.73, 0.95].map((f, i) => this.tree(this.at(f), 0.9 + (i % 2) * 0.25));
+    // The far side of the forest, pale and soft; the moon behind the near trees; then a coconut palm, a tall forest
+    // tree and a banyan close to the cloth, with grass and ferns along the ground.
+    const far = this.forestShadow('far', 0.2);
     const moon = this.add.circle(this.at(0.08), this.floor * 0.16, 0.07 * this.P, LIGHT, 0.9);
+    const near = [
+      this.forestShadow('palm', 0.5, 1),
+      this.forestShadow('tall', 0.5, 0.5),
+      this.forestShadow('banyan', 0.5, 0.25),
+    ];
+    const ground = this.forestShadow('ground', 0.55);
     const fam = this.family(-0.4 * this.P, this.P * 0.38);
     // Many moons pass as they walk through the forest.
     if (!this.still) this.tweens.add({ targets: moon, x: this.at(0.92), duration: HOLD.forest / 3, repeat: 2 });
     fam.forEach((p, i) => this.walk(p, this.at(0.16) + i * this.P * 0.38, HOLD.forest - 700));
-    this.setCast([moon, ...trees, ...fam]);
+    this.setCast([far, moon, ...near, ground, ...fam]);
   }
 
   home() {
@@ -738,18 +748,77 @@ export class PuppetScene extends BaseScene {
     return this.add.container(x, y, [g]);
   }
 
-  // A tree held further back from the cloth: a paler shadow (a solid colour, so the leaves don't show rings where
-  // they overlap), with a few holes for light through the leaves.
-  tree(x, scale) {
-    const k = (this.P / 100) * scale;
-    const s = (v) => v * k;
-    const g = this.add.graphics();
-    g.fillStyle(lerpColor(SHADOW, CLOTH.mid, 0.62), 1);
-    g.fillPoints([{ x: s(-4), y: 0 }, { x: s(4), y: 0 }, { x: s(3), y: s(-50) }, { x: s(-3), y: s(-50) }], true);
-    for (const [cx, cy, r] of [[0, -84, 26], [-21, -66, 19], [21, -66, 19], [-12, -104, 16], [13, -102, 16]]) g.fillCircle(s(cx), s(cy), s(r));
-    g.fillStyle(LIGHT, 0.35);
-    for (const [cx, cy] of [[-7, -84], [10, -76], [-18, -66], [3, -98], [18, -64]]) g.fillCircle(s(cx), s(cy), s(1.2));
-    return this.add.container(x, this.floor, [g]);
+  // The forest's trees, grown and painted once as the show starts, so the forest scene doesn't pause to paint them.
+  // Each stands at a fraction `at` of the way across the cloth, with a box: how far it reaches from its foot
+  // ([left, right, up, down], in puppet units, measured from what it grows; anything past the cloth's edges is left
+  // out). `detail` is how finely it is painted and `blur` how soft its edges are: trees held further back from the
+  // cloth, nearer the lamps, cast softer shadows.
+  paintForest() {
+    const span = this.S.w / (this.P / 100); // the cloth's width, in puppet units
+    const trees = {
+      far: { at: 0, box: [0, span, 140, 0.5], detail: 0.5, blur: 2.6, seed: 11, paint: (p) => distantForest(p, span) },
+      palm: { at: 0.045, box: [32, 58, 190, 0.5], detail: 1, blur: 0.4, seed: 3, paint: (p) => palm(p, { height: 158, lean: 14 }) },
+      tall: { at: 0.37, box: [92, 88, 184, 0.5], detail: 1, blur: 0.4, seed: 7, paint: (p) => broadleaf(p, { trunk: 80, reach: 31, limbs: 4, clump: 8.5 }) },
+      banyan: { at: 0.86, box: [118, 144, 146, 0.5], detail: 1, blur: 0.4, seed: 5, paint: (p) => banyan(p, { left: 0.8 }) },
+      ground: { at: 0, box: [0, span, 18, 0.5], detail: 1, blur: 0.3, seed: 9, paint: (p) => undergrowth(p, span) },
+    };
+    this.woods = {};
+    for (const [name, t] of Object.entries(trees)) {
+      const [left, right, up, down] = t.box;
+      const box = [Math.min(left, t.at * span + 4), Math.min(right, (1 - t.at) * span + 4), up, down];
+      this.woods[name] = { ...this.forestTexture(`forest-${name}`, { ...t, box }), at: t.at };
+    }
+    this.events.once('shutdown', () => Object.values(this.woods).forEach((t) => this.textures.remove(t.key)));
+  }
+
+  // Paints a tree into a texture, white (the scene tints it), with its foot at (ox, oy). It is painted sharp on a
+  // spare canvas, then copied across as a blurred shadow if it should be soft.
+  forestTexture(key, { box: [left, right, top, bottom], detail, blur, seed, paint }) {
+    const res = Math.min(RES, 2) * detail;
+    const unit = (this.P / 100) * res; // texture pixels per puppet unit
+    const pad = blur * 3 + 2;
+    const W = Math.ceil((left + right + 2 * pad) * unit);
+    const H = Math.ceil((top + bottom + 2 * pad) * unit);
+    const ox = (left + pad) * unit;
+    const oy = (top + pad) * unit;
+    const sharp = document.createElement('canvas');
+    sharp.width = W;
+    sharp.height = H;
+    const c = sharp.getContext('2d');
+    c.setTransform(unit, 0, 0, unit, ox, oy);
+    // Nothing shows below the ground: roots, round trunk ends and drooping ferns stop at it.
+    c.beginPath();
+    c.rect(-left - pad, -top - pad, left + right + 2 * pad, top + pad + 0.5);
+    c.clip();
+    c.fillStyle = '#fff';
+    c.strokeStyle = '#fff';
+    paint(new Shadow(c, seed));
+    if (this.textures.exists(key)) this.textures.remove(key);
+    const tex = this.textures.createCanvas(key, W, H);
+    const ctx = tex.getContext();
+    if (blur > 0) {
+      // The canvas's own shadow, thrown back onto it from a copy drawn just out of sight, is the blurred tree.
+      ctx.shadowColor = '#fff';
+      ctx.shadowBlur = blur * unit;
+      ctx.shadowOffsetX = W;
+      ctx.drawImage(sharp, -W, 0);
+    } else {
+      ctx.drawImage(sharp, 0, 0);
+    }
+    tex.refresh();
+    return { key, W, H, ox, oy, res };
+  }
+
+  // A painted tree standing in its place on the ground, as a shadow `alpha` dark. Near trees sway a little in the
+  // wind (`sway` degrees), rocking from their foot.
+  forestShadow(name, alpha, sway = 0) {
+    const t = this.woods[name];
+    const img = this.add.image(this.at(t.at), this.floor, t.key).setOrigin(t.ox / t.W, t.oy / t.H).setScale(1 / t.res).setTint(SHADOW).setAlpha(alpha);
+    if (sway && !this.still) {
+      img.setAngle(-sway);
+      this.tweens.add({ targets: img, angle: sway, duration: Phaser.Math.Between(2400, 3400), yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+    }
+    return img;
   }
 
   die(x, y) {
