@@ -33,16 +33,16 @@ export const INTRO = {
 };
 
 // The shadow puppet show, after the chapter 1 quiz: stories families tell about Deepavali, told full screen behind
-// a lit cloth screen as South Indian shadow puppet theatre is, with subtitles. It opens on a card page in front of the
-// closed curtains, where Paati says what the stories mean; people pick a card, the curtains open on that story, and
-// they close again at its end, back to the cards and Paati telling why the story matters. Next carries on. Each story explains
+// a lit cloth screen as South Indian shadow puppet theatre is, with subtitles. In front of the closed curtains, Paati
+// first says what the stories mean, then the cards follow on their own; people pick a card, the curtains open on that
+// story, and they close again at its end: Paati says why the story matters, then the cards again. Next carries on. Each story explains
 // who everyone is and why things happen, and ends on a different part of Deepavali: families getting together, the
 // elders' blessings and sharing sweets (the Pandavas), the rows of lamps that give Deepavali its name (Rama), and the oil bath before
 // sunrise that starts Tamil Deepavali (Krishna, Satyabhama and Narakasura). Each line is one scene, shown as long as
 // people need to read it. Sources and the details that vary: docs/quiz-research.md → "The puppet show".
 export const PUPPET = {
   title: 'Stories of Deepavali',
-  // Paati, beside the cards: what the stories mean, then after each one, why it matters to us.
+  // Paati, before the cards: what the stories mean, then after each one, why it matters to us.
   paati: {
     first: 'Families tell these stories at Deepavali, dear. In each one, light wins over darkness, and each one explains something we still do today. Pick one, and I will open the curtains.',
     after: {
@@ -50,9 +50,11 @@ export const PUPPET = {
       rama: 'That is why every doorstep glows with rows of lamps: light chases the darkness away, and every lamp says welcome home.',
       krishna: 'That is why I wake everyone before sunrise for the oil bath! Good wins over bad, and we start the day fresh, in new clothes.',
     },
-    more: 'Pick another story, dear, or press Next.',
     allDone: 'That is all three stories, dear! Press Next, and back to my kitchen we go.',
   },
+  // Under the title on the cards page.
+  pick: 'Pick a story to watch.',
+  again: 'Pick another story, or press Next to carry on.',
   stories: [
     {
       id: 'pandavas',

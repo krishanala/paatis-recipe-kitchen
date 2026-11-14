@@ -51,7 +51,9 @@ export function voiceScript() {
     story.lines.forEach((t) => add(`story ${id}`, t.ask ? NAME.ask : t));
   }
   const P = PUPPET.paati;
-  [P.first, ...Object.values(P.after), P.more, P.allDone].forEach((t) => add('puppet show: Paati', t));
+  [P.first, ...Object.values(P.after), P.allDone].forEach((t) => add('puppet show: Paati', t));
+  add('puppet show: cards', PUPPET.pick);
+  add('puppet show: cards', PUPPET.again);
   PUPPET.stories.forEach((st) => st.lines.forEach((l) => add(`puppet show: ${st.title}`, l.text)));
   const facts = [...EXTRA_FACTS];
   for (const [ch, bank] of Object.entries(QUIZ_BANK)) {
