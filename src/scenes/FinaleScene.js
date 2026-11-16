@@ -1,15 +1,15 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { art, bokeh, burst, fireworks, garland, glow, hangingGarlands, paati, raisedTitle, ribbon, welcomeStage } from '../ui/widgets.js';
-import { fontSize } from '../ui/text.js';
+import { PaatiBubble, art, bokeh, burst, fireworks, garland, glow, hangingGarlands, paati, raisedTitle, ribbon, sparkle, welcomeStage } from '../ui/widgets.js';
+import { BUTTON_FONT, fontSize } from '../ui/text.js';
 import { FINALE, PAATI, PUPPET } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
 import { personal, progress, resetProgress, settings } from '../state.js';
-import { radioOff, radioOn } from '../radio.js';
+import { paintMuruku } from '../draw.js';
 
 // Screen 7 · Finale, in modes:
-// 'finale'  Let Paati taste it: Paati enjoys a muruku in her rocking chair on the veranda, with no words, and Next
-//           goes on to the last page;
+// 'finale'  Let Paati taste it: the player offers their muruku, Paati tastes it and says thank you, and Next goes
+//           on to the last page;
 // 'choice'  the last page: Paati's stories of Deepavali, make more muruku (the free kitchen), or finish;
 // 'goodbye' Paati's farewell at the very end.
 export class FinaleScene extends BaseScene {
@@ -18,189 +18,167 @@ export class FinaleScene extends BaseScene {
   }
 
   create(data) {
-    const mode = data.mode ?? 'finale';
-    if (mode === 'finale') return this.veranda();
     this.setStage('festive');
+    const mode = data.mode ?? 'finale';
     if (mode === 'choice') return this.choice();
     bokeh(this, 26, { seed: `finale-${mode}` });
     garland(this);
-    this.goodbye();
+    if (mode === 'goodbye') this.goodbye();
+    else this.offer();
   }
 
-  // Let Paati taste it, with no words: Paati in her rocking chair on the veranda at dusk, the lamps lit along the
-  // wall, the old radio playing on the side table beside a plate of muruku. She nibbles, smiles, dabs a happy tear and
-  // rocks; the radio's notes drift up; Next appears after a moment. With Reduce motion the chair, notes and lamps
-  // stay still and her pictures change in place.
-  veranda() {
-    this.setStage('festive');
+  // Let Paati taste it: the player's muruku on a banana leaf. Offered, it flies over to her and she tastes it.
+  offer() {
+    this.pinToEdges(
+      hangingGarlands(this, [
+        [22, 14, 290],
+        [56, 14, 196, 'alt'],
+        [1224, 14, 196, 'alt'],
+        [1258, 14, 290],
+      ]),
+    );
+    burst(this, 640, 300, 40);
+    burst(this, 1120, 200, 50, COLOR.marigold500);
+    this.text(640, 130, FINALE.offer, 'h3', { origin: [0.5, 0], width: 1100, align: 'center' });
+    const light = glow(this, 900, 430, 240);
+    const welcome = paati(this, 900, 712, PAATI.welcome, 540);
+    const gift = [art(this, 380, 400, 'banana-leaf', 360)];
+    if (progress.lastMuruku) gift.push(...paintMuruku(this, progress.lastMuruku, 380, 392, 180));
+    else gift.push(art(this, 380, 392, 'muruku-golden', 180));
+    const offer = new Button(this, 380, 620, {
+      label: 'Offer to Paati',
+      width: 320,
+      onClick: () => {
+        offer.setEnabled(false);
+        this.taste(welcome, light, gift, offer);
+      },
+    });
+  }
+
+  // Paati tastes it in the middle of the screen, one picture after another: a bite (Crunch!), a happy dab of her
+  // eyes, then she looks at the player and says thank you, and Next appears. A tap or key press skips to the end. With Reduce motion she moves to the middle at once and the pictures change in place.
+  taste(welcome, light, gift, offer) {
     const still = settings.reduceMotion;
-    const FY = 680; // the floor line where the chair and table stand
-    art(this, 640, 360, 'veranda', 1800);
-    garland(this);
-
-    // Diyas lit along the top of the wall, each with soft light around its flame.
-    const soft = this.softGlow();
-    for (const x of [-130, -60, 112, 420, 905, 975, 1050, 1125, 1290, 1360, 1430]) {
-      art(this, x, 446, 'diya', 40);
-      const halo = this.add.image(x, 434, soft).setDisplaySize(70, 70).setTint(0xffb347).setAlpha(0.75).setBlendMode(Phaser.BlendModes.ADD);
-      if (!still) this.tweens.add({ targets: halo, alpha: 0.45, scale: halo.scale * 0.85, duration: 700 + ((x * 7) % 400), yoyo: true, repeat: -1, ease: 'Sine.InOut' });
-    }
-
-    // The side table, with the radio and a plate of muruku on it.
-    this.add.ellipse(300, FY + 2, 280, 18, 0x3a120c, 0.3);
-    this.add.image(300, FY, 'side-table').setOrigin(0.5, 250 / 260).setDisplaySize(300, 260);
-    const top = FY - 206; // the table's top, where things stand
-    const dial = this.add.image(236, top - 42, soft).setDisplaySize(170, 110).setTint(0xffb347).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD);
-    const radio = this.add.image(236, top, 'radio').setOrigin(0.5, 1).setDisplaySize(167, 152);
-    art(this, 382, top + 2, 'muruku-pile', 112).setOrigin(0.5, 1);
-    if (!still) this.tweens.add({ targets: dial, alpha: 0.6, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
-    this.notes(radio, still);
-
-    // Paati in her rocking chair. The chair is drawn in two layers, back and front, with her between: her top half
-    // from the tasting pictures, and the hem of her sari under the shawl on her lap.
-    const CX = 650;
-    const K = 0.66;
-    this.add.ellipse(CX, FY + 4, 420, 26, 0x3a120c, 0.32);
-    const chair = (key) => this.add.image(-230, -592, key).setOrigin(0, 0).setDisplaySize(460, 600);
-    const px = (-461 * K) / 2;
-    const py = -592 + 34;
+    const mid = 640;
+    const tall = 520; // a little shorter than on the offering page, so her head clears the heading
     const frames = {};
     for (const key of ['bite', 'wipe', 'happy']) {
-      frames[key] = this.add.image(px, py, `paati-taste-${key}`).setOrigin(0, 0).setScale(K).setCrop(0, 0, 461, 480).setAlpha(key === 'happy' ? 1 : 0);
+      const f = paati(this, mid, 712, `paati-taste-${key}`, tall).setAlpha(0);
+      f.home = f.scaleX;
+      frames[key] = f;
     }
-    const hem = this.add.image(px, py + 470 - 34 - 690 * K, 'paati-taste-happy').setOrigin(0, 0).setScale(K).setCrop(0, 690, 461, 130);
-    const rock = this.add.container(CX, FY, [chair('chair-back'), hem, ...Object.values(frames), chair('chair-front')]);
-    this.rock = rock;
-    if (!still) {
-      rock.angle = -1.3;
-      this.tweens.add({ targets: rock, angle: 1.3, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
-    }
-
-    // What she does, round and round: a bite (crumbs fall into her lap), a happy smile, a dab of a happy tear, a smile.
-    const mouth = { x: px + 248 * K, y: py + 262 * K };
-    let shown = frames.happy;
+    const mouth = { x: mid + 5, y: 312 };
+    let shown = welcome;
     const show = (key) => {
       const next = frames[key];
-      if (next === shown) return next;
       if (still) {
         shown.setAlpha(0);
         next.setAlpha(1);
       } else {
-        this.tweens.add({ targets: shown, alpha: 0, duration: 220 });
-        this.tweens.add({ targets: next, alpha: 1, duration: 220 });
+        this.tweens.add({ targets: shown, alpha: 0, duration: 200 });
+        this.tweens.add({ targets: next, alpha: 1, duration: 200 });
       }
       shown = next;
       return next;
     };
-    const steps = [
-      ['bite', 2400],
-      ['happy', 2000],
-      ['wipe', 1800],
-      ['happy', 2600],
-    ];
-    let i = 0;
-    const step = () => {
-      const [key, ms] = steps[i];
-      const f = show(key);
-      if (key === 'bite' && !still) {
-        this.crumbs(rock, mouth.x + 10, mouth.y + 10, 8);
-        this.tweens.add({ targets: f, scaleY: K * 0.985, duration: 140, yoyo: true, repeat: 2, ease: 'Sine.InOut' });
-      }
-      i = (i + 1) % steps.length;
-      this.time.delayedCall(ms, step);
+
+    const timers = [];
+    const later = (ms, fn) => timers.push(this.time.delayedCall(ms, fn));
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      timers.forEach((t) => t.remove(false));
+      this.input.off('pointerdown', finish);
+      this.input.keyboard?.off('keydown', finish);
+      this.tweens.killTweensOf([welcome, light, offer, ...gift, ...Object.values(frames)]);
+      light.setX(mid - 900);
+      gift.forEach((o) => o.destroy());
+      offer.destroy();
+      welcome.setAlpha(0);
+      Object.values(frames).forEach((f) => f.setAlpha(0).setScale(f.home).setAngle(0));
+      frames.happy.setAlpha(1);
+      this.thanks();
     };
-    this.time.delayedCall(700, step);
+    this.input.on('pointerdown', finish);
+    this.input.keyboard?.on('keydown', finish);
 
-    // The radio plays while Sound is on.
-    if (settings.sound) radioOn();
-    this.events.on('settings-changed', () => (settings.sound ? radioOn() : radioOff()));
-    this.events.once('shutdown', radioOff);
-
-    const next = new Button(this, 1040, 652, { label: 'Next', width: 280, onClick: () => this.go('Finale', { mode: 'choice' }) });
-    next.setAlpha(0).setEnabled(false);
-    this.time.delayedCall(still ? 600 : 2600, () => {
-      next.setEnabled(true);
-      if (still) next.setAlpha(1);
-      else this.tweens.add({ targets: next, alpha: 1, y: { from: next.y + 16, to: next.y }, duration: 380, ease: 'Cubic.Out' });
-    });
-  }
-
-  // A round, soft white glow (made once), to tint for lamp light.
-  softGlow() {
-    const key = 'soft-glow';
-    if (!this.textures.exists(key)) {
-      const t = this.textures.createCanvas(key, 128, 128);
-      const ctx = t.getContext();
-      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-      grad.addColorStop(0, 'rgba(255,255,255,1)');
-      grad.addColorStop(0.35, 'rgba(255,255,255,0.45)');
-      grad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 128, 128);
-      t.refresh();
-    }
-    return key;
-  }
-
-  // Music notes rise from the radio's speaker, sway, and fade: a few at a time. With Reduce motion two notes stay
-  // still beside it.
-  notes(radio, still) {
-    const x = radio.x + 20;
-    const y = radio.y - radio.displayHeight + 30;
-    const note = (nx, ny, double) => {
-      const g = this.add.graphics({ x: nx, y: ny });
-      g.lineStyle(3, 0x5a2f1a, 0.55);
-      g.fillStyle(0xfff1c4, 1);
-      const head = (hx, hy) => {
-        g.fillEllipse(hx, hy, 13, 9.5);
-        g.strokeEllipse(hx, hy, 13, 9.5);
-      };
-      g.fillStyle(0xfff1c4, 1);
-      if (double) {
-        g.fillRect(4, -24, 3, 24);
-        g.fillRect(22, -28, 3, 24);
-        g.fillPoints([{ x: 4, y: -24 }, { x: 25, y: -28 }, { x: 25, y: -22 }, { x: 4, y: -18 }], true);
-        head(0, 0);
-        head(18, -4);
-      } else {
-        g.fillRect(4, -26, 3, 26);
-        g.fillPoints([{ x: 7, y: -26 }, { x: 16, y: -16 }, { x: 14, y: -13 }, { x: 7, y: -19 }], true);
-        head(0, 0);
-      }
-      return g.setAngle(-8);
-    };
+    // Paati steps into the middle, with her glow, as the muruku goes over to her.
+    const scale = (welcome.scaleX * tall) / 540;
     if (still) {
-      note(x + 70, y - 40, true);
-      note(x + 30, y - 90, false);
-      return;
+      [...gift, offer].forEach((o) => o.setVisible(false));
+      welcome.setX(mid).setScale(scale);
+      light.setX(mid - 900);
+    } else {
+      this.tweens.add({ targets: offer, alpha: 0, duration: 200 });
+      this.tweens.add({ targets: welcome, x: mid, scale, duration: 520, ease: 'Cubic.InOut' });
+      this.tweens.add({ targets: light, x: mid - 900, duration: 520, ease: 'Cubic.InOut' });
+      this.tweens.add({ targets: gift, x: '+=265', y: '-=20', alpha: 0, duration: 700, delay: 120, ease: 'Cubic.In' });
     }
-    let n = 0;
-    const spawn = () => {
-      const g = note(x + Phaser.Math.Between(-20, 20), y, n++ % 3 === 0).setAlpha(0).setScale(0.8);
-      const dx = Phaser.Math.Between(70, 170);
-      this.tweens.add({ targets: g, alpha: { from: 0, to: 1 }, duration: 400 });
-      this.tweens.add({ targets: g, x: g.x + dx, y: g.y - Phaser.Math.Between(150, 220), scale: 1.05, duration: 3200, ease: 'Sine.Out' });
-      this.tweens.add({ targets: g, angle: 8, duration: 800, yoyo: true, repeat: 1, ease: 'Sine.InOut' });
-      this.tweens.add({ targets: g, alpha: 0, delay: 2300, duration: 900, onComplete: () => g.destroy() });
-    };
-    spawn();
-    this.time.addEvent({ delay: 950, loop: true, callback: spawn });
+    // 1 · A bite.
+    later(620, () => {
+      const f = show('bite');
+      if (still) return;
+      this.crunch(mouth);
+      this.tweens.add({ targets: f, scaleY: f.home * 0.97, duration: 110, yoyo: true, ease: 'Sine.InOut' });
+    });
+    // 2 · A happy dab of her eyes with her handkerchief.
+    later(2500, () => {
+      const f = show('wipe');
+      if (still) return;
+      this.tweens.add({ targets: f, angle: { from: -1.5, to: 1.5 }, duration: 420, yoyo: true, repeat: 1, ease: 'Sine.InOut', onComplete: () => f.setAngle(0) });
+    });
+    // 3 · Happy and content, she looks at the player.
+    later(4000, () => {
+      show('happy');
+      sparkle(this, mid, 270, { radius: 170, count: 20 });
+    });
+    later(4500, finish);
   }
 
-  // Golden crumbs that fall from her muruku into her lap (inside the rocking chair, so they rock with her).
-  crumbs(parent, x, y, count) {
+  // "Crunch!" pops up beside Paati's mouth, with a spray of crumbs.
+  crunch({ x, y }) {
+    const word = this.text(x + 136, y - 70, FINALE.crunch, 'h4', { weight: 700, color: 0xb35600, origin: 0.5 })
+      .setFontFamily(BUTTON_FONT)
+      .setStroke('#ffffff', 8)
+      .setAngle(-8)
+      .setScale(0)
+      .setDepth(5);
+    this.tweens.add({ targets: word, scale: 1, duration: 260, ease: 'Back.Out' });
+    this.tweens.add({ targets: word, y: word.y - 30, alpha: 0, delay: 900, duration: 420, ease: 'Sine.In', onComplete: () => word.destroy() });
+    this.crumbs(x + 30, y, 10);
+  }
+
+  // Golden crumbs that spray out and fall.
+  crumbs(x, y, count) {
     for (let i = 0; i < count; i++) {
-      const c = this.add.circle(x, y, 1.6 + Math.random() * 2.4, [0xd9a441, 0xc07a2a, 0xe8b860][i % 3]);
-      parent.add(c);
+      const c = this.add.circle(x, y, 2 + Math.random() * 3, [0xd9a441, 0xc07a2a, 0xe8b860][i % 3]).setDepth(5);
       this.tweens.add({
         targets: c,
-        x: x + Phaser.Math.Between(-24, 30),
-        y: y + Phaser.Math.Between(60, 110),
+        x: x + Phaser.Math.Between(-10, 56),
+        y: y + Phaser.Math.Between(40, 120),
         alpha: 0,
         duration: Phaser.Math.Between(600, 900),
         ease: 'Quad.In',
         onComplete: () => c.destroy(),
       });
+    }
+  }
+
+  // Paati's thanks, in a bubble on her left pointing at her, then Next on her right.
+  thanks() {
+    const x = 72;
+    const y = 262;
+    const w = 400;
+    const bubble = new PaatiBubble(this, x, y, w, { avatar: false, tail: 'right', tailY: 48 }).say(FINALE.thanks);
+    const next = new Button(this, 1010, 620, {
+      label: 'Next',
+      width: 320,
+      onClick: () => this.go('Finale', { mode: 'choice' }),
+    });
+    if (!settings.reduceMotion) {
+      this.tweens.add({ targets: bubble, alpha: { from: 0, to: 1 }, y: { from: y + 16, to: y }, duration: 320, ease: 'Cubic.Out' });
+      this.tweens.add({ targets: next, alpha: { from: 0, to: 1 }, y: { from: next.y + 18, to: next.y }, duration: 360, delay: 260, ease: 'Cubic.Out' });
     }
   }
 

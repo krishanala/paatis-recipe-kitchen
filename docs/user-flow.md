@@ -24,7 +24,7 @@ flowchart TD
 
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
-    Q4 --> F["7 · Finale<br/>Let Paati taste it, no words: Paati in her rocking chair on the veranda, the radio playing · Next"]
+    Q4 --> F["7 · Finale<br/>Let Paati taste it: offer · bite · happy tears · thank you · Next"]
     F --> C["7 · Last page<br/>Learn more about Deepavali · Make more muruku · Finish"]
     C -- Learn more about Deepavali --> PE["Stories of Deepavali: the three cards<br/>Next goes back to the last page"]
     PE --> C
@@ -70,4 +70,4 @@ flowchart TD
 | Sound is off | Every spoken line is already on screen as text |
 | Player skips the name, or leaves it empty | Paati calls them "dear", as before. They can add one later in Help & settings |
 | Player changes their name in Help & settings | Paati uses the new name from her next line. A line already on screen keeps the old one; the Welcome heading and name box update when the sheet closes. An empty box brings back "dear" |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's curtains open and close at once, Paati's page and the cards appear without fading in (and without the bar that counts down to the cards), and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. When Paati tastes the muruku, her rocking chair stays still, the radio's notes and the lamps don't move, and her pictures change in place |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's curtains open and close at once, Paati's page and the cards appear without fading in (and without the bar that counts down to the cards), and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. When Paati tastes the muruku, her pictures change in place without movement |

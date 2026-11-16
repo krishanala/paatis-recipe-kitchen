@@ -604,8 +604,11 @@ export const EXTRA_FACTS = [
   'Many families wear bright new clothes on Deepavali and visit their elders for blessings.',
 ];
 
-// Let Paati taste it has no words: she enjoys the muruku in her rocking chair (FinaleScene.veranda).
 export const FINALE = {
+  offer: 'Let Paati taste it',
+  // Paati tastes it: a bite, a happy dab of the eyes, then her thanks.
+  crunch: 'Crunch!',
+  thanks: 'Mmm, crunchy! Thank you, dear. I can taste the love in it.',
   // The last page: watch the puppet show, make more muruku, or finish. `choiceMissed` is for when no story was watched.
   choiceRibbon: 'Well done, dear!',
   choiceTitle: 'What next?',
