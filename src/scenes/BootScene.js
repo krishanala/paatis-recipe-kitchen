@@ -28,6 +28,13 @@ const ART = [
   ['bowl-front', 1],
   ['pitcher', 0.7],
   ['muruku-golden', 1],
+  // Let Paati taste it: the veranda (drawn 1800 wide, rasterised smaller so its texture stays under 4096 px), the
+  // rocking chair's two layers, the side table and the radio.
+  ['veranda', 0.8],
+  ['chair-back', 1],
+  ['chair-front', 1],
+  ['side-table', 1],
+  ['radio', 0.8],
 ];
 
 export class BootScene extends Phaser.Scene {

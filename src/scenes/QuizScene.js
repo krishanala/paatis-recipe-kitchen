@@ -350,6 +350,8 @@ export class QuizScene extends BaseScene {
     if (reward && !progress.collected.includes(reward)) this.earn(ingredient(reward));
     const last = this.index === this.questions.length - 1;
     this.next.setLabel(last ? this.lastLabel() : 'Next question');
+    // A long label (Watch the puppet show) widens the button instead of wrapping onto two lines.
+    this.next.fitLabel(COMPACT ? { max: Math.min(500, 2 * (1280 - (SIDE.x + SIDE.w / 2))) } : { keep: 'right', max: 440 });
     this.next.setVisible(true);
     if (this.focus.visible) this.focus.focus(this.next);
     // On phones the reward card has done its job, so it makes way for Paati's explanation.

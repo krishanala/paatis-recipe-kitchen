@@ -5,6 +5,20 @@ import { Button } from './Button.js';
 import { silkTrim } from './widgets.js';
 import { textField } from './field.js';
 
+// The sheet's text is a step smaller than the rest of the game's (SMALLER px off each role), so it reads as a quiet
+// panel of controls rather than a page.
+const SMALLER = 5;
+const size = (role) => fontSize(role) - SMALLER;
+function sheetText(scene, x, y, str, role, opts) {
+  return makeText(scene, x, y, str, role, opts).setFontSize(size(role));
+}
+// A button's label, made as much smaller.
+function smaller(button) {
+  const l = button.label;
+  if (l) l.setFontSize(parseFloat(l.style.fontSize) - SMALLER);
+  return button;
+}
+
 const TEXT_SIZES = [
   { label: 'A', value: 1 },
   { label: 'A+', value: 1.15 },
@@ -15,11 +29,11 @@ const TEXT_SIZES = [
 // is not the only signal.
 function toggleRow(scene, x, y, w, h, label, key, { hint, onChange, get = () => settings[key], set } = {}) {
   const sw = scene.add.graphics();
-  const state = makeText(scene, w / 2 - 96, 0, '', 'b1', { weight: 600, origin: [1, 0.5] });
-  const text = makeText(scene, -w / 2 + 20, 0, label, 's1', { origin: [0, 0.5] });
+  const state = sheetText(scene, w / 2 - 96, 0, '', 'b1', { weight: 600, origin: [1, 0.5] });
+  const text = sheetText(scene, -w / 2 + 20, 0, label, 's1', { origin: [0, 0.5] });
   const content = [text, state, sw];
   if (hint) {
-    const sub = makeText(scene, -w / 2 + 20, 0, hint, 'b3', { color: COLOR.grey600, origin: [0, 0.5] });
+    const sub = sheetText(scene, -w / 2 + 20, 0, hint, 'b3', { color: COLOR.grey600, origin: [0, 0.5] });
     text.y = -sub.height / 2 - 1;
     sub.y = text.height / 2 + 1;
     content.push(sub);
@@ -54,8 +68,8 @@ function toggleRow(scene, x, y, w, h, label, key, { hint, onChange, get = () => 
 
 // A label with a small note under it, left-aligned and centred on row y. Returns both texts.
 function labelWithNote(scene, x, y, label, note) {
-  const a = makeText(scene, x, y, label, 's1', { origin: [0, 1] });
-  const b = makeText(scene, x, y + 2, note, 'b3', { color: COLOR.grey600, origin: [0, 0] });
+  const a = sheetText(scene, x, y, label, 's1', { origin: [0, 1] });
+  const b = sheetText(scene, x, y + 2, note, 'b3', { color: COLOR.grey600, origin: [0, 0] });
   const shift = (a.height - b.height) / 2;
   a.y += shift;
   b.y += shift;
@@ -76,13 +90,16 @@ export class SettingsSheet {
     const cx = STAGE.width / 2;
     const rowH = Math.max(64, MIN_HIT);
     const parts = [];
-    const add = (o) => (parts.push(o), o);
+    const add = (o) => (parts.push(o instanceof Button ? smaller(o) : o), o);
 
     // Everything is laid out from y = 0, then the whole sheet moves up to sit on the bottom edge.
-    const title = add(makeText(scene, x + 40, COMPACT ? 30 : 40, 'Help & settings', 'h4'));
-    add(new Button(scene, x + W - 56, title.y + title.height / 2, { variant: 'icon', icon: 'close', dark: false, onClick: () => this.close() }));
+    const title = add(sheetText(scene, x + 40, 44, 'Help & settings', 'h4'));
+    // Close is a medium round button, kept clear of the trim along the top (y 14 to 27).
+    const closeH = BUTTON_HEIGHT.medium;
+    const closeY = Math.max(title.y + title.height / 2, 27 + 12 + closeH / 2);
+    add(new Button(scene, x + W - 24 - closeH / 2, closeY, { variant: 'icon', icon: 'close', size: 'medium', dark: false, onClick: () => this.close() }));
     const howTo = add(
-      makeText(scene, x + 40, title.y + title.height + 8, 'Tap to choose. On a keyboard, Tab moves and Enter picks. Every line Paati says is shown as text.', 'b1', {
+      sheetText(scene, x + 40, title.y + title.height + 8, 'Tap to choose. On a keyboard, Tab moves and Enter picks. Every line Paati says is shown as text.', 'b1', {
         width: W - 140,
         color: COLOR.grey600,
       }),
@@ -100,7 +117,7 @@ export class SettingsSheet {
     // the controls' right edge. On phones the row shares the narrow left column, so it has no note. The box itself is a
     // real text field, placed once the sheet's position is known.
     const nameY = row();
-    if (COMPACT) add(makeText(scene, x + 60, nameY, 'Your name', 's1', { origin: [0, 0.5] }));
+    if (COMPACT) add(sheetText(scene, x + 60, nameY, 'Your name', 's1', { origin: [0, 0.5] }));
     else labelWithNote(scene, x + 60, nameY, 'Your name', 'What Paati calls you').forEach(add);
     const nameBox = { x: (COMPACT ? x + 20 + colW : x + W - 46) - 300, y: nameY - BUTTON_HEIGHT.medium / 2, w: 300, h: BUTTON_HEIGHT.medium };
 
@@ -148,8 +165,8 @@ export class SettingsSheet {
         ['Text size', 'Applies from the next screen', (by) => sizeRow(rx + 46, by)],
         ['Language', 'More languages after review', (by) => language(rx + 150, by)],
       ]) {
-        const a = add(makeText(scene, rx, ry, label, 's1'));
-        const b = add(makeText(scene, rx, a.y + a.height, note, 'b3', { color: COLOR.grey600 }));
+        const a = add(sheetText(scene, rx, ry, label, 's1'));
+        const b = add(sheetText(scene, rx, a.y + a.height, note, 'b3', { color: COLOR.grey600 }));
         const by = b.y + b.height + 8 + BUTTON_HEIGHT.medium / 2;
         control(by);
         ry = by + BUTTON_HEIGHT.medium / 2 + 18;
@@ -202,7 +219,7 @@ export class SettingsSheet {
     this.field = textField(scene, {
       ...nameBox,
       y: top + nameBox.y,
-      font: fontSize('b1'),
+      font: size('b1'),
       maxLength: 24,
       placeholder: 'Type your name',
       label: 'Your name',

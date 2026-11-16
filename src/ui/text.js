@@ -3,6 +3,8 @@ import { settings } from '../state.js';
 
 export const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 export const BUTTON_FONT = 'Poppins, Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+// The header's title (Welcome, Chapter 1 of 4): a flowing script.
+export const SCRIPT_FONT = '"Dancing Script", "Segoe Script", cursive';
 
 // The size of a type role in stage px, at the player's text size (or at `scale`: 1 is the default size). Phones start
 // from much bigger text, so the A+ and A++ steps add less there (A++ comes to about the size it was before

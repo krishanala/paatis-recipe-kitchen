@@ -43,6 +43,7 @@ function freshProgress() {
     freeKitchen: false,
     plate: 0, // muruku made in the free kitchen
     factIndex: 0,
+    watched: [], // ids of the puppet show's stories watched, so the last page knows
     name: '', // what Paati calls the player (the Welcome asks); kept for this visit only, like the rest
   };
 }

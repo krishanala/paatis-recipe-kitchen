@@ -162,6 +162,28 @@ export class Button extends Phaser.GameObjects.Container {
     return this;
   }
 
+  // Widens the button so its label fits on one line (never narrower than it is, nor wider than `max`), keeping the
+  // `keep` edge where it is: 'left', 'right' or 'center'. If `max` is still too narrow, the label steps down in size
+  // (to 85% at most), and only then wraps, with the button growing taller to hold it.
+  fitLabel({ keep = 'center', max = Infinity } = {}) {
+    const l = this.label;
+    if (!l) return this;
+    this.labelSize ??= parseFloat(l.style.fontSize);
+    l.setFontSize(this.labelSize).setWordWrapWidth(null);
+    while (l.width + 64 > max && parseFloat(l.style.fontSize) > this.labelSize * 0.85) l.setFontSize(parseFloat(l.style.fontSize) - 1);
+    const w = Math.min(max, Math.max(this.bw, Math.ceil(l.width + 64)));
+    l.setWordWrapWidth(w - 32);
+    const dx = (w - this.bw) / 2;
+    if (keep === 'right') this.x -= dx;
+    else if (keep === 'left') this.x += dx;
+    this.bw = w;
+    this.bh = Math.max(this.bh, Math.ceil(l.height + 26));
+    this.setSize(Math.max(w, MIN_HIT), Math.max(this.bh, MIN_HIT));
+    this.input?.hitArea.setSize(this.width, this.height);
+    this.draw();
+    return this;
+  }
+
   colors() {
     const { dark, hover, pressed, look } = this;
     switch (this.variant) {

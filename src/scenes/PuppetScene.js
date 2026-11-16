@@ -1,10 +1,10 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, SERIF, art, chip, glow as rays, paati, rocket, sparkle } from '../ui/widgets.js';
+import { PaatiBubble, SERIF, art, chip, paati, rocket, sparkle } from '../ui/widgets.js';
 import { fontSize, makeText } from '../ui/text.js';
 import { PAATI, PUPPET } from '../content.js';
 import { BLEED, COLOR, RES, STAGE, css, pick } from '../theme.js';
-import { personal, settings } from '../state.js';
+import { personal, progress, settings } from '../state.js';
 import { Shadow, banyan, broadleaf, distantForest, palm, undergrowth } from '../trees.js';
 import { speak } from '../voice.js';
 
@@ -63,8 +63,8 @@ const PAGE_DEPTH = 20; // the card page, in front of the closed curtains
 // beside her, vertically centred on `mid`. Then the cards page: a title, three cards across, and Skip / Next at the
 // bottom right. Phones give Paati a little less room so her bigger text fits.
 const PAATI_PAGE = pick(
-  { x: 560, w: 650, mid: 300, paati: { x: 320, h: 580, glow: 260 } },
-  { x: 470, w: 770, mid: 290, paati: { x: 250, h: 520, glow: 220 } },
+  { x: 560, w: 650, mid: 300, paati: { x: 320, h: 580 } },
+  { x: 470, w: 770, mid: 290, paati: { x: 250, h: 520 } },
 );
 const CARDS = { x: 60, w: 1160, title: 74, bottom: 612, button: { x: 1110, y: 664, w: 260 } };
 
@@ -100,7 +100,9 @@ export class PuppetScene extends BaseScene {
     super('Puppet');
   }
 
-  create() {
+  // data.from 'end': opened from the last page, so Next (or Skip) goes back there instead of on along the journey.
+  create(data = {}) {
+    this.fromEnd = data.from === 'end';
     this.setStage('ch1');
     this.still = settings.reduceMotion;
     this.cameras.main.setBackgroundColor(WOOD);
@@ -126,7 +128,8 @@ export class PuppetScene extends BaseScene {
     this.drawTheatre(valance);
     this.cast = [];
     this.timers = [];
-    this.watched = new Set();
+    // Stories already watched this visit keep their tick (progress.watched; the last page reads it too).
+    this.watched = new Set(progress.watched);
     this.cards = [];
     this.page = [];
     this.showPage();
@@ -204,7 +207,8 @@ export class PuppetScene extends BaseScene {
     // The subtitle band, with its button at the right: Skip or Next by the cards, Skip story during a story.
     const b = this.band;
     const band = this.add.graphics();
-    band.fillStyle(0x140a04, 0.78);
+    // Solid, so the puppets' rods (which run down off the cloth) don't show through it.
+    band.fillStyle(0x140a04, 1);
     band.fillRect(x, b.y, w, b.h);
     band.fillStyle(COLOR.yellow500, 1);
     band.fillRect(x, b.y, w, 2);
@@ -262,13 +266,12 @@ export class PuppetScene extends BaseScene {
     const P = PUPPET.paati;
     const line = after ? (this.watched.size === PUPPET.stories.length ? `${P.after[after]} ${P.allDone}` : P.after[after]) : P.first;
     const L = PAATI_PAGE;
-    const halo = rays(this, L.paati.x, 712 - L.paati.h * 0.5, L.paati.glow);
     const figure = paati(this, L.paati.x, 712, PAATI.teaching, L.paati.h);
-    const bubble = new PaatiBubble(this, L.x, 0, L.w, { avatar: false });
+    const bubble = new PaatiBubble(this, L.x, 0, L.w, { avatar: false, tail: 'left', tailY: 40 });
     bubble.say(line);
     bubble.setY(Math.round(L.mid - bubble.bubbleHeight / 2));
     const hold = 2200 + personal(line).length * 55;
-    this.page = [halo, figure, bubble];
+    this.page = [figure, bubble];
     if (!this.still) {
       const y = bubble.y + bubble.bubbleHeight + 22;
       const track = this.add.rectangle(L.x + 24, y, 220, 6, COLOR.white, 0.3).setOrigin(0, 0.5);
@@ -300,7 +303,7 @@ export class PuppetScene extends BaseScene {
     this.cardTop = hint.y + hint.height + 20;
     this.cards = PUPPET.stories.map((st, i) => this.card(st, i));
     const b = CARDS.button;
-    const go = new Button(this, b.x, b.y, { label: first ? 'Skip' : 'Next', variant: first ? 'outline' : 'filled', width: b.w, dark: false, onClick: () => this.advance() });
+    const go = new Button(this, b.x, b.y, { label: first ? 'Skip' : 'Next', variant: first ? 'outline' : 'filled', width: b.w, dark: false, onClick: () => (this.fromEnd ? this.go('Finale', { mode: 'choice' }) : this.advance()) });
     this.page = [title, hint, ...this.cards, go];
     this.fadeIn(this.page, 200);
     if (this.focus.visible) this.focus.focus(this.cards.find((c) => !this.watched.has(c.story)) ?? go);
@@ -380,6 +383,7 @@ export class PuppetScene extends BaseScene {
     this.pageTimer?.remove(false);
     this.story = PUPPET.stories.find((st) => st.id === id);
     this.watched.add(id);
+    if (!progress.watched.includes(id)) progress.watched.push(id);
     this.hidePage();
     this.tweens.killTweensOf(this.light);
     this.applyNight(0);
@@ -963,16 +967,40 @@ export class PuppetScene extends BaseScene {
       g.fillPoints(P(list), true);
     };
 
-    // The tail (Hanuman), behind everything: a long curl rising over his back.
+    // The tail (Hanuman and the monkeys), behind everything: from the base of the back it dips, sweeps out behind
+    // and rises high in a loose S, thinning as it goes, with a little hook at the tip (not a neat spiral).
     if (c.monkey) {
-      g.lineStyle(s(3.2), SHADOW, 0.94);
-      g.beginPath();
-      g.moveTo(s(-8), s(-42));
-      for (let t = 0; t <= 1.001; t += 0.05) {
-        const a = Math.PI * 0.9 + t * Math.PI * 1.6;
-        g.lineTo(s(-22 + 12 * Math.cos(a) * (1 - t * 0.45)), s(-70 + 26 * Math.sin(a) * (1 - t * 0.4) - t * 22));
+      const path = [
+        [-7, -45], [-14, -39], [-23, -36], [-31, -40], [-35, -50], [-34, -61], [-37, -72], [-41, -83], [-38, -94], [-31, -100],
+        [-25, -99], [-24, -94], [-27, -92],
+      ];
+      // A smooth curve through those points (Catmull-Rom), as a filled ribbon that tapers from 4.6 to 1.2 units.
+      const pts = [];
+      for (let i = 0; i < path.length - 1; i++) {
+        const [p0, p1, p2, p3] = [path[Math.max(0, i - 1)], path[i], path[i + 1], path[Math.min(path.length - 1, i + 2)]];
+        for (let t = 0; t < 1; t += 0.25) {
+          const t2 = t * t;
+          const t3 = t2 * t;
+          const at = (a, b, c2, d) => 0.5 * (2 * b + (-a + c2) * t + (2 * a - 5 * b + 4 * c2 - d) * t2 + (-a + 3 * b - 3 * c2 + d) * t3);
+          pts.push([at(p0[0], p1[0], p2[0], p3[0]), at(p0[1], p1[1], p2[1], p3[1])]);
+        }
       }
-      g.strokePath();
+      pts.push(path[path.length - 1]);
+      const left = [];
+      const right = [];
+      pts.forEach(([px, py], i) => {
+        const [qx, qy] = pts[Math.min(pts.length - 1, i + 1)];
+        const [ox, oy] = pts[Math.max(0, i - 1)];
+        const dx = qx - ox;
+        const dy = qy - oy;
+        const len = Math.hypot(dx, dy) || 1;
+        const half = (4.6 - 3.4 * (i / (pts.length - 1)) ** 0.8) / 2;
+        left.push([px - (dy / len) * half, py + (dx / len) * half]);
+        right.push([px + (dy / len) * half, py - (dx / len) * half]);
+      });
+      shadow();
+      g.fillPoints(P([...left, ...right.reverse()]), true);
+      g.fillCircle(s(-27), s(-92), s(0.6));
     }
 
     // The back arm, resting.

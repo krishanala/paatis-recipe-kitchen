@@ -12,9 +12,9 @@ import { FinaleScene } from './scenes/FinaleScene.js';
 import { loadVoice, voiceScript } from './voice.js';
 
 // Phaser measures text when it is created, so wait (briefly) for the fonts to load first: Inter, EB Garamond for
-// the game's name and Poppins for the buttons.
+// the game's name, Poppins for the buttons and Dancing Script for the header titles.
 const timeout = new Promise((resolve) => setTimeout(resolve, 2500));
-const faces = [...['400', '500', '600', '700'].map((w) => `${w} 24px Inter`), '700 24px "EB Garamond"', '600 24px Poppins'];
+const faces = [...['400', '500', '600', '700'].map((w) => `${w} 24px Inter`), '700 24px "EB Garamond"', '600 24px Poppins', '700 24px "Dancing Script"'];
 const fonts = Promise.all(faces.map((face) => document.fonts.load(face))).catch(() => {});
 await Promise.race([fonts, timeout]);
 

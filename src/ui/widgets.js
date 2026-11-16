@@ -1,5 +1,5 @@
 import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, STAGE, css } from '../theme.js';
-import { fitText, fontSize, makeText } from './text.js';
+import { SCRIPT_FONT, fitText, fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { personal, progress, settings } from '../state.js';
 import { speak } from '../voice.js';
@@ -52,9 +52,11 @@ export function header(scene, { title, onBack }) {
   const diyasX = 920;
   const fsLeft = STAGE.width - 50 - BUTTON_HEIGHT.giant - 12 - BUTTON_HEIGHT.giant / 2;
   const room = [50 + BUTTON_HEIGHT.giant / 2 + 20, COMPACT ? fsLeft - 20 : diyasX - 18 - 20];
-  const t = makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h5', { dark, origin: 0.5 });
+  // In a bright orange script, a size up from h5 because a script's letters are small for their size. The orange
+  // (#EF6100) passes 3:1 on the white header; on a dark header it is a lighter orange.
+  const t = makeText(scene, STAGE.width / 2, HEADER_H / 2, title, 'h4', { dark, origin: 0.5, weight: 700, color: dark ? 0xffa64d : 0xef6100 }).setFontFamily(SCRIPT_FONT);
   const fit = room[1] - room[0];
-  if (t.width > fit) t.setFontSize(Math.floor((fontSize('h5') * fit) / t.width));
+  if (t.width > fit) t.setFontSize(Math.floor((fontSize('h4') * fit) / t.width));
   t.setX(Math.min(STAGE.width / 2, room[1] - t.width / 2));
   if (!COMPACT) diyaRow(scene, diyasX, HEADER_H / 2, progress.chaptersDone.length);
   const helpX = STAGE.width - 50;
@@ -119,11 +121,15 @@ const TONES = {
 };
 
 // Paati's speech bubble: Avatar XXXL (96) + an Alert-style bubble (Success, Info or Warning). Never red.
+// Beside Paati herself (no avatar), pass `tail: 'left'` or 'right' for a speech bubble pointing at her, `tailY`
+// down from its top: then it has no stripe, just the tone's label over the words.
 export class PaatiBubble extends Phaser.GameObjects.Container {
-  constructor(scene, x, y, width, { avatar = true } = {}) {
+  constructor(scene, x, y, width, { avatar = true, tail = null, tailY = 44 } = {}) {
     super(scene, x, y);
     this.bw = width;
     this.avatar = avatar;
+    this.tail = avatar ? null : tail;
+    this.tailY = tailY;
     this.g = scene.add.graphics();
     this.add(this.g);
     if (avatar) {
@@ -132,7 +138,7 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
       ring.fillCircle(48, 48, 48);
       this.add([ring, art(scene, 48, 48, 'paati-avatar', 96)]);
     }
-    this.tx = (avatar ? 112 : 0) + 34;
+    this.tx = (avatar ? 112 : 0) + (this.tail ? 26 : 34);
     this.labelText = makeText(scene, this.tx, 18, '', 'b3', { weight: 700 });
     this.body = makeText(scene, this.tx, 18, '', 's1', { width: width - this.tx - 24 });
     this.add([this.labelText, this.body]);
@@ -157,13 +163,28 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
     const w = this.bw - bx;
     const g = this.g;
     g.clear();
+    // A speech bubble's tail: a curved point reaching out to Paati, with the bubble's shadow under it.
+    const tail = (dy) => {
+      if (!this.tail) return;
+      const side = this.tail === 'left' ? -1 : 1;
+      const ex = side < 0 ? bx + 2 : bx + w - 2;
+      const ty = Math.min(this.tailY, h - 30) + dy;
+      const P = (px, py) => new Phaser.Math.Vector2(ex + side * px, ty + py);
+      const top = new Phaser.Curves.QuadraticBezier(P(0, -16), P(12, -12), P(28, -14));
+      const bottom = new Phaser.Curves.QuadraticBezier(P(28, -14), P(14, 4), P(0, 16));
+      g.fillPoints([...top.getPoints(8), ...bottom.getPoints(8)], true);
+    };
     g.fillStyle(0x000000, 0.08);
     g.fillRoundedRect(bx, 4, w, h, 24);
+    tail(4);
     g.fillStyle(COLOR.white, 1);
     g.fillRoundedRect(bx, 0, w, h, 24);
+    tail(0);
     if (this.avatar) g.fillTriangle(bx + 2, 32, bx - 14, 48, bx + 2, 64);
-    g.fillStyle(t.accent, 1);
-    g.fillRoundedRect(bx + 14, 16, 6, h - 32, 3);
+    if (!this.tail) {
+      g.fillStyle(t.accent, 1);
+      g.fillRoundedRect(bx + 14, 16, 6, h - 32, 3);
+    }
     this.bubbleHeight = h;
     if (!settings.reduceMotion) {
       this.scene.tweens.add({ targets: this.body, alpha: { from: 0, to: 1 }, duration: 220 });

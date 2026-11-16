@@ -43,7 +43,7 @@ export class StoryScene extends BaseScene {
 
     this.lines = storyLines(id);
     this.index = 0;
-    this.bubble = new PaatiBubble(this, 500, 236, 740, { avatar: false });
+    this.bubble = new PaatiBubble(this, 500, 236, 740, { avatar: false, tail: 'left', tailY: 40 });
     this.counter = this.text(500, 0, '', 'b3', { color: COLOR.grey600 });
     this.next = new Button(this, 1060, 640, { label: 'Next', width: 320, onClick: () => this.onNext() });
     this.doneLabel = story.done;
