@@ -251,33 +251,60 @@
         color: #b35600;
         font-weight: 700;
       }
-      /* A phone that turns sideways, beside a curved arrow. */
+      /* A phone that turns sideways beside a curved arrow, waits, and turns back. It is a plain element rather than
+         SVG, so it turns about its own middle in every browser. A round muruku on its screen looks right at any angle. */
       #rotate .turn {
+        position: relative;
         flex: none;
         width: 96px;
         height: 80px;
         margin-top: 12px;
+      }
+      #rotate .turn svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         overflow: visible;
       }
-      #rotate .turn .phone,
-      #rotate .turn .screen {
-        transform-box: fill-box;
-        transform-origin: center;
-        animation: rotate-turn 3.2s ease-in-out infinite;
+      #rotate .phone {
+        position: absolute;
+        left: 35%;
+        top: 18%;
+        width: 30%;
+        height: 64%;
+        box-sizing: border-box;
+        border-radius: 8px;
+        background: #212967;
+        animation: rotate-turn 3.6s ease-in-out infinite;
       }
-      /* The little diya on the phone's screen turns back the other way, so it stays upright, as a screen does. */
-      #rotate .turn .screen {
-        animation-name: rotate-upright;
+      /* The speaker slot. */
+      #rotate .phone::before {
+        content: '';
+        position: absolute;
+        left: 36%;
+        top: 4%;
+        width: 28%;
+        height: 4%;
+        border-radius: 2px;
+        background: #8a8f9c;
+      }
+      #rotate .screen {
+        position: absolute;
+        inset: 11% 11%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 3px;
+        background: #fff4e0;
+      }
+      #rotate .screen img {
+        width: 78%;
       }
       @keyframes rotate-turn {
-        0% { transform: rotate(0deg); opacity: 0; }
-        8%, 25% { transform: rotate(0deg); opacity: 1; }
-        50%, 82% { transform: rotate(90deg); opacity: 1; }
-        92%, 100% { transform: rotate(90deg); opacity: 0; }
-      }
-      @keyframes rotate-upright {
-        0%, 25% { transform: rotate(0deg); }
-        50%, 100% { transform: rotate(-90deg); }
+        0%, 15% { transform: rotate(0deg); }
+        40%, 65% { transform: rotate(90deg); }
+        90%, 100% { transform: rotate(0deg); }
       }
       @keyframes rotate-spin {
         to { transform: rotate(360deg); }
@@ -290,8 +317,7 @@
         50% { opacity: 0.35; transform: scale(0.6); }
       }
       @media (prefers-reduced-motion: reduce) {
-        #rotate .turn .phone,
-        #rotate .turn .screen,
+        #rotate .phone,
         #rotate .burst::before,
         #rotate .lamp::before,
         #rotate .spark { animation: none; }
@@ -346,18 +372,10 @@
       </div>
       <p class="name">Paati's Recipe</p>
       <p class="hint">Please <strong>rotate your phone</strong> to start your game.</p>
-      <svg class="turn" viewBox="0 0 120 100" aria-hidden="true">
-        <path d="M68.3 2.7 A48 48 0 0 1 106.4 37.6 M109.8 28.2 L106.4 37.6 L98.7 31.2" fill="none" stroke="#f77700" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-        <g class="phone">
-          <rect x="42" y="18" width="36" height="64" rx="8" fill="#212967" />
-          <rect x="46" y="25" width="28" height="50" rx="4" fill="#fff4e0" />
-          <rect x="55" y="20.5" width="10" height="2.5" rx="1.25" fill="#8a8f9c" />
-          <g class="screen">
-            <path d="M60 37 C64.5 43 64.5 49 60 51 C55.5 49 55.5 43 60 37 Z" fill="#ffaa00" />
-            <path d="M50 53 H70 Q67 62 60 62 Q53 62 50 53 Z" fill="#d96500" />
-          </g>
-        </g>
-      </svg>
+      <div class="turn" aria-hidden="true">
+        <svg viewBox="0 0 120 100"><path d="M68.3 2.7 A48 48 0 0 1 106.4 37.6 M109.8 28.2 L106.4 37.6 L98.7 31.2" fill="none" stroke="#f77700" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <div class="phone"><div class="screen"><img src="assets/art/muruku-golden.svg" alt="" /></div></div>
+      </div>
       <div class="trim" aria-hidden="true"></div>
     </div>
     <noscript>Paati's Recipe needs JavaScript to run.</noscript>
