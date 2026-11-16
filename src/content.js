@@ -610,6 +610,6 @@ export const FINALE = {
   choiceRibbon: 'Well done, dear!',
   choiceTitle: 'What next?',
   choiceText: 'Watch another of my stories of Deepavali, or make more muruku. In the free kitchen the store is always full.',
-  choiceMissed: 'You have not watched my puppet show yet, dear. Watch a story of Deepavali now, or skip it and make more muruku.',
+  choiceMissed: 'You have not seen my stories of Deepavali yet, dear. Learn more about Deepavali now, or skip it and make more muruku.',
   goodbye: 'Come back any time, dear. The kitchen is always open.',
 };

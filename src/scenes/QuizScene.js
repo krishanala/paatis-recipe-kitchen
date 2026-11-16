@@ -332,7 +332,7 @@ export class QuizScene extends BaseScene {
   // The last question's button says where the journey goes next.
   lastLabel() {
     const next = JOURNEY[progress.step + 1]?.scene;
-    if (next === 'Puppet') return 'Watch the puppet show';
+    if (next === 'Puppet') return 'Learn more about Deepavali';
     if (next === 'Store') return 'See the Store';
     return 'Finish the chapter';
   }

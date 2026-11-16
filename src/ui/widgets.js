@@ -3,7 +3,6 @@ import { SCRIPT_FONT, fitText, fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { personal, progress, settings } from '../state.js';
 import { speak } from '../voice.js';
-import { livelyPaati } from './lively.js';
 
 export const HEADER_H = 84;
 
@@ -21,10 +20,10 @@ export function ingredientArt(scene, x, y, ing, width) {
 }
 
 // Full-body Paati, standing with her feet at (x, bottom), sized by height (the poses differ in width).
-// Paati, full figure, feet at (x, bottom): alive (src/ui/lively.js), so she breathes, moves her hands and reacts to
-// what she says.
 export function paati(scene, x, bottom, key, height) {
-  return livelyPaati(scene, x, bottom, key, height);
+  const img = scene.add.image(x, bottom, key).setOrigin(0.5, 1);
+  img.setScale(height / img.height);
+  return img;
 }
 
 // Silk-border trim: two thin gold lines around a Marigold or Rani pink band.
@@ -137,9 +136,7 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
       const ring = scene.add.graphics();
       ring.fillStyle(COLOR.yellow300, 1);
       ring.fillCircle(48, 48, 48);
-      this.face = art(scene, 48, 48, 'paati-avatar', 96);
-      this.faceScale = this.face.scale;
-      this.add([ring, this.face]);
+      this.add([ring, art(scene, 48, 48, 'paati-avatar', 96)]);
     }
     this.tx = (avatar ? 112 : 0) + (this.tail ? 26 : 34);
     this.labelText = makeText(scene, this.tx, 18, '', 'b3', { weight: 700 });
@@ -150,13 +147,6 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
 
   say(str, tone = 'plain') {
     speak(str);
-    // Paati, wherever she stands on this screen, reacts to her own words; the little round picture of her bobs.
-    this.scene.events.emit('paati-say', personal(str));
-    if (this.face && !settings.reduceMotion) {
-      this.scene.tweens.killTweensOf(this.face);
-      this.face.setScale(this.faceScale);
-      this.scene.tweens.add({ targets: this.face, scale: this.faceScale * 1.08, y: 42, duration: 160, yoyo: true, repeat: 1, ease: 'Quad.Out', onComplete: () => this.face.setY(48) });
-    }
     const t = TONES[tone];
     let y = 18;
     if (t.label) {

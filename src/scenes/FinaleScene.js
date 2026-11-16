@@ -10,7 +10,7 @@ import { radioOff, radioOn } from '../radio.js';
 // Screen 7 · Finale, in modes:
 // 'finale'  Let Paati taste it: Paati enjoys a muruku in her rocking chair on the veranda, with no words, and Next
 //           goes on to the last page;
-// 'choice'  the last page: watch the puppet show, make more muruku (the free kitchen), or finish;
+// 'choice'  the last page: Paati's stories of Deepavali, make more muruku (the free kitchen), or finish;
 // 'goodbye' Paati's farewell at the very end.
 export class FinaleScene extends BaseScene {
   constructor() {
@@ -247,13 +247,13 @@ export class FinaleScene extends BaseScene {
     return made.flat();
   }
 
-  // The last page: watch Paati's puppet show, or make more muruku in the free kitchen (or just finish). If no story
+  // The last page: Paati's stories of Deepavali (the cards), or make more muruku in the free kitchen (or just finish). If no story
   // has been watched yet, Paati says so and the show comes first; skipping it is fine.
   choice() {
     const none = !progress.watched.length;
     const all = progress.watched.length === PUPPET.stories.length;
     const watch = {
-      label: all ? 'Watch a story again' : none ? 'Watch the puppet show' : 'Watch another story',
+      label: all ? 'Watch a story again' : none ? 'Learn more about Deepavali' : 'Watch another story',
       width: pick(420, 560),
       variant: none ? 'filled' : 'outline',
       accent: !none,

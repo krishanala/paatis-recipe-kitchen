@@ -25,8 +25,8 @@ flowchart TD
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
     C4 --> Q4["3 · Quiz ×2<br/>no rewards"]
     Q4 --> F["7 · Finale<br/>Let Paati taste it, no words: Paati in her rocking chair on the veranda, the radio playing · Next"]
-    F --> C["7 · Last page<br/>Watch the puppet show · Make more muruku · Finish"]
-    C -- Watch the puppet show --> PE["Shadow puppet show<br/>Next goes back to the last page"]
+    F --> C["7 · Last page<br/>Learn more about Deepavali · Make more muruku · Finish"]
+    C -- Learn more about Deepavali --> PE["Stories of Deepavali: the three cards<br/>Next goes back to the last page"]
     PE --> C
     C -- Finish --> G["7 · Finale<br/>Paati's goodbye"]
 
@@ -43,8 +43,8 @@ flowchart TD
 |---|---|
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Stories are two short lines each, read with Next | Story |
-| The puppet show fills the screen. In front of the closed curtains, Paati first says what the stories mean; once there has been time to read it, the three story cards follow on their own (a tap or Enter moves on sooner). A card opens the curtains on its story, which plays scene by scene with a subtitle for each, shown long enough to read. At its end (or Skip story) the curtains close, Paati says why that story matters, and the cards come back with it ticked. Next (Skip before any story is watched) moves on. Watched stories keep their tick for the rest of the visit | Puppet |
-| The last page offers the puppet show again and the free kitchen, with Finish under them. If no story has been watched, Paati says so, the show is the main button, and Skip both and finish is there to skip it | Last page |
+| The puppet show fills the screen. In front of the closed curtains, Paati first says what the stories mean; once there has been time to read it, the three story cards follow on their own (a tap or Enter moves on sooner). A card opens the curtains on its story, which plays scene by scene with a subtitle for each, shown long enough to read. At its end (or Skip story) the curtains close, Paati says why that story matters, and the cards come back with it ticked. Next (Skip before any story is watched) moves on. Each card shows a picture and the story's name; a story already watched is greyed over with a Watched tag, for the rest of the visit | Puppet |
+| The last page offers the stories of Deepavali again (Learn more about Deepavali, or Watch another story) and the free kitchen, with Finish under them; the stories open straight on the three cards. If no story has been watched, Paati says so, the stories are the main button, and Skip both and finish is there to skip them. Players never see the words "puppet show" | Last page |
 | Paati asks what to call the player on the Welcome page (or Skip). She uses the name wherever she would say "dear"; it is kept for this visit only. Help & settings shows the name and can change it at any time, from her next line on | Welcome, then every screen; Help |
 | Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
@@ -70,4 +70,4 @@ flowchart TD
 | Sound is off | Every spoken line is already on screen as text |
 | Player skips the name, or leaves it empty | Paati calls them "dear", as before. They can add one later in Help & settings |
 | Player changes their name in Help & settings | Paati uses the new name from her next line. A line already on screen keeps the old one; the Welcome heading and name box update when the sheet closes. An empty box brings back "dear" |
-| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's curtains open and close at once, Paati's page and the cards appear without fading in (and without the bar that counts down to the cards), and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. Paati stands still (no breathing, hand movements or reactions to what she says). When Paati tastes the muruku, her rocking chair stays still, the radio's notes and the lamps don't move, and her pictures change in place |
+| Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's curtains open and close at once, Paati's page and the cards appear without fading in (and without the bar that counts down to the cards), and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. When Paati tastes the muruku, her rocking chair stays still, the radio's notes and the lamps don't move, and her pictures change in place |

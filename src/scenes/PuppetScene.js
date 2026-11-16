@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, SERIF, art, chip, paati, rocket, sparkle } from '../ui/widgets.js';
+import { PaatiBubble, SERIF, art, paati, rocket, sparkle } from '../ui/widgets.js';
 import { fontSize, makeText } from '../ui/text.js';
 import { PAATI, PUPPET } from '../content.js';
 import { BLEED, COLOR, RES, STAGE, css, pick } from '../theme.js';
@@ -52,8 +52,8 @@ const MIN_HOLD = {
 const holdFor = (line) => Math.max(MIN_HOLD[line.id] ?? 6000, 2000 + line.text.length * 55);
 // The puppets on each story's card.
 const THUMBS = {
-  pandavas: [['yudhishthira', -0.33], ['bhima', -0.11], ['arjuna', 0.11], ['draupadi', 0.33]],
-  rama: [['hanuman', -0.3], ['sita', -0.04], ['rama', 0.24]],
+  pandavas: [['yudhishthira', -0.35], ['bhima', -0.13], ['arjuna', 0.09], ['draupadi', 0.29]],
+  rama: [['hanuman', -0.16], ['sita', 0.07], ['rama', 0.3]],
   krishna: [['satyabhama', -0.3], ['krishna', -0.05], ['narakasura', 0.3]],
 };
 const CURTAIN_MS = 1200;
@@ -132,7 +132,14 @@ export class PuppetScene extends BaseScene {
     this.watched = new Set(progress.watched);
     this.cards = [];
     this.page = [];
-    this.showPage();
+    // Opened from the last page, the cards come straight up; otherwise Paati first says what the stories mean.
+    if (this.fromEnd) {
+      this.page = [];
+      this.moveOn = () => {};
+      this.showCards();
+    } else {
+      this.showPage();
+    }
   }
 
   measure(str, width) {
@@ -330,8 +337,8 @@ export class PuppetScene extends BaseScene {
     this.tweens.add({ targets: page, alpha: 0, duration: 300, onComplete: () => page.forEach((o) => o.destroy()) });
   }
 
-  // A story's card: a little lit cloth with its puppets, its name, what it tells about Deepavali, and a tick once it
-  // has been watched. The whole card is one button.
+  // A story's card: a little lit cloth with its puppets and its name, greyed over with a Watched tag once it has
+  // been watched. The whole card is one button.
   card(st, i) {
     const gap = 30;
     const cw = (CARDS.w - 2 * gap) / 3;
@@ -340,36 +347,45 @@ export class PuppetScene extends BaseScene {
     const pad = 14;
     const textW = cw - 2 * pad - 8;
     const name = makeText(this, 0, 0, st.title, 'h5', { weight: 700, width: textW, align: 'center', origin: [0.5, 0], color: COLOR.grey900 });
-    const teaser = makeText(this, 0, 0, st.teaser, 'b1', { width: textW, align: 'center', origin: [0.5, 0], color: COLOR.grey600 });
-    const tick = this.watched.has(st.id) ? chip(this, 0, 0, '✓ Watched', 'success') : null;
-    // Every card has the same picture size, sized for the card with the most text.
+    // Every card has the same picture size, sized for the longest title.
     this.cardText ??= Math.max(
       ...PUPPET.stories.map((other) => {
         const a = makeText(this, 0, 0, other.title, 'h5', { weight: 700, width: textW });
-        const b = makeText(this, 0, 0, other.teaser, 'b1', { width: textW });
-        const h = a.height + 4 + b.height;
+        const h = a.height;
         a.destroy();
-        b.destroy();
         return h;
       }),
     );
-    const thumbH = Math.max(70, ch - 2 * pad - 12 - this.cardText);
+    const thumbH = Math.max(70, ch - 2 * pad - 14 - this.cardText);
     const thumbW = cw - 2 * pad;
     const y0 = -ch / 2 + pad;
     const cloth = this.add.image(0, y0 + thumbH / 2, 'puppet-cloth').setDisplaySize(thumbW, thumbH);
     const scale = (thumbH - 10) / (1.32 * this.P);
     const puppets = THUMBS[st.id].map(([kind, f]) => this.rider(kind, f * thumbW, y0 + thumbH - 4, scale));
-    name.setY(y0 + thumbH + 12);
-    teaser.setY(name.y + name.height + 4);
-    // The tick sits in the picture's top corner.
-    tick?.setPosition(thumbW / 2 - (tick.list[1].width + 28) / 2 - 8, y0 + 8 + (tick.list[1].height + 10) / 2);
+    name.setY(y0 + thumbH + 14);
+    // A story already watched is greyed over, with a Watched tag in the middle of its picture. It can still be
+    // picked to watch again.
+    const watched = [];
+    if (this.watched.has(st.id)) {
+      const veil = this.add.graphics();
+      veil.fillStyle(0x4a4f5c, 0.55);
+      veil.fillRoundedRect(-cw / 2, -ch / 2, cw, ch, 20);
+      const label = makeText(this, 0, 0, '✓  Watched', 'h5', { weight: 700, color: COLOR.grey900, origin: 0.5 });
+      const tw = label.width + 44;
+      const th = label.height + 18;
+      const pill = this.add.graphics();
+      pill.fillStyle(COLOR.white, 1);
+      pill.fillRoundedRect(-tw / 2, -th / 2, tw, th, th / 2);
+      const tag = this.add.container(0, y0 + thumbH / 2, [pill, label]);
+      watched.push(veil, tag);
+    }
     const card = new Button(this, CARDS.x + cw / 2 + i * (cw + gap), top + ch / 2, {
       variant: 'outline',
       dark: false,
       width: cw,
       height: ch,
       radius: 20,
-      content: [cloth, ...puppets, name, teaser, ...(tick ? [tick] : [])],
+      content: [cloth, ...puppets, name, ...watched],
       onClick: () => this.play(st.id),
     });
     card.story = st.id;
