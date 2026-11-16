@@ -207,8 +207,8 @@ export class FinaleScene extends BaseScene {
   // The welcome page's layout: a ribbon, a raised maroon heading, a line of text and rows of buttons on the left, and
   // Paati at the doorstep kolam on the right. They come in one after another, unless Reduce motion is on. `rows` is a
   // list of rows, each a list of buttons side by side.
-  welcomeLayout({ pose, ribbonText, title, text, rows }) {
-    welcomeStage(this, pose);
+  welcomeLayout({ pose, ribbonText, title, text, rows, hello }) {
+    welcomeStage(this, pose, { hello });
     const x = 96;
     const band = ribbon(this, ribbonText);
     const head = raisedTitle(this, x, 0, title, { size: fontSize('h1'), width: 560 });
@@ -272,6 +272,7 @@ export class FinaleScene extends BaseScene {
     const finish = { label: none ? 'Skip both and finish' : 'Finish', width: pick(300, 440), size: pick('large', 'medium'), variant: 'clear', align: 'left', inset: 16, dark: false, onClick: () => this.go('Finale', { mode: 'goodbye' }) };
     this.welcomeLayout({
       pose: PAATI.celebrating,
+      hello: 'clap',
       ribbonText: personal(FINALE.choiceRibbon),
       title: FINALE.choiceTitle,
       text: personal(none ? FINALE.choiceMissed : FINALE.choiceText),

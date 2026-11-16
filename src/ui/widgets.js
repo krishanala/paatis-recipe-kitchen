@@ -23,8 +23,8 @@ export function ingredientArt(scene, x, y, ing, width) {
 // Full-body Paati, standing with her feet at (x, bottom), sized by height (the poses differ in width).
 // Paati, full figure, feet at (x, bottom): alive (src/ui/lively.js), so she breathes, moves her hands and reacts to
 // what she says.
-export function paati(scene, x, bottom, key, height) {
-  return livelyPaati(scene, x, bottom, key, height);
+export function paati(scene, x, bottom, key, height, opts) {
+  return livelyPaati(scene, x, bottom, key, height, opts);
 }
 
 // Silk-border trim: two thin gold lines around a Marigold or Rani pink band.
@@ -747,7 +747,7 @@ export function ribbon(scene, str, { size } = {}) {
 // The welcome scene: warm bokeh and a golden sunburst, the marigold valance with strands pinned to the screen edges,
 // firework sparkles, and Paati (in the given pose) at the back of a doorstep kolam with a golden lotus diya.
 // Text and buttons go in the left column, x 96 to about 660.
-export function welcomeStage(scene, poseKey) {
+export function welcomeStage(scene, poseKey, { hello } = {}) {
   bokeh(scene, 14, { area: [-BLEED, 90, 620, 700], seed: 'title-left', strength: 0.7 });
   bokeh(scene, 30, { area: [620, 90, 1280 + BLEED, 700], seed: 'title-right' });
   glow(scene, 930, 330, 300);
@@ -775,6 +775,6 @@ export function welcomeStage(scene, poseKey) {
     [560, 130, 9],
   ]);
   doorstepKolam(scene, 930, 634, 430);
-  paati(scene, 930, 562, poseKey, 440);
+  paati(scene, 930, 562, poseKey, 440, { hello });
   art(scene, 930, 706, 'lotus-diya', 204).setOrigin(0.5, 1).setDepth(4);
 }
