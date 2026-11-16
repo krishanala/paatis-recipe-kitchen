@@ -27,6 +27,7 @@ export class Button extends Phaser.GameObjects.Container {
     } = opts;
     Object.assign(this, { variant, dark, icon, accent, onClick, onHoldStart, onHoldEnd });
     this.bh = height ?? BUTTON_HEIGHT[size] ?? BUTTON_HEIGHT.giant;
+    this.baseH = this.bh; // its height before a long label made it taller
     this.bw = width ?? (variant === 'icon' ? this.bh : 280);
     this.br = radius ?? (variant === 'icon' ? this.bh / 2 : RADIUS.button);
     this.enabled = true;
@@ -165,19 +166,19 @@ export class Button extends Phaser.GameObjects.Container {
   // Widens the button so its label fits on one line (never narrower than it is, nor wider than `max`), keeping the
   // `keep` edge where it is: 'left', 'right' or 'center'. If `max` is still too narrow, the label steps down in size
   // (to 85% at most), and only then wraps, with the button growing taller to hold it.
-  fitLabel({ keep = 'center', max = Infinity } = {}) {
+  fitLabel({ keep = 'center', max = Infinity, min = 0 } = {}) {
     const l = this.label;
     if (!l) return this;
     this.labelSize ??= parseFloat(l.style.fontSize);
     l.setFontSize(this.labelSize).setWordWrapWidth(null);
     while (l.width + 64 > max && parseFloat(l.style.fontSize) > this.labelSize * 0.85) l.setFontSize(parseFloat(l.style.fontSize) - 1);
-    const w = Math.min(max, Math.max(this.bw, Math.ceil(l.width + 64)));
+    const w = Math.min(max, Math.max(this.bw, min, Math.ceil(l.width + 64)));
     l.setWordWrapWidth(w - 32);
     const dx = (w - this.bw) / 2;
     if (keep === 'right') this.x -= dx;
     else if (keep === 'left') this.x += dx;
     this.bw = w;
-    this.bh = Math.max(this.bh, Math.ceil(l.height + 26));
+    this.bh = Math.max(this.baseH, Math.ceil(l.height + 26));
     this.setSize(Math.max(w, MIN_HIT), Math.max(this.bh, MIN_HIT));
     this.input?.hitArea.setSize(this.width, this.height);
     this.draw();

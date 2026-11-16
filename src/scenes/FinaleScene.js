@@ -189,24 +189,52 @@ export class FinaleScene extends BaseScene {
     welcomeStage(this, pose);
     const x = 96;
     const band = ribbon(this, ribbonText);
-    const head = raisedTitle(this, x, 0, title, { size: fontSize('h1'), width: 560 });
-    const line = this.text(x, 0, text, 's1', { width: pick(540, 650), color: COLOR.grey600 });
     const made = rows.map((row) => {
       let bx = x;
       return row.map((b) => {
         const btn = new Button(this, bx + b.width / 2, 0, b);
-        bx += b.width + 20;
+        // A long label keeps to one line: its button widens (left edge in place) up to the column's width, and only
+        // then does the label get a little smaller.
+        if (b.variant !== 'clear') btn.fitLabel({ keep: 'left', max: pick(560, 640) });
+        bx += btn.bw + 20;
         return btn;
       });
     });
+    // The main buttons, one to a row, are all as wide as the widest.
+    const main = made.filter((row) => row.length === 1 && row[0].variant !== 'clear').map((row) => row[0]);
+    const widest = Math.max(...main.map((b) => b.bw));
+    main.forEach((b) => b.fitLabel({ keep: 'left', max: pick(560, 640), min: widest }));
     const rowH = made.map((row) => Math.max(...row.map((b) => b.bh)));
     // Phones have less height for the bigger text, so the gaps are tighter there.
-    const gap = pick({ band: 22, head: 16, line: 32, row: 16 }, { band: 12, head: 10, line: 20, row: 10 });
+    const gap = pick({ band: 22, head: 16, line: 32, row: 16 }, { band: 12, head: 10, line: 18, row: 10 });
     const buttonsH = rowH.reduce((a, h) => a + h, 0) + (rows.length - 1) * gap.row;
-    const total = band.bh + gap.band + head.textHeight + gap.head + line.height + gap.line + buttonsH;
-    let y = Math.max(pick(104, 96), Math.round(392 - total / 2));
-    band.setPosition(x + band.bw / 2, y + band.bh / 2);
-    y += band.bh + gap.band;
+
+    // Everything has to fit between the garland and the bottom edge, whatever the screen and text size: if it doesn't,
+    // the line of text steps down in size (to 80% of the default at the least), then the heading, and last of all the
+    // ribbon makes way.
+    const top0 = pick(104, 96);
+    const room = 712 - top0;
+    let headSize = fontSize('h1');
+    let head = raisedTitle(this, x, 0, title, { size: headSize, width: 560 });
+    const line = this.text(x, 0, text, 's1', { width: pick(540, 650), color: COLOR.grey600 });
+    const total = (withBand = true) => (withBand ? band.bh + gap.band : 0) + head.textHeight + gap.head + line.height + gap.line + buttonsH;
+    let lineSize = parseFloat(line.style.fontSize);
+    const lineMin = Math.round(fontSize('s1', 1) * 0.8);
+    while (total() > room && lineSize > lineMin) line.setFontSize(--lineSize);
+    const headMin = Math.round(fontSize('h1', 1) * 0.75);
+    while (total() > room && headSize > headMin) {
+      headSize -= 2;
+      head.destroy();
+      head = raisedTitle(this, x, 0, title, { size: headSize, width: 560 });
+    }
+    const withBand = total() <= room;
+    band.setVisible(withBand);
+
+    let y = Math.max(top0, Math.round(392 - total(withBand) / 2));
+    if (withBand) {
+      band.setPosition(x + band.bw / 2, y + band.bh / 2);
+      y += band.bh + gap.band;
+    }
     head.setY(y);
     y += head.textHeight + gap.head;
     line.setY(y);
@@ -247,7 +275,7 @@ export class FinaleScene extends BaseScene {
         this.go('Store', { mode: 'free' });
       },
     };
-    const finish = { label: none ? 'Skip both and finish' : 'Finish', width: pick(300, 440), size: pick('large', 'medium'), variant: 'clear', align: 'left', inset: 16, dark: false, onClick: () => this.go('Finale', { mode: 'goodbye' }) };
+    const finish = { label: none ? 'Skip both and finish' : 'Finish', width: pick(400, 440), size: pick('large', 'medium'), variant: 'clear', align: 'left', inset: 16, dark: false, onClick: () => this.go('Finale', { mode: 'goodbye' }) };
     this.welcomeLayout({
       pose: PAATI.celebrating,
       ribbonText: personal(FINALE.choiceRibbon),
