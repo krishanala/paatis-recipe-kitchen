@@ -60,8 +60,12 @@
         border-color: #4e61f6;
         box-shadow: 0 0 0 3px rgba(78, 97, 246, 0.25);
       }
-      /* The kitchen is landscape. On a phone or small tablet held upright, ask for a turn. */
+      /* The kitchen is landscape. On a phone or small tablet held upright, ask for a turn, on a small poster in the
+         Title's look: the garland along the top, Paati welcoming at her doorstep kolam in a golden glow, the game's
+         name, the ask, and a phone that turns. --h is Paati's height, sized so the whole poster fits the screen. */
       #rotate {
+        --h: clamp(150px, calc((100vh - 380px) / 1.25), 330px);
+        --h: clamp(150px, calc((100dvh - 380px) / 1.25), 330px);
         display: none;
         position: fixed;
         inset: 0;
@@ -69,40 +73,241 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
-        padding: 32px;
+        justify-content: safe center;
+        padding: calc(66px + env(safe-area-inset-top)) 24px calc(34px + env(safe-area-inset-bottom));
         box-sizing: border-box;
-        background: #fffbf5;
+        overflow: hidden;
+        /* Warm bokeh over the off-white, a little warmer behind Paati. */
+        background:
+          radial-gradient(circle at 9% 24%, rgba(255, 170, 0, 0.16) 0 22px, rgba(255, 170, 0, 0) 38px),
+          radial-gradient(circle at 93% 31%, rgba(214, 36, 110, 0.09) 0 26px, rgba(214, 36, 110, 0) 44px),
+          radial-gradient(circle at 10% 62%, rgba(247, 119, 0, 0.1) 0 30px, rgba(247, 119, 0, 0) 50px),
+          radial-gradient(circle at 92% 66%, rgba(255, 170, 0, 0.14) 0 24px, rgba(255, 170, 0, 0) 40px),
+          radial-gradient(circle at 88% 90%, rgba(214, 36, 110, 0.07) 0 30px, rgba(214, 36, 110, 0) 50px),
+          radial-gradient(circle at 12% 88%, rgba(255, 170, 0, 0.11) 0 26px, rgba(255, 170, 0, 0) 44px),
+          radial-gradient(ellipse at 50% 40%, #fff1d4 0, #fffbf5 62%);
         color: #131927;
-        font: 500 18px/1.5 Inter, system-ui, sans-serif;
+        font: 500 18px/1.45 Inter, system-ui, sans-serif;
         text-align: center;
       }
-      #rotate img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background: #ffc654;
+      #rotate p {
+        margin: 0;
       }
-      #rotate strong {
-        display: block;
-        margin-bottom: 4px;
-        color: #212967;
-        font-size: 24px;
+      #rotate .garland {
+        position: absolute;
+        top: env(safe-area-inset-top);
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: url(assets/art/thoranam.svg) center top / auto 64px repeat-x;
+      }
+      /* Silk trim along the bottom: gold, marigold, gold. */
+      #rotate .trim {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: env(safe-area-inset-bottom);
+        height: 13px;
+        background: linear-gradient(#ffaa00 0 2px, transparent 2px 4px, #f77700 4px 9px, transparent 9px 11px, #ffaa00 11px);
+      }
+      /* The Rani pink ribbon with a lit diya at each end. */
+      #rotate .ribbon {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex: none;
+        padding: 7px 14px 8px;
+        border-radius: 999px;
+        background: #d6246e;
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        box-shadow: inset 0 0 0 4px #d6246e, inset 0 0 0 6px #ffaa00, 0 4px 0 rgba(0, 0, 0, 0.12);
+      }
+      #rotate .ribbon img {
+        width: 32px;
+        height: 28px;
+        margin-top: -5px;
+      }
+      #rotate .hero {
+        position: relative;
+        flex: none;
+        width: calc(var(--h) * 1.1);
+        height: calc(var(--h) * 1.25);
+        margin: 10px 0 6px;
+      }
+      #rotate .hero img {
+        position: absolute;
+      }
+      #rotate .burst {
+        position: absolute;
+        left: 50%;
+        top: calc(var(--h) * 0.34);
+        width: calc(var(--h) * 1.4);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(255, 198, 84, 0.62) 0, rgba(255, 198, 84, 0.26) 38%, rgba(255, 198, 84, 0) 68%);
+      }
+      #rotate .burst::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: repeating-conic-gradient(rgba(255, 170, 0, 0.22) 0deg 4deg, rgba(255, 170, 0, 0) 4deg 12deg);
+        -webkit-mask: radial-gradient(circle, #000 18%, transparent 70%);
+        mask: radial-gradient(circle, #000 18%, transparent 70%);
+        animation: rotate-spin 90s linear infinite;
+      }
+      /* The doorstep kolam, seen from the front, and the lamps along its rim (in front of Paati). */
+      #rotate .floor,
+      #rotate .front {
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        width: calc(var(--h) * 0.95);
+        aspect-ratio: 1 / 0.32;
+        transform: translateX(-50%);
+      }
+      #rotate .floor::before {
+        content: '';
+        position: absolute;
+        inset: -12% -8%;
+        border-radius: 50%;
+        background: rgba(243, 220, 180, 0.5);
+      }
+      /* A round kolam, flattened to lie on the floor (an SVG keeps its own shape, so it is squashed by a transform). */
+      #rotate .kolam {
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        transform: translateY(-50%) scaleY(0.32);
+      }
+      #rotate .paati {
+        left: 50%;
+        bottom: calc(var(--h) * 0.244);
+        height: var(--h);
+        transform: translateX(-50%);
+      }
+      #rotate .lotus {
+        left: 50%;
+        bottom: -4%;
+        width: 44%;
+        transform: translateX(-50%);
+      }
+      #rotate .lamp {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: 13%;
+        aspect-ratio: 120 / 104;
+        transform: translate(-50%, -90%);
+      }
+      #rotate .lamp::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 30%;
+        width: 170%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(255, 198, 84, 0.6), rgba(255, 198, 84, 0) 65%);
+        animation: rotate-glow 1.8s ease-in-out var(--d, 0s) infinite alternate;
+      }
+      #rotate .lamp::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url(assets/art/diya.svg) center / contain no-repeat;
+      }
+      #rotate .spark {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--s);
+        aspect-ratio: 1;
+        background: var(--c, #ffaa00);
+        clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+        animation: rotate-twinkle 2.4s ease-in-out var(--d, 0s) infinite;
+      }
+      /* The game's name in the Title's maroon serif. */
+      #rotate .name {
+        flex: none;
+        color: #800000;
+        font: 700 34px/1.1 'EB Garamond', Garamond, Georgia, serif;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      #rotate .hint {
+        flex: none;
+        max-width: 300px;
+        margin-top: 8px;
+      }
+      #rotate .hint strong {
+        color: #b35600;
         font-weight: 700;
       }
+      /* A phone that turns sideways, beside a curved arrow. */
       #rotate .turn {
-        width: 56px;
-        height: 36px;
-        border: 4px solid #f77700;
-        border-radius: 8px;
-        animation: turn 2.4s ease-in-out infinite;
+        flex: none;
+        width: 96px;
+        height: 80px;
+        margin-top: 12px;
+        overflow: visible;
       }
-      @keyframes turn {
-        0%, 30% { transform: rotate(0deg); }
-        60%, 100% { transform: rotate(90deg); }
+      #rotate .turn .phone,
+      #rotate .turn .screen {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: rotate-turn 3.2s ease-in-out infinite;
+      }
+      /* The little diya on the phone's screen turns back the other way, so it stays upright, as a screen does. */
+      #rotate .turn .screen {
+        animation-name: rotate-upright;
+      }
+      @keyframes rotate-turn {
+        0% { transform: rotate(0deg); opacity: 0; }
+        8%, 25% { transform: rotate(0deg); opacity: 1; }
+        50%, 82% { transform: rotate(90deg); opacity: 1; }
+        92%, 100% { transform: rotate(90deg); opacity: 0; }
+      }
+      @keyframes rotate-upright {
+        0%, 25% { transform: rotate(0deg); }
+        50%, 100% { transform: rotate(-90deg); }
+      }
+      @keyframes rotate-spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes rotate-glow {
+        to { opacity: 0.55; transform: translate(-50%, -50%) scale(0.88); }
+      }
+      @keyframes rotate-twinkle {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.35; transform: scale(0.6); }
       }
       @media (prefers-reduced-motion: reduce) {
-        #rotate .turn { animation: none; transform: rotate(90deg); }
+        #rotate .turn .phone,
+        #rotate .turn .screen,
+        #rotate .burst::before,
+        #rotate .lamp::before,
+        #rotate .spark { animation: none; }
+      }
+      /* Small tablets held upright: everything a size up. */
+      @media (min-width: 600px) {
+        #rotate {
+          --h: clamp(150px, calc((100vh - 420px) / 1.25), 440px);
+          --h: clamp(150px, calc((100dvh - 420px) / 1.25), 440px);
+          font-size: 22px;
+        }
+        #rotate .ribbon { font-size: 24px; }
+        #rotate .ribbon img { width: 38px; height: 33px; }
+        #rotate .name { font-size: 44px; }
+        #rotate .hint { max-width: 400px; }
+        #rotate .turn { width: 120px; height: 100px; }
       }
       @media (orientation: portrait) and (pointer: coarse) and (max-width: 1000px) {
         #rotate { display: flex; }
@@ -119,9 +324,41 @@
   <body>
     <div id="game"></div>
     <div id="rotate" role="status">
-      <img src="assets/paati/avatar.png" alt="" />
-      <p><strong>Happy Deepavali!</strong>Please turn your device sideways to cook with Paati.</p>
-      <div class="turn" aria-hidden="true"></div>
+      <div class="garland" aria-hidden="true"></div>
+      <p class="ribbon"><img src="assets/art/diya.svg" alt="" />Happy Deepavali!<img src="assets/art/diya.svg" alt="" /></p>
+      <div class="hero" aria-hidden="true">
+        <div class="burst"></div>
+        <i class="spark" style="--x: 10%; --y: 6%; --s: 16px"></i>
+        <i class="spark" style="--x: 84%; --y: 2%; --s: 20px; --d: -0.8s"></i>
+        <i class="spark" style="--x: 92%; --y: 30%; --s: 11px; --d: -1.5s; --c: #d6246e"></i>
+        <i class="spark" style="--x: 2%; --y: 36%; --s: 13px; --d: -1.1s"></i>
+        <i class="spark" style="--x: 74%; --y: 16%; --s: 9px; --d: -0.4s; --c: #f77700"></i>
+        <i class="spark" style="--x: 20%; --y: 22%; --s: 10px; --d: -1.9s; --c: #d6246e"></i>
+        <div class="floor"><img class="kolam" src="assets/art/kolam-doorstep.svg" alt="" /></div>
+        <img class="paati" src="assets/paati/welcome.png" alt="" />
+        <div class="front">
+          <i class="lamp" style="--x: 0%; --y: 50%"></i>
+          <i class="lamp" style="--x: 14.6%; --y: 85.4%; --d: -0.6s"></i>
+          <i class="lamp" style="--x: 85.4%; --y: 85.4%; --d: -1.2s"></i>
+          <i class="lamp" style="--x: 100%; --y: 50%; --d: -0.3s"></i>
+          <img class="lotus" src="assets/art/lotus-diya.svg" alt="" />
+        </div>
+      </div>
+      <p class="name">Paati's Recipe</p>
+      <p class="hint">Please <strong>rotate your phone</strong> to start your game.</p>
+      <svg class="turn" viewBox="0 0 120 100" aria-hidden="true">
+        <path d="M68.3 2.7 A48 48 0 0 1 106.4 37.6 M109.8 28.2 L106.4 37.6 L98.7 31.2" fill="none" stroke="#f77700" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+        <g class="phone">
+          <rect x="42" y="18" width="36" height="64" rx="8" fill="#212967" />
+          <rect x="46" y="25" width="28" height="50" rx="4" fill="#fff4e0" />
+          <rect x="55" y="20.5" width="10" height="2.5" rx="1.25" fill="#8a8f9c" />
+          <g class="screen">
+            <path d="M60 37 C64.5 43 64.5 49 60 51 C55.5 49 55.5 43 60 37 Z" fill="#ffaa00" />
+            <path d="M50 53 H70 Q67 62 60 62 Q53 62 50 53 Z" fill="#d96500" />
+          </g>
+        </g>
+      </svg>
+      <div class="trim" aria-hidden="true"></div>
     </div>
     <noscript>Paati's Recipe needs JavaScript to run.</noscript>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.88.2/dist/phaser.min.js"></script>

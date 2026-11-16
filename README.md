@@ -73,7 +73,7 @@ The kitchen steps ask Paati's question for that step first, as in the game. The 
   - On phones (`COMPACT`), small text grows by up to 35%, buttons get taller, and every touch area is at least 88 stage pixels, which shows as about 46 px. Layouts stack by their real height, so the larger text fits.
   - On wide screens (most phones held sideways) the view stretches to the screen's full width, up to 2.4:1. The content stays in the middle 1280, and the extra width shows more background. It adapts live when the window changes shape.
   - On phones and tablets, **Play** also switches to full screen so the browser's bars don't shrink the game. There's a **Full screen** button on the Title screen and in Help & settings, wherever the browser supports it. iPhones don't support web full screen, but **Add to Home Screen** opens the game full screen and sideways (`manifest.webmanifest`, with Paati as the icon).
-  - A phone or small tablet held upright shows a "please turn your device sideways" message instead of a tiny letterboxed game.
+  - A phone or small tablet held upright shows a small poster instead of a tiny letterboxed game: "Please rotate your phone to start your game."
   - Tested at 667 × 375 and 844 × 390 (phones sideways), 375 × 812 (phone upright), 768 × 1024, 1280 × 720, and 1920 × 1080.
 - Inter (Google Fonts) is used for all interface text. Design tokens follow the brief's design system, with Marigold for the one main action, gold highlights, indigo as an accent, and no red anywhere.
 
@@ -127,6 +127,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **16 Nov 2026, a festive turn-your-phone page:** The page a phone shows when held upright was plain (a round Paati, a line of text and an orange outline). It is now a small poster in the Title's look: the mango-leaf garland along the top, a Rani pink "Happy Deepavali!" ribbon with a diya at each end, Paati welcoming with open arms at her doorstep kolam in a golden sunburst, lamps around the kolam and the lotus diya in front, the game's name in the Title's maroon serif, and the new line "Please **rotate your phone** to start your game." Under it a phone turns sideways beside a curved arrow, with Paati's diya on its screen staying upright as it turns. Paati's size follows the screen's height, so it fits from 360 × 600 up to small tablets held upright. Reduce motion (the system setting) stills the turning phone, the sunburst, the lamps and the sparkles. It is all in `index.html` (HTML and CSS), because it shows before the game starts.
 - **16 Nov 2026, story cards and new wording:** From the user's review:
   - **No "puppet show" in the words players see.** The user felt the phrase isn't right and might upset some people. The button after Chapter 1's quiz, and the last page's first button when no story has been watched, now say **Learn more about Deepavali**, and Paati's line on the last page talks about her stories of Deepavali.
   - **Story cards** show just the picture and the story's name, without the description. A story already watched is greyed over, with a white **✓ Watched** tag on its picture; it can still be picked to watch again. The figures on the Rama and Pandavas cards moved in a little so Hanuman's tail and Draupadi's lamp stay inside the picture.
