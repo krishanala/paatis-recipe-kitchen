@@ -127,6 +127,7 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **16 Nov 2026, change your name any time:** Help & settings now starts with a Your name row. It shows the name Paati is using, and whatever is typed there counts straight away: she uses it from her next line, and an empty box brings back "dear". Enter moves on to Done. On a phone the row sits at the top of the left column, with "Type your name" in the empty box instead of a note under the label, so the sheet still fits at the biggest text size. On the Welcome page, the sheet starts from what is already typed in Paati's name box, and the name it ends with goes back into that box and the heading. Start over clears the name with the rest of the progress. Testing it turned up a keyboard bug, now fixed: when Enter in a text box moved focus to a button, letting go of Enter pressed that button too. A button now reacts to a key only when the key also went down on it.
 - **16 Nov 2026, smoother play:** From a walk-through of every screen on a computer and a phone held sideways:
   - **No Try again to press.** A wrong answer (in the quiz, Paati's kitchen questions, or the press plates) is set aside with Paati's hint, and the other answers stay ready to pick straight away. Before, every answer locked until Try again was pressed, which cost a click on every miss.
   - **Kitchen questions on phones.** The question card starts just under the header instead of half covering its Back and Help buttons.

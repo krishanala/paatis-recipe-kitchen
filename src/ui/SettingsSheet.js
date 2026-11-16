@@ -1,8 +1,9 @@
 import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, MIN_HIT, STAGE } from '../theme.js';
-import { settings, saveSettings, resetProgress } from '../state.js';
-import { makeText } from './text.js';
+import { settings, saveSettings, resetProgress, progress, cleanName } from '../state.js';
+import { fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { silkTrim } from './widgets.js';
+import { textField } from './field.js';
 
 const TEXT_SIZES = [
   { label: 'A', value: 1 },
@@ -95,9 +96,17 @@ export class SettingsSheet {
       return mid;
     };
 
+    // Your name, first: what Paati calls you. The label sits where the switches' labels do and the box lines up with
+    // the controls' right edge. On phones the row shares the narrow left column, so it has no note. The box itself is a
+    // real text field, placed once the sheet's position is known.
+    const nameY = row();
+    if (COMPACT) add(makeText(scene, x + 60, nameY, 'Your name', 's1', { origin: [0, 0.5] }));
+    else labelWithNote(scene, x + 60, nameY, 'Your name', 'What Paati calls you').forEach(add);
+    const nameBox = { x: (COMPACT ? x + 20 + colW : x + W - 46) - 300, y: nameY - BUTTON_HEIGHT.medium / 2, w: 300, h: BUTTON_HEIGHT.medium };
+
     // The switches.
     const toggleX = COMPACT ? x + 40 + colW / 2 : cx;
-    add(toggleRow(scene, toggleX, row(), colW, rowH, 'Sound', 'sound', { onChange: () => scene.events.emit('settings-changed') }));
+    const sound = add(toggleRow(scene, toggleX, row(), colW, rowH, 'Sound', 'sound', { onChange: () => scene.events.emit('settings-changed') }));
     add(toggleRow(scene, toggleX, row(), colW, rowH, 'Reduce motion', 'reduceMotion', { hint: 'No sparkles or fireworks' }));
     if (scene.canFullscreen?.()) {
       add(
@@ -187,10 +196,32 @@ export class SettingsSheet {
     this.root = scene.add.container(0, 0, [shade, sheet]).setDepth(1000);
     this.escape = () => this.close();
     scene.events.on('escape', this.escape);
+
+    // Every change counts straight away: Paati uses the new name from her next line, and an empty box means "dear".
+    // Enter moves on to Done. In the Tab order the box comes after Close, before Sound.
+    this.field = textField(scene, {
+      ...nameBox,
+      y: top + nameBox.y,
+      font: fontSize('b1'),
+      maxLength: 24,
+      placeholder: 'Type your name',
+      label: 'Your name',
+      onEnter: () => {
+        this.field.el.blur();
+        scene.focus.focus(done);
+      },
+      before: sound,
+    });
+    const field = this.field.el;
+    field.value = progress.name;
+    field.addEventListener('input', () => (progress.name = cleanName(field.value)));
+
     if (!settings.reduceMotion) {
       sheet.y = top + 40;
       this.root.alpha = 0;
-      scene.tweens.add({ targets: sheet, y: top, duration: 200, ease: 'Cubic.Out' });
+      // The box is not part of the canvas, so it waits for the sheet to arrive.
+      field.style.visibility = 'hidden';
+      scene.tweens.add({ targets: sheet, y: top, duration: 200, ease: 'Cubic.Out', onComplete: () => (field.style.visibility = 'visible') });
       scene.tweens.add({ targets: this.root, alpha: 1, duration: 200 });
     }
     if (scene.focus.visible) scene.focus.focus(done);
@@ -198,6 +229,8 @@ export class SettingsSheet {
 
   close() {
     if (!this.root) return;
+    this.field?.remove();
+    this.field = null;
     this.scene.events.off('escape', this.escape);
     this.root.destroy();
     this.root = null;

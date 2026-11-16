@@ -119,14 +119,17 @@ export class Button extends Phaser.GameObjects.Container {
   }
 
   // Called by FocusManager for Enter / Space.
+  // A key goes down on the button, then comes up: that is a press. A key that only comes up here (it went down in a
+  // text box that then moved focus to this button) does nothing.
   keyPress(down) {
     if (!this.enabled) return;
+    const wasDown = this.pressed;
     this.pressed = down;
     this.draw();
     if (this.isHold) {
       if (down) this.startHold();
       else this.endHold();
-    } else if (!down) {
+    } else if (!down && wasDown) {
       this.fire();
     }
   }

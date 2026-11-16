@@ -42,7 +42,7 @@ flowchart TD
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
 | Stories are two short lines each, read with Next | Story |
 | The puppet show fills the screen. In front of the closed curtains, Paati first says what the stories mean; once there has been time to read it, the three story cards follow on their own (a tap or Enter moves on sooner). A card opens the curtains on its story, which plays scene by scene with a subtitle for each, shown long enough to read. At its end (or Skip story) the curtains close, Paati says why that story matters, and the cards come back with it ticked. Next (Skip before any story is watched) moves on | Puppet |
-| Paati asks what to call the player on the Welcome page (or Skip). She uses the name wherever she would say "dear"; it is kept for this visit only | Welcome, then every screen |
+| Paati asks what to call the player on the Welcome page (or Skip). She uses the name wherever she would say "dear"; it is kept for this visit only. Help & settings shows the name and can change it at any time, from her next line on | Welcome, then every screen; Help |
 | Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
@@ -65,5 +65,6 @@ flowchart TD
 | Player can't draw a smooth spiral | "Tap and hold" alternative draws a steady spiral while held |
 | Player lifts without flipping | The muruku is still served; Paati notes one side is pale |
 | Sound is off | Every spoken line is already on screen as text |
-| Player skips the name, or leaves it empty | Paati calls them "dear", as before |
+| Player skips the name, or leaves it empty | Paati calls them "dear", as before. They can add one later in Help & settings |
+| Player changes their name in Help & settings | Paati uses the new name from her next line. A line already on screen keeps the old one; the Welcome heading and name box update when the sheet closes. An empty box brings back "dear" |
 | Reduce motion is on | Sparkles, fireworks and the flying ingredient are replaced by a simple fade. Before we begin shows all its words at once. The puppet show's curtains open and close at once, Paati's page and the cards appear without fading in (and without the bar that counts down to the cards), and its scenes change without the puppets walking, the trees swaying or the lamp light flickering; its diyas are already lit. When Paati tastes the muruku, her pictures change in place without movement |

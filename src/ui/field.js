@@ -3,8 +3,9 @@ import { STAGE } from '../theme.js';
 // A real text field laid over the canvas, lined up with a box on the stage (x, y = top left, w, h, in stage units)
 // wherever the canvas is on screen and however large it is, so phones bring up their own keyboard. While typing,
 // Space and Enter belong to the field, not to the game's buttons: Enter calls onEnter, Tab moves on to `next`. It
-// hides while the Help sheet is open and goes when the screen closes. Returns { el, remove }.
-export function textField(scene, { x, y, w, h, font = 28, maxLength = 24, placeholder = '', label = placeholder, onEnter, next }) {
+// hides while the Help sheet is open and goes when the screen closes. In the keyboard focus order it comes first, or
+// just before `before` when that is given. Returns { el, remove }.
+export function textField(scene, { x, y, w, h, font = 28, maxLength = 24, placeholder = '', label = placeholder, onEnter, next, before }) {
   const el = document.createElement('input');
   el.type = 'text';
   el.className = 'text-field';
@@ -23,10 +24,13 @@ export function textField(scene, { x, y, w, h, font = 28, maxLength = 24, placeh
       onEnter?.();
     } else if (e.key === 'Escape') {
       el.blur();
-    } else if (e.key === 'Tab' && !e.shiftKey && next) {
+    } else if (e.key === 'Tab') {
+      // Tab and Shift+Tab carry on through the game's own focus order, from the field's place in it.
       e.preventDefault();
       el.blur();
-      scene.focus.focus(next);
+      if (next && !e.shiftKey) return scene.focus.focus(next);
+      scene.focus.current = proxy;
+      scene.focus.move(e.shiftKey ? -1 : 1);
     }
   });
   // Inside #game, so it still shows in full screen.
@@ -57,12 +61,14 @@ export function textField(scene, { x, y, w, h, font = 28, maxLength = 24, placeh
   scene.events.on('settings-opened', hide);
   scene.events.on('settings-closed', show);
 
-  // In the keyboard focus order, first: a stand-in that puts the cursor in the field.
+  // In the keyboard focus order: a stand-in that puts the cursor in the field.
   const proxy = scene.add.zone(0, 0, 1, 1);
   proxy.enabled = true;
   proxy.setFocused = (on) => on && scene.focus.visible && el.focus();
   proxy.keyPress = () => {};
-  scene.focus.items.unshift(proxy);
+  const order = scene.focus.items;
+  const at = before ? order.indexOf(before) : -1;
+  order.splice(Math.max(0, at), 0, proxy);
   proxy.once('destroy', () => scene.focus.remove(proxy));
 
   let removed = false;
@@ -73,6 +79,7 @@ export function textField(scene, { x, y, w, h, font = 28, maxLength = 24, placeh
     scene.events.off('view-resize', place);
     scene.events.off('settings-opened', hide);
     scene.events.off('settings-closed', show);
+    scene.events.off('shutdown', remove);
     el.blur();
     el.remove();
     if (proxy.scene) proxy.destroy();

@@ -31,6 +31,15 @@ export class StoryScene extends BaseScene {
       color: 0xb35600,
     });
     this.heading = this.text(500, 154, chapter.number ? chapter.title : personal('Welcome, dear'), 'h3', { width: 720 });
+    // Help & settings has a name box too. It starts from what is typed in the Welcome's box, and the name it ends with
+    // comes back to that box and the heading.
+    this.events.on('settings-opened', () => {
+      if (this.field) progress.name = cleanName(this.field.el.value);
+    });
+    this.events.on('settings-closed', () => {
+      if (this.field) this.field.el.value = progress.name;
+      if (!chapter.number) this.heading.setText(personal('Welcome, dear'));
+    });
 
     this.lines = storyLines(id);
     this.index = 0;
