@@ -54,6 +54,8 @@ export const COLOR = {
   grey100: 0xf1f2f5,
   white: 0xffffff,
   kitchen: 0xfbeed6, // warm kitchen cream
+  bubble: 0xfff0cf, // Paati's speech bubbles: a butter cream, a step warmer than every page colour
+  bubbleEdge: 0xe6c88e, // their soft gold edge, so they stand out on the kitchen cream too
   wood: 0x8b3a22, // press base and lever
   woodDark: 0x6a2a17,
   paleWood: 0xe3c9a0, // plunger

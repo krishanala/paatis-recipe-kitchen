@@ -3,6 +3,7 @@ import { SCRIPT_FONT, fitText, fontSize, makeText } from './text.js';
 import { Button } from './Button.js';
 import { personal, progress, settings } from '../state.js';
 import { speak } from '../voice.js';
+import { livelyPaati } from './lively.js';
 
 export const HEADER_H = 84;
 
@@ -20,10 +21,10 @@ export function ingredientArt(scene, x, y, ing, width) {
 }
 
 // Full-body Paati, standing with her feet at (x, bottom), sized by height (the poses differ in width).
+// Paati, full figure, feet at (x, bottom): alive (src/ui/lively.js), so she breathes, moves her hands and reacts to
+// what she says.
 export function paati(scene, x, bottom, key, height) {
-  const img = scene.add.image(x, bottom, key).setOrigin(0.5, 1);
-  img.setScale(height / img.height);
-  return img;
+  return livelyPaati(scene, x, bottom, key, height);
 }
 
 // Silk-border trim: two thin gold lines around a Marigold or Rani pink band.
@@ -136,7 +137,9 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
       const ring = scene.add.graphics();
       ring.fillStyle(COLOR.yellow300, 1);
       ring.fillCircle(48, 48, 48);
-      this.add([ring, art(scene, 48, 48, 'paati-avatar', 96)]);
+      this.face = art(scene, 48, 48, 'paati-avatar', 96);
+      this.faceScale = this.face.scale;
+      this.add([ring, this.face]);
     }
     this.tx = (avatar ? 112 : 0) + (this.tail ? 26 : 34);
     this.labelText = makeText(scene, this.tx, 18, '', 'b3', { weight: 700 });
@@ -147,6 +150,13 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
 
   say(str, tone = 'plain') {
     speak(str);
+    // Paati, wherever she stands on this screen, reacts to her own words; the little round picture of her bobs.
+    this.scene.events.emit('paati-say', personal(str));
+    if (this.face && !settings.reduceMotion) {
+      this.scene.tweens.killTweensOf(this.face);
+      this.face.setScale(this.faceScale);
+      this.scene.tweens.add({ targets: this.face, scale: this.faceScale * 1.08, y: 42, duration: 160, yoyo: true, repeat: 1, ease: 'Quad.Out', onComplete: () => this.face.setY(48) });
+    }
     const t = TONES[tone];
     let y = 18;
     if (t.label) {
@@ -164,23 +174,35 @@ export class PaatiBubble extends Phaser.GameObjects.Container {
     const g = this.g;
     g.clear();
     // A speech bubble's tail: a curved point reaching out to Paati, with the bubble's shadow under it.
-    const tail = (dy) => {
+    // Its outline is drawn along the two curves only, so it joins the bubble's edge without a seam.
+    const tail = (dy, edge) => {
       if (!this.tail) return;
       const side = this.tail === 'left' ? -1 : 1;
-      const ex = side < 0 ? bx + 2 : bx + w - 2;
+      const ex = side < 0 ? bx + 1 : bx + w - 1;
       const ty = Math.min(this.tailY, h - 30) + dy;
       const P = (px, py) => new Phaser.Math.Vector2(ex + side * px, ty + py);
-      const top = new Phaser.Curves.QuadraticBezier(P(0, -16), P(12, -12), P(28, -14));
-      const bottom = new Phaser.Curves.QuadraticBezier(P(28, -14), P(14, 4), P(0, 16));
-      g.fillPoints([...top.getPoints(8), ...bottom.getPoints(8)], true);
+      const top = new Phaser.Curves.QuadraticBezier(P(0, -16), P(12, -12), P(28, -14)).getPoints(8);
+      const bottom = new Phaser.Curves.QuadraticBezier(P(28, -14), P(14, 4), P(0, 16)).getPoints(8);
+      g.fillPoints([...top, ...bottom], true);
+      if (edge) {
+        g.strokePoints(top);
+        g.strokePoints(bottom);
+      }
     };
+    // Cream with a soft gold edge (not white, which is too close to the pages).
     g.fillStyle(0x000000, 0.08);
     g.fillRoundedRect(bx, 4, w, h, 24);
     tail(4);
-    g.fillStyle(COLOR.white, 1);
+    g.lineStyle(2, COLOR.bubbleEdge, 1);
+    g.fillStyle(COLOR.bubble, 1);
     g.fillRoundedRect(bx, 0, w, h, 24);
-    tail(0);
-    if (this.avatar) g.fillTriangle(bx + 2, 32, bx - 14, 48, bx + 2, 64);
+    g.strokeRoundedRect(bx, 0, w, h, 24);
+    tail(0, true);
+    if (this.avatar) {
+      g.fillTriangle(bx + 1, 32, bx - 14, 48, bx + 1, 64);
+      g.lineBetween(bx + 1, 32, bx - 14, 48);
+      g.lineBetween(bx - 14, 48, bx + 1, 64);
+    }
     if (!this.tail) {
       g.fillStyle(t.accent, 1);
       g.fillRoundedRect(bx + 14, 16, 6, h - 32, 3);

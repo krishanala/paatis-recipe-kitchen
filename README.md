@@ -127,6 +127,10 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **16 Nov 2026, a livelier Paati, and cream bubbles:**
+  - **Speech bubbles** are butter cream (#FFF0CF) with a soft gold edge instead of white, which was too close to the off-white pages; they stand out on the kitchen's cream too.
+  - **Paati moves** (`src/ui/lively.js`): wherever she stands full-figure (the Title, Welcome and story pages, her page at the puppet show, the last page and the goodbye) she breathes and sways a little, and she reacts to each thing she says: a happy hop when she is excited, a tilt of the head for a question, a nod as she talks, a shake when she laughs, and a hello hop as she arrives. Her free hands move too, cut from the pictures at the wrist: the open palms of her welcome lift ("come, come"), her wave waves, her thumbs-up pumps and her raised finger wags. In the kitchen and quiz, her little round picture bobs when she speaks. With Reduce motion she stands still.
+  - **Still to come:** vanakkam, clapping and laughing with a hand over her mouth need new pictures of Paati in those poses (the current ones can't be bent into them). Once there are pictures, they plug into the same gestures.
 - **16 Nov 2026, Paati's veranda, and a new last page:** From the user's review of the whole game:
   - **Help & settings** text is 5 px smaller throughout, and Close is a smaller round button that clears the trim along the top.
   - **Paati's speech** beside her (the Welcome and story pages, and her page at the puppet show) is a speech bubble now, with a tail pointing to her, instead of a card with a stripe.
