@@ -173,8 +173,8 @@ export const ingredient = (id) => INGREDIENTS.find((i) => i.id === id);
 // Paati's order for step 1. Water has its own step.
 export const ADD_ORDER = ['riceFlour', 'uradFlour', 'flour', 'spices', 'ghee'];
 
-// The quiz bank. Paati asks first, then explains: a wrong answer gets a nudge (without giving the answer away) and
-// Try again; the right answer's `why` is the explanation. `teach` is the fact on its own, used as a "Did you know?"
+// The quiz bank. Paati asks first, then explains: a wrong answer is set aside with a nudge (without giving the answer
+// away), and the player picks again; the right answer's `why` is the explanation. `teach` is the fact on its own, used as a "Did you know?"
 // in the free kitchen when the question wasn't asked.
 // Each chapter asks `ask` questions: the `core` ones every time, the rest picked at random (mixing formats, and
 // never two from the same `group`), so a replay brings new facts.
@@ -468,7 +468,7 @@ export const STEPS = [
   { id: 'water', title: 'Water', chip: 'Water', full: 'Hold the button to pour water. Let go when the meter is in the green zone.', short: 'Hold to pour. Stop in the green.' },
   { id: 'knead', title: 'Knead', chip: 'Knead', full: 'Rub the dough in circles until the ring is full. It should feel soft, like an earlobe.', short: 'Rub in circles until the ring is full.' },
   { id: 'fill', title: 'Fill the press', chip: 'Fill', full: 'Drag the dough into the wooden press, drag the plunger on top, then drag the star plate under the press.', short: 'Dough in, plunger on, star plate.' },
-  { id: 'twist', title: 'Twist', chip: 'Twist', full: 'Press and hold Hold to twist, beside the pot, and watch the spiral grow from the middle. Or draw the spiral on the oil with your finger.', short: 'Hold the button, or draw a spiral.' },
+  { id: 'twist', title: 'Twist', chip: 'Twist', full: 'Press and hold the Hold to twist button, and watch the spiral grow from the middle. Or draw the spiral on the oil with your finger.', short: 'Hold the button, or draw a spiral.' },
   { id: 'fry', title: 'Fry', chip: 'Fry', full: 'Watch the colour. Flip it once, then lift it out when it is golden.', short: 'Flip once. Lift when golden.' },
 ];
 
@@ -486,7 +486,6 @@ export const QUIZ_LINES = {
   next: 'Here comes the next one.',
   orderWrong: (i) => `Patience, dear. Which comes ${ORDINAL[i]}?`,
   orderRight: (i) => `Good. And ${ORDINAL[i]}?`,
-  tryAgain: 'Go on, have another look. Second guesses are allowed in my kitchen.',
 };
 
 export const STORE_LINES = {
@@ -518,7 +517,7 @@ export const COOK_LINES = {
   plates: ['Now the plate. Which one makes muruku? Drag it under the press.', 'Drag the right plate under the press.'],
   plateWrong: ['Lovely snack, wrong day. Muruku needs ridges.', 'Not that one. Muruku needs ridges.'],
   plateRight: ['That is the one. The star plate gives muruku its ridges. Very professional.', 'Star plate on.'],
-  twistStart: ['The oil is hot, so we keep our distance. Press and hold Hold to twist, beside the pot, or draw the spiral with your finger.', 'Hold the button, or draw a spiral.'],
+  twistStart: ['The oil is hot, so we keep our distance and let the press do the work. Round and round, from the middle out.', 'Hold the button, or draw a spiral.'],
   twistMore: ['Ooh, lovely. Keep going, or press Done twisting once your spiral is closed.', 'Done when it is closed.'],
   fryStart: ['Now we fry. Watch the colour, flip it once, and lift it out when it is golden. No wandering off.', 'Flip once. Lift when golden.'],
   flipNow: ['Golden underneath. Flip it now, before it gets a tan!', 'Flip now!'],
@@ -586,9 +585,8 @@ export const ASK_LINES = {
   noTip: 'No tip this time, but you will not forget it now.',
 };
 
-// The recipe card shows Paati's order now. The real scoop amounts must come from a trusted family recipe
-// (open question 5) — placeholder ratios must not ship.
-export const RECIPE_NOTE = 'Amounts will come from Paati\'s family recipe.';
+// The recipe card shows Paati's order only. The real scoop amounts must come from a trusted family recipe (open
+// question 5 in docs/design-brief.md); placeholder ratios must not ship, and players see no note about it.
 
 export const RESULT_LINES = {
   3: { words: 'Perfect muruku', tone: 'success', line: 'Do not tell anyone, but that is better than mine.' },

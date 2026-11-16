@@ -1,8 +1,8 @@
 import { BaseScene } from './BaseScene.js';
 import { Button } from '../ui/Button.js';
-import { PaatiBubble, art, card, header, ingredientArt, kolamCorner, sparkle, toran } from '../ui/widgets.js';
+import { HEADER_H, PaatiBubble, art, card, header, ingredientArt, kolamCorner, sparkle, toran } from '../ui/widgets.js';
 import { BUTTON_FONT, fitText, makeText } from '../ui/text.js';
-import { ADD_ORDER, ASK_LINES, COOK_LINES as LINES, COOK_QUESTIONS, QUIZ_LINES, STEPS, RECIPE_NOTE, ingredient } from '../content.js';
+import { ADD_ORDER, ASK_LINES, COOK_LINES as LINES, COOK_QUESTIONS, STEPS, ingredient } from '../content.js';
 import { BLEED, BUTTON_HEIGHT, COLOR, COMPACT, MIN_HIT, STAGE, lerpColor, pick } from '../theme.js';
 import { NoteSheet } from '../ui/NoteSheet.js';
 import { progress, settings, markChapterDone } from '../state.js';
@@ -89,7 +89,6 @@ export class CookScene extends BaseScene {
               eyebrow: `STEP ${this.stepIndex + 1} OF ${STEPS.length}`,
               title: step.title,
               body: step.full,
-              note: step.id === 'add' ? RECIPE_NOTE : '',
             });
             return;
           }
@@ -181,14 +180,14 @@ export class CookScene extends BaseScene {
 
   // ---- Paati asks ----------------------------------------------------------------------------------
 
-  // A question card over the kitchen. A wrong answer is set aside with Paati's hint, and the choices pause until
-  // Try again. The right answer gets her explanation and, if it was the first try, her tip for the step.
-  // Continue goes on to the step. onDone(firstTry).
+  // A question card over the kitchen. A wrong answer is set aside with Paati's hint, and the rest stay ready to pick.
+  // The right answer gets her explanation and, if it was the first try, her tip for the step. Continue goes on to the
+  // step. onDone(firstTry).
   ask(q, onDone) {
     this.focus.pushLayer();
     const W = pick(760, 1120); // nearly full width on phones, so the bigger text wraps less
     const x = 640 - W / 2;
-    const top = pick(118, 24); // on phones it starts near the top: the shade covers the header while it is open
+    const top = pick(118, HEADER_H + 14); // just under the header, which the shade dims while the card is open
     const objs = [];
     const add = (o, depth = 902) => {
       objs.push(o.setDepth(depth));
@@ -218,7 +217,7 @@ export class CookScene extends BaseScene {
     // Paati's bubble and the action button sit above the shade while the card is open.
     const bubbleDepth = this.bubble.depth;
     this.bubble.setDepth(1000);
-    const action = add(new Button(this, 1080, 652, { label: 'Try again', width: 300, onClick: () => onAction() }), 1000).setVisible(false);
+    const action = add(new Button(this, 1080, 652, { label: 'Continue', width: 300, onClick: () => onAction() }), 1000).setVisible(false);
 
     const choose = (btn, choice) => {
       if (answered) return;
@@ -226,10 +225,8 @@ export class CookScene extends BaseScene {
       if (!choice.correct) {
         btn.setLook('setAside');
         if (!settings.reduceMotion) this.tweens.add({ targets: btn, x: btn.x + 8, duration: 50, yoyo: true, repeat: 3, ease: 'Sine.InOut' });
-        options.forEach((o) => o.look !== 'setAside' && o.setEnabled(false));
         this.say(choice.why, choice.why, 'warning');
-        action.setLabel('Try again').setVisible(true);
-        if (this.focus.visible) this.focus.focus(action);
+        if (this.focus.visible) this.focus.focus(options.find((o) => o.enabled && o.look !== 'setAside'));
         return;
       }
       answered = true;
@@ -278,13 +275,7 @@ export class CookScene extends BaseScene {
     this.askMax = 712 - (lastOption.y + lastOption.bh / 2 + 30 + 8);
 
     const onAction = () => {
-      if (!answered) {
-        action.setVisible(false);
-        options.forEach((o) => o.look !== 'setAside' && o.setEnabled(true));
-        this.say(QUIZ_LINES.tryAgain, QUIZ_LINES.tryAgain, 'info');
-        if (this.focus.visible) this.focus.focus(options.find((o) => o.enabled));
-        return;
-      }
+      if (!answered) return;
       objs.forEach((o) => o.destroy());
       this.askMax = null;
       this.bubble.setDepth(bubbleDepth);
@@ -355,8 +346,8 @@ export class CookScene extends BaseScene {
     this.cardEyebrow.setText(`STEP ${this.stepIndex + 1} OF ${STEPS.length}`);
     this.cardTitle.setText(step.title);
     this.cardBody.setY(this.cardTitle.y + this.cardTitle.height + pick(14, 8)).setText(hide ? '' : this.showFull ? step.full : step.short);
-    // Bigger text steps down to fit above the card's button (or its bottom edge), leaving room for the note.
-    this.cardNote.setText(!hide && step.id === 'add' && !COMPACT ? RECIPE_NOTE : '');
+    // Bigger text steps down to fit above the card's button (or its bottom edge).
+    this.cardNote.setText('');
     const noteH = this.cardNote.text ? this.cardNote.height + 12 : 0;
     const cardEnd = this.fullToggle ? this.fullToggle.y - this.fullToggle.bh / 2 - 6 : CARD.y + CARD.h - 16;
     fitText(this.cardBody, 's1', cardEnd - noteH - this.cardBody.y);
@@ -1007,19 +998,13 @@ export class CookScene extends BaseScene {
         const label = makeText(this, 0, 46, name, 'b3', { weight: 600, origin: 0.5 });
         const b = this.draggable(500 + i * 118, rowY, 108, 124, [img, label], plateSpot, 90, () => {
           if (key !== 'plate-star') {
-            // Set that plate aside, and pause the others on Paati's hint until Try again.
+            // Set that plate aside with Paati's hint; the others stay ready to try.
             b.setEnabled(false);
             b.wrong = true;
             img.setAlpha(0.4);
             this.sendHome(b);
             if (!settings.reduceMotion) this.time.delayedCall(280, () => b.active && this.tweens.add({ targets: b, x: b.home.x + 8, duration: 50, yoyo: true, repeat: 3 }));
             this.line(LINES.plateWrong, 'info');
-            buttons.forEach((other) => other.setEnabled(false));
-            this.showNext('Try again', () => {
-              this.nextBtn.setVisible(false);
-              buttons.forEach((other) => !other.wrong && other.setEnabled(true));
-              this.say(QUIZ_LINES.tryAgain, QUIZ_LINES.tryAgain, 'info');
-            });
             return;
           }
           arrow.destroy();

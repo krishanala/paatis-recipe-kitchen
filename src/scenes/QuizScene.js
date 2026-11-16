@@ -53,8 +53,6 @@ export class QuizScene extends BaseScene {
     this.storeChip = null;
     const btnX = COMPACT ? SIDE.x + SIDE.w / 2 : 1060;
     this.next = new Button(this, btnX, 650, { label: 'Next', width: 320, onClick: () => this.onNext() });
-    // After a wrong answer the choices pause on Paati's hint until Try again.
-    this.retry = new Button(this, btnX, 650, { label: 'Try again', width: 320, onClick: () => this.tryAgain() }).setVisible(false);
     this.side = [];
     this.showQuestion();
   }
@@ -66,7 +64,6 @@ export class QuizScene extends BaseScene {
     this.answered = false;
     this.tries = 0;
     this.mistakes = 0;
-    this.retry?.setVisible(false);
     this.counter.setText(`Question ${this.index + 1} of ${this.questions.length}`);
     const eyebrow = EYEBROWS[type] ?? '';
     this.eyebrow.setText(eyebrow).setVisible(Boolean(eyebrow));
@@ -314,10 +311,9 @@ export class QuizScene extends BaseScene {
       btn.pic?.setAlpha(0.4);
       btn.caption?.setAlpha(0.5);
       if (!settings.reduceMotion) this.tweens.add({ targets: btn, x: btn.x + 8, duration: 50, yoyo: true, repeat: 3, ease: 'Sine.InOut' });
+      // Paati's hint shows beside the answers that are left, ready to pick straight away (no Try again to press).
       this.say(choice.why, 'warning');
-      this.answers.forEach((b) => b.look !== 'setAside' && b.setEnabled(false));
-      this.retry.setVisible(true);
-      if (this.focus.visible) this.focus.focus(this.retry);
+      this.focusNextUsable();
       return;
     }
     btn.setLook('correct');
@@ -341,18 +337,9 @@ export class QuizScene extends BaseScene {
     return 'Finish the chapter';
   }
 
-  // Back to the choices that are left; the wrong ones stay dimmed, so the right answer is always within reach.
-  tryAgain() {
-    this.retry.setVisible(false);
-    this.answers.forEach((b) => b.look !== 'setAside' && b.setEnabled(true));
-    this.say(QUIZ_LINES.tryAgain, 'info');
-    this.focusNextUsable();
-  }
-
   // The question is answered: Paati explains, the bar fills, the ingredient (if any) flies to the Store.
   complete(why, firstTry) {
     this.answered = true;
-    this.retry.setVisible(false);
     this.say(why, 'success');
     celebrate(this);
     const first = (progress.firstTry[this.chapterId] ??= []);

@@ -3,7 +3,7 @@
 **Paati asks first, then explains** (changed on 22 Oct 2026; before that she taught every answer in her story first). Each chapter draws from a **question bank** in [`src/content.js`](../src/content.js) (`QUIZ_BANK`):
 
 - Paati's story for the chapter is a two-line hook that sets the scene without giving any answer away.
-- A wrong answer gets a nudge that doesn't give the answer away, then **Try again**. The right answer gets the full explanation (the "fact" below).
+- A wrong answer is set aside with a nudge that doesn't give the answer away, and the player picks again straight away. The right answer gets the full explanation (the "fact" below).
 - **Core** questions are asked every time. The rest are picked at random, so replaying the game brings new facts.
 - In the free kitchen, the facts that weren't asked come back as Paati's in-between facts, along with a few extras.
 

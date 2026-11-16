@@ -127,6 +127,12 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 
 ## Design decisions since the brief
 
+- **16 Nov 2026, smoother play:** From a walk-through of every screen on a computer and a phone held sideways:
+  - **No Try again to press.** A wrong answer (in the quiz, Paati's kitchen questions, or the press plates) is set aside with Paati's hint, and the other answers stay ready to pick straight away. Before, every answer locked until Try again was pressed, which cost a click on every miss.
+  - **Kitchen questions on phones.** The question card starts just under the header instead of half covering its Back and Help buttons.
+  - **No placeholder for players.** The Add step's card no longer says "Amounts will come from Paati's family recipe"; that is a note for the team (open question 5), not for players.
+  - **Twist instructions said once.** The step card says how to twist ("Press and hold the Hold to twist button…"), and Paati adds a line of her own instead of repeating it.
+  - **Play comes sooner.** On the Title, "Happy Deepavali" now holds for 3 seconds, so Play is ready after about 5.5 seconds instead of 7.5 (a tap still skips straight to it).
 - **14 Nov 2026, Paati knows your name, and opens the curtains:**
   - **Your name.** On the Welcome page, after she introduces herself, Paati asks "what should I call you?". A real text field sits under her bubble (`src/ui/field.js`): Enter or That's me keeps the name, and Skip carries on without one. From then on she uses the name wherever she would say "dear", from "Welcome, Meena" and "Lovely to meet you, Meena!" through the quiz, the kitchen and the finale (`personal()` in `src/state.js`). With no name she says "dear", as before. The name is kept for this visit only, with the rest of the progress, so it isn't stored on the device and a shared computer won't greet the next person by it.
   - **Puppet show.** In front of the closed red curtains, with no diyas, there are two pages, one after the other:

@@ -8,7 +8,7 @@ import { PAATI } from '../content.js';
 import { BUTTON_HEIGHT, COLOR, pick } from '../theme.js';
 
 let introPlayed = false; // the welcome greeting plays once per visit to the site
-const GREETING_MS = 5000; // how long Happy Deepavali stays up
+const GREETING_MS = 3000; // how long Happy Deepavali stays up before Play comes in (a tap skips it)
 
 // Screen 1 · Title: a Happy Deepavali greeting, the game name, Paati inviting the player in, Play, then Sound,
 // Help and Full screen.
@@ -102,7 +102,7 @@ export class TitleScene extends BaseScene {
     }
   }
 
-  // Welcome: "Happy Deepavali" pops up big with firecrackers, stays for five seconds and pops away, then the name
+  // Welcome: "Happy Deepavali" pops up big with firecrackers, stays for three seconds and pops away, then the name
   // slides in, then Play, then the icons. A tap or key press skips to the end. Reduce motion swaps the steps
   // without movement.
   intro(title, play, toolParts) {
@@ -153,7 +153,7 @@ export class TitleScene extends BaseScene {
         [banner.x + w / 2 - 60, banner.y - 150],
       ]);
     });
-    // 2 · …stays for five seconds, and pops away.
+    // 2 · …stays for three seconds, and pops away.
     const out = 200 + 520 + GREETING_MS;
     later(out, () => {
       this.tweens.chain({

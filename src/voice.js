@@ -66,7 +66,6 @@ export function voiceScript() {
   }
   Object.values(QUIZ_LINES.prompts).forEach((t) => add('quiz', t));
   add('quiz', QUIZ_LINES.next);
-  add('quiz', QUIZ_LINES.tryAgain);
   for (let i = 1; i < 4; i++) {
     add('quiz', QUIZ_LINES.orderWrong(i));
     add('quiz', QUIZ_LINES.orderRight(i));
