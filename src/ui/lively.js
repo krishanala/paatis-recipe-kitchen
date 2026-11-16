@@ -3,7 +3,8 @@ import { settings } from '../state.js';
 // Paati, alive: every full-figure Paati breathes and sways a little, her free hands move on their own, and each time
 // she says something (PaatiBubble.say emits 'paati-say') she reacts to it: a happy hop and a wave or thumbs-up when
 // she is excited, a tilt of the head and a raised finger for a question, a nod and a little hand movement otherwise,
-// and a shake of laughter when she laughs. With Reduce motion she stands still.
+// and a giggle behind her hand when she laughs or teases (and now and then on her own). With Reduce motion she stands
+// still.
 //
 // Her hands are cut from the illustrations along the wrist (the boxes below, in the picture's own pixels), so they can
 // turn about the wrist (`pivot`) while the rest of her stays put. The body keeps a thin band of the wrist under the
@@ -21,6 +22,9 @@ const HANDS = {
   'paati-teaching': [{ box: [492, 200, 586, 402], pivot: [538, 404], lift: -1, kind: 'finger' }],
 };
 const BAND = 10; // px of the wrist left on the body under each cut
+// For a giggle she turns, for a moment, into her laughing picture: eyes shut, her hand and hanky up at her mouth, the
+// way grandmothers laugh into the end of their sari.
+const GIGGLE = 'paati-taste-wipe';
 
 // Builds (once) the textures for a pose with moving hands: the body without its hands, and each hand.
 function cutTextures(scene, key) {
@@ -76,6 +80,11 @@ export function livelyPaati(scene, x, bottom, key, height) {
     return piece;
   });
 
+  // Her giggling picture, hidden until she giggles.
+  const pose = [img, ...parts];
+  const giggler = key !== GIGGLE && scene.textures.exists(GIGGLE) ? scene.add.image(0, 0, GIGGLE).setOrigin(0.5, 1).setAlpha(0) : null;
+  if (giggler) body.add(giggler.setScale(height / giggler.height));
+
   // Breathing and a slow sway, from her feet, each starting at its own moment so the screens don't move in step.
   const tw = (cfg) => scene.tweens.add({ targets: body, yoyo: true, repeat: -1, ease: 'Sine.InOut', ...cfg });
   tw({ scaleY: 1.012, duration: 1700, delay: Math.random() * 800 });
@@ -89,12 +98,19 @@ export function livelyPaati(scene, x, bottom, key, height) {
 
   // One gesture at a time; a new line stops the last one.
   let moving = [];
+  let back = null;
   const stop = () => {
     moving.forEach((t) => t.stop());
     moving = [];
+    back?.remove(false);
+    back = null;
     fig.y = bottom;
     fig.angle = 0;
     fig.scaleY = 1;
+    if (giggler?.alpha) {
+      giggler.setAlpha(0);
+      pose.forEach((o) => o.setAlpha(1));
+    }
   };
   const add = (cfg) => moving.push(scene.tweens.add(cfg));
   const handMove = (p, strength = 1) => {
@@ -122,6 +138,21 @@ export function livelyPaati(scene, x, bottom, key, height) {
       add({ targets: fig, scaleY: 0.985, duration: 90, yoyo: true, repeat: 5 });
       parts.forEach((p) => handMove(p, 1));
     },
+    // A giggle behind her hand: her laughing picture for a moment, her shoulders shaking, then back.
+    giggle() {
+      if (!giggler) return gestures.laugh();
+      const swap = (on, off) => {
+        add({ targets: off, alpha: 0, duration: 140 });
+        add({ targets: on, alpha: 1, duration: 140 });
+      };
+      swap([giggler], pose);
+      add({ targets: fig, angle: { from: -1.3, to: 1.3 }, duration: 110, yoyo: true, repeat: 7, ease: 'Sine.InOut', onComplete: () => (fig.angle = 0) });
+      add({ targets: fig, scaleY: 0.986, duration: 110, yoyo: true, repeat: 7 });
+      back = scene.time.delayedCall(1900, () => {
+        back = null;
+        swap(pose, [giggler]);
+      });
+    },
     // A question: she tilts her head to one side, finger up.
     ask() {
       add({ targets: fig, angle: 2.4, duration: 260, yoyo: true, hold: 700, ease: 'Sine.InOut' });
@@ -133,12 +164,14 @@ export function livelyPaati(scene, x, bottom, key, height) {
       if (parts.length) handMove(parts[Math.floor(Math.random() * parts.length)], 1);
     },
   };
+  // Laughter and teasing get a giggle; a question, a tilt; an exclamation, a hop (or every other time, a giggle).
+  let cheers = 0;
   const react = (text = '') => {
     stop();
     const t = String(text);
-    if (/\b(ha(ha)+|hee|giggle|laugh)/i.test(t)) gestures.laugh();
+    if (/\b(ha(ha)+|hee|giggle|laugh|joke|boss|no wandering|deal\b)/i.test(t)) gestures.giggle();
     else if (/\?\s*$/.test(t) || /\?/.test(t.split(/[.!]/)[0] ?? '')) gestures.ask();
-    else if (/!/.test(t)) gestures.excited();
+    else if (/!/.test(t)) (cheers++ % 2 ? gestures.giggle : gestures.excited)();
     else gestures.talk();
   };
   fig.react = react;
@@ -150,18 +183,21 @@ export function livelyPaati(scene, x, bottom, key, height) {
   // She answers her own words, and now and then moves on her own.
   const onSay = (text) => fig.active && react(text);
   scene.events.on('paati-say', onSay);
+  let idleCount = 0;
   const timer = scene.time.addEvent({
     delay: 5200,
     loop: true,
     callback: () => {
-      if (!moving.some((t) => t.isPlaying())) gestures.talk();
+      if (moving.some((t) => t.isPlaying()) || back) return;
+      (++idleCount % 3 === 0 ? gestures.giggle : gestures.talk)();
     },
   });
   fig.once('destroy', () => {
     scene.events.off('paati-say', onSay);
     timer.remove(false);
+    back?.remove(false);
   });
-  // A hello as she arrives.
-  scene.time.delayedCall(450, () => fig.active && gestures.excited());
+  // A hello as she arrives, unless she is already reacting to her first words.
+  scene.time.delayedCall(450, () => fig.active && !back && !moving.some((t) => t.isPlaying()) && gestures.excited());
   return fig;
 }
