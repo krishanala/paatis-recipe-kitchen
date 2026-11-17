@@ -113,9 +113,9 @@ export const NAME = {
 };
 
 // Paati's story pages. `paati` is the full-body pose shown beside the story. The Welcome and chapter 3 have fixed
-// `lines`. Before a quiz, Paati tells first and asks after, so nobody meets a question cold: her `intro`, then the fact
-// behind each question she is about to ask (its `teach`, in the order she will ask them), then her `outro`.
-// src/quiz.js puts them together.
+// `lines`. Before a quiz, Paati tells first and asks after, so nobody meets a question cold: her `intro`, then for each
+// question she is about to ask, in order, a little story from her own Deepavalis that holds its answer (its `story`),
+// then her `outro`. src/quiz.js puts them together.
 export const STORIES = {
   welcome: {
     paati: PAATI.proud,
@@ -129,13 +129,13 @@ export const STORIES = {
   ch1: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Deepavali! New clothes, kolams at the door, and far too many sweets. First, let me tell you a few things.',
-    outro: 'Got all that? Now I ask, you answer. Every right answer puts an ingredient on my shelf.',
+    intro: 'Deepavali! New clothes, kolams at the door, and far too many sweets. Come, sit. Let me tell you how it was in my house.',
+    outro: 'Those are my Deepavali stories. Now I ask, you answer. Every right answer puts an ingredient on my shelf.',
   },
   ch2: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    intro: 'Now, muruku. Crunchy, a little salty, and impossible to eat just one. Here is what every muruku maker knows.',
+    intro: 'Now, muruku. Crunchy, a little salty, and impossible to eat just one. I have made it all my life. Listen.',
     outro: 'Now my questions. Every right answer puts another ingredient on my shelf.',
   },
   ch3: {
@@ -149,7 +149,7 @@ export const STORIES = {
   ch4: {
     paati: PAATI.celebrating,
     done: 'Start the quiz',
-    intro: 'You made muruku with your own two hands! I will try not to cry. Two more things before we celebrate.',
+    intro: 'You made muruku with your own two hands! I will try not to cry. Two more stories before we celebrate.',
     outro: 'Now, two last questions. I saved the good ones for the end.',
   },
 };
@@ -169,10 +169,10 @@ export const ingredient = (id) => INGREDIENTS.find((i) => i.id === id);
 // Paati's order for step 1. Water has its own step.
 export const ADD_ORDER = ['riceFlour', 'uradFlour', 'flour', 'spices', 'ghee'];
 
-// The quiz bank. Paati tells first, then asks: each question's `teach` is the fact on its own, which she tells on the
-// chapter's story page just before the quiz (and which the free kitchen uses as a "Did you know?" when the question
-// wasn't asked). A longer fact is a list of pages, each shown on its own so it fits beside Paati on a phone; it then
-// has a one-line `fact` for the free kitchen's smaller box. In the quiz, a wrong answer is set aside with a nudge (without giving the answer away), and the player
+// The quiz bank. Paati tells first, then asks: each question's `story` is a little memory from her own Deepavalis that
+// holds the answer, which she tells on the chapter's story page just before the quiz. A longer one is a list of pages,
+// each shown on its own so it fits beside Paati on a phone. `teach` is the plain fact, used as a "Did you know?" in the
+// free kitchen when the question wasn't asked. In the quiz, a wrong answer is set aside with a nudge (without giving the answer away), and the player
 // picks again; the right answer's `why` is the explanation.
 // Each chapter asks `ask` questions: the `core` ones every time, the rest picked at random (mixing formats, and
 // never two from the same `group`), so a replay brings new facts.
@@ -188,6 +188,7 @@ export const QUIZ_BANK = {
         id: 'kolam-rice',
         core: true,
         teach: 'We draw the kolam at the door with rice flour, not chalk, so ants and little birds get a meal too. Sharing starts at the doorstep.',
+        story: 'When I was small, my mother drew a kolam at our door every morning, with rice flour, never chalk. By noon, ants and little sparrows had eaten half of it. Sharing starts at the doorstep!',
         q: 'Why is the kolam at the door drawn with rice flour?',
         choices: [
           { text: 'So ants and birds can eat it too', correct: true, why: 'Exactly. A rice-flour kolam is breakfast for ants and little birds. Sharing starts at the doorstep, even with the tiniest guests.' },
@@ -198,6 +199,7 @@ export const QUIZ_BANK = {
       {
         id: 'name',
         teach: 'The word Deepavali means a row of lights. Deepa is a lamp, and avali is a row.',
+        story: 'One Deepavali night, my grandfather pointed at the lamps all along our wall. "Deepa is a lamp, and avali is a row," he said. "Deepavali: a row of lamps." I have never forgotten it.',
         q: 'What does the word Deepavali mean?',
         choices: [
           { text: 'The festival of sweets', why: 'Plenty of sweets, I promise, but the word itself is about something that glows.' },
@@ -209,6 +211,7 @@ export const QUIZ_BANK = {
         id: 'new-moon',
         type: 'truefalse',
         teach: 'Deepavali comes on the new moon, the darkest night of the month. That is why every little lamp shines so bright.',
+        story: 'One Deepavali night, I looked up for the moon and could not find it. My father laughed. "It is the new moon, the darkest night of the month. That is why our lamps shine so bright."',
         q: 'Deepavali comes on a night with a big, bright full moon.',
         choices: [
           { text: 'True', why: 'Think again, dear. Why would we need so many lamps on a bright night?' },
@@ -219,6 +222,7 @@ export const QUIZ_BANK = {
         id: 'oil-bath',
         group: 'morning',
         teach: 'In many Tamil homes, Deepavali begins before sunrise with a warm oil bath. Families call it a Ganga bath, as special as a dip in the holy Ganga river.',
+        story: 'Every Deepavali, my mother woke us while it was still dark: warm oil in our hair, then a bath before sunrise. Our elders called it a Ganga bath, as special as a dip in the holy river.',
         q: 'How do many Tamil families start Deepavali morning?',
         choices: [
           { text: 'With a big breakfast of sweets', why: 'Sweets come later, I promise. Something happens before the sun is even up.' },
@@ -229,11 +233,11 @@ export const QUIZ_BANK = {
       {
         id: 'medicine',
         group: 'morning',
-        teach: [
-          'After the oil bath, many Tamil families eat one spoonful of Deepavali medicine. It is a thick, dark paste, made at home from dry ginger, pepper and other herbs.',
-          'The herbs are cooked with ghee and jaggery, a dark cane sugar, so it tastes sweet and a little spicy. It settles the tummy before a whole day of sweets and muruku.',
+        teach: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: a sweet, spicy paste of dry ginger and herbs that settles the tummy.',
+        story: [
+          'After the oil bath, my grandmother would be waiting with a little bowl of Deepavali medicine: a thick, dark paste she made herself from dry ginger, pepper and herbs.',
+          'Cooked with ghee and jaggery, a dark cane sugar, it was sweet and a little spicy. One spoonful each, no escaping! It settled our tummies for a whole day of sweets and muruku.',
         ],
-        fact: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: a sweet, spicy paste of dry ginger and herbs that settles the tummy.',
         q: 'Why do many families eat a spoonful of Deepavali medicine after the oil bath?',
         choices: [
           { text: 'To help the tummy with all the sweets', correct: true, why: 'Exactly. The dry ginger and pepper settle the tummy, so one sweet, spicy spoonful gets it ready for a whole day of sweets and muruku.' },
@@ -245,11 +249,11 @@ export const QUIZ_BANK = {
         id: 'morning-order',
         type: 'order',
         group: 'morning',
-        teach: [
-          'Deepavali medicine is a sweet, spicy paste of dry ginger and herbs that settles the tummy. Many Tamil families eat a spoonful of it on Deepavali morning.',
-          'Their morning goes like this: a warm oil bath before sunrise, then the spoonful of Deepavali medicine, then new clothes and blessings from the elders.',
+        teach: 'A Tamil Deepavali morning: an oil bath before sunrise, a spoonful of Deepavali medicine for the tummy, then new clothes and blessings.',
+        story: [
+          'My Deepavali mornings always went the same way. First, a warm oil bath before sunrise. Then a spoonful of Deepavali medicine, a sweet, spicy paste of ginger and herbs for the tummy.',
+          'And then, at last, new clothes! We bowed to our elders, and they gave us their blessings.',
         ],
-        fact: 'A Tamil Deepavali morning: an oil bath before sunrise, a spoonful of Deepavali medicine for the tummy, then new clothes and blessings.',
         q: 'Put a Tamil Deepavali morning in order.',
         items: ['Oil bath before sunrise', 'Deepavali medicine', 'New clothes and blessings'],
         why: 'Perfect! Oil bath, Deepavali medicine, then new clothes and blessings. The day can begin.',
@@ -257,6 +261,7 @@ export const QUIZ_BANK = {
       {
         id: 'narakasura',
         teach: 'Many families in South India tell how Krishna and Satyabhama defeated Narakasura. His last wish was that people remember the day with lamps and joy.',
+        story: 'Every year, my grandmother told us how Krishna and brave Satyabhama defeated Narakasura, a cruel king. His last wish? That people remember the day with lamps and joy. And so we do.',
         q: 'In the South Indian Deepavali story, who asked for the day to be lit up?',
         choices: [
           { text: 'Krishna, the hero', why: 'Krishna is the hero of the story, but the wish came from someone else. Someone with a last wish.' },
@@ -267,6 +272,7 @@ export const QUIZ_BANK = {
       {
         id: 'rama',
         teach: 'In North India, many families remember Rama, Sita and Lakshmana coming home to Ayodhya. People lit rows of lamps to light their way.',
+        story: 'My friends from the north tell another story: Rama, Sita and Lakshmana coming home to Ayodhya on a dark night. The people lit rows of lamps to welcome them home.',
         q: 'In the North Indian Deepavali story, why did people light rows of lamps?',
         choices: [
           { text: 'To welcome Rama and Sita home', correct: true, why: 'Yes. Rama, Sita and Lakshmana came home to Ayodhya, and rows of lamps lit their way on a dark night.' },
@@ -278,6 +284,7 @@ export const QUIZ_BANK = {
         id: 'faiths',
         type: 'truefalse',
         teach: 'Deepavali is not only a Hindu festival. Jains remember Mahavira, and Sikhs celebrate Bandi Chhor Divas, the day Guru Hargobind was set free.',
+        story: 'On our street, everyone lit lamps at Deepavali time. Our Jain neighbours remembered Mahavira, and our Sikh friends celebrated Bandi Chhor Divas, when Guru Hargobind was set free.',
         q: 'Only Hindus celebrate at Deepavali time.',
         choices: [
           { text: 'True', why: 'Not quite. Other faiths light up this time of year too, each with its own story.' },
@@ -287,6 +294,7 @@ export const QUIZ_BANK = {
       {
         id: 'kolam-maths',
         teach: 'Some kolams are one long line that loops around the dots and never ends. Scientists have even studied kolams to teach computers to draw patterns.',
+        story: 'My granddaughter showed me something on her phone: scientists study kolams! Some are one long line looping round the dots, and they use them to teach computers to draw.',
         q: 'What have scientists learned from kolam patterns?',
         choices: [
           { text: 'How to predict the weather', why: 'Not the weather. Think of machines that draw.' },
@@ -297,6 +305,7 @@ export const QUIZ_BANK = {
       {
         id: 'turmeric',
         teach: 'In many homes, new Deepavali clothes get a tiny dab of turmeric on one corner, as a blessing, before anyone wears them.',
+        story: 'Before we wore our new Deepavali clothes, my mother dabbed a tiny bit of turmeric on one corner of each, as a blessing. Only then could we put them on.',
         q: 'What goes on a corner of new Deepavali clothes in many homes?',
         choices: [
           { text: 'A drop of rose water', why: 'Rose water smells lovely, but this one is yellow and leaves a mark.' },
@@ -308,6 +317,7 @@ export const QUIZ_BANK = {
         id: 'spot-diya',
         type: 'picture',
         teach: 'A diya is a little clay lamp with oil and a cotton wick. Rows of diyas glow in doorways and windows on Deepavali.',
+        story: 'The day before Deepavali, my brother and I filled rows of diyas: little clay lamps with oil and a cotton wick. By night they glowed in every doorway and window.',
         q: 'Which one is a diya?',
         choices: [
           { art: 'jar-clay', text: 'Clay pot', why: 'That clay pot holds water. A diya is smaller, and it glows.' },
@@ -324,6 +334,7 @@ export const QUIZ_BANK = {
         id: 'twisted',
         core: true,
         teach: 'The word muruku means twisted, because we twist the dough into rings.',
+        story: 'When I first made muruku, I asked my mother about its name. She twisted the dough in her fingers and smiled. "Muruku means twisted. We twist it into rings."',
         q: 'What does "muruku" mean in Tamil?',
         choices: [
           { text: 'Crunchy', why: 'It is crunchy, but the name is about its shape.' },
@@ -335,6 +346,7 @@ export const QUIZ_BANK = {
         id: 'why-rice',
         core: true,
         teach: 'Why rice flour? Because rice grows all over Tamil Nadu. The Kaveri river lands around Thanjavur are even called the rice bowl of Tamil Nadu.',
+        story: 'I grew up near Thanjavur, the rice bowl of Tamil Nadu: green rice fields as far as you can see. Rice grows all over Tamil Nadu, so our snacks start with rice flour.',
         q: 'Why do so many Tamil snacks start with rice flour?',
         choices: [
           { text: 'Rice flour keeps longer than others', why: 'Good thinking, but the reason is closer to the fields.' },
@@ -345,6 +357,7 @@ export const QUIZ_BANK = {
       {
         id: 'rice-plenty',
         teach: 'Rice also means plenty. Many families use rice in blessings, hoping their home will always have enough to share.',
+        story: 'At every blessing in our house, my grandmother sprinkled a few grains of rice. "Rice means plenty," she said. "May this home always have enough to share."',
         q: 'What does rice stand for in many blessings?',
         choices: [
           { text: 'Plenty, so there is always enough', correct: true, why: 'Yes. Rice in a blessing is a wish that the home will always have enough to share.' },
@@ -355,6 +368,7 @@ export const QUIZ_BANK = {
       {
         id: 'urad',
         teach: 'We mix in urad dal flour. Urad dal is a small black lentil that is white inside. It makes muruku light and tasty.',
+        story: 'My mother once poured urad dal into my palm: tiny black lentils. "Break one," she said. Inside, it was white! Ground into flour, it makes muruku light and tasty.',
         q: 'What is urad dal?',
         choices: [
           { text: 'A kind of rice', why: 'Not rice, though the two are often together. Think smaller, and darker.' },
@@ -366,6 +380,7 @@ export const QUIZ_BANK = {
         id: 'hand',
         type: 'truefalse',
         teach: 'Some grandmothers twist muruku by hand, with no press at all. It is called hand muruku, and it takes years of practice.',
+        story: 'My aunt never used a press. She twisted every muruku by hand, so fast I could not follow. It is called hand muruku, and it takes years of practice. I am still practising!',
         q: 'Some muruku is twisted by hand, with no press at all.',
         choices: [
           { text: 'True', correct: true, why: 'True! It is called hand muruku, and it takes years of practice. One day, maybe you.' },
@@ -375,6 +390,7 @@ export const QUIZ_BANK = {
       {
         id: 'manapparai',
         teach: 'One town in Tamil Nadu, Manapparai, is famous for its muruku. Hundreds of families there make it the old way.',
+        story: 'Once, on a train through Tamil Nadu, we stopped at a town called Manapparai, and everyone rushed out to buy its famous muruku. Hundreds of families there make it the old way.',
         q: 'Which town is famous for its muruku?',
         choices: [
           { text: 'Mysuru, in Karnataka', why: 'Mysuru has its own famous sweet. The muruku town is closer to home.' },
@@ -385,6 +401,7 @@ export const QUIZ_BANK = {
       {
         id: 'travels',
         teach: 'Muruku travelled across the sea with Tamil families. Today people munch it in Sri Lanka, Malaysia, Singapore, Fiji and Myanmar.',
+        story: 'When my cousins sailed across the sea, they packed muruku, of course! Tamil families carried it to Sri Lanka, Malaysia, Singapore, Fiji and Myanmar, and people munch it there today.',
         q: 'Where else do people munch muruku?',
         choices: [
           { text: 'Only in Tamil Nadu', why: 'It travelled much further than that. Think across the sea.' },
@@ -396,6 +413,7 @@ export const QUIZ_BANK = {
         id: 'star-plate',
         type: 'picture',
         teach: 'Inside the wooden press goes the star plate. Its star-shaped hole gives every muruku its ridges.',
+        story: 'My press came with a box of little brass plates, each with a different hole. For muruku I always pick the star-shaped one: the star gives every muruku its ridges.',
         q: 'Which plate makes muruku?',
         choices: [
           { art: 'plate-round', text: 'Round hole', why: 'That one makes a smooth, thin snack. Muruku has ridges.' },
@@ -407,6 +425,7 @@ export const QUIZ_BANK = {
         id: 'make-order',
         type: 'order',
         teach: 'Making muruku has four big steps: mix the flours, knead a soft dough, twist it through the press, and fry it until golden.',
+        story: 'My mother taught me muruku in four steps, and made me say them back: mix the flours, knead a soft dough, twist the spiral through the press, and fry it until golden.',
         q: 'Put the muruku steps in order.',
         items: ['Mix the flours', 'Knead the dough', 'Twist the spiral', 'Fry until golden'],
         why: 'That is the recipe! Mix the flours, knead a soft dough, twist it through the press, and fry until golden. You are ready for my kitchen.',
@@ -420,6 +439,7 @@ export const QUIZ_BANK = {
         id: 'shared',
         core: true,
         teach: 'At Deepavali, the jars of muruku go to family, neighbours and visitors. Sharing is the best part.',
+        story: 'Every Deepavali, our kitchen made jars and jars of muruku, far too much for one family. That was the point! The jars went to family, neighbours and every visitor at the door.',
         q: 'Who is muruku shared with?',
         choices: [
           { text: 'Only the family who made it', why: 'Family gets the first handful, but the jars travel much further.' },
@@ -430,6 +450,7 @@ export const QUIZ_BANK = {
       {
         id: 'together',
         teach: 'Muruku takes hours to make. So grandparents, parents and children make it together, and stories are shared while the press turns.',
+        story: 'Muruku takes hours to make, so in my house everyone helped: grandparents, parents and all of us small ones. While the press turned, the stories went round.',
         q: 'Why do families often make muruku together?',
         choices: [
           { text: 'It must all be eaten the same day', why: 'Oh, it keeps for weeks. The reason is about time.' },
@@ -441,6 +462,7 @@ export const QUIZ_BANK = {
         id: 'keeps',
         type: 'truefalse',
         teach: 'After frying, muruku has almost no water left. In a tightly closed jar it stays crunchy for weeks, so it can be made early and shared for days.',
+        story: 'My mother made muruku a week before Deepavali. Would it go soft? "Never," she said. "After frying, almost no water is left. In a closed jar it stays crunchy for weeks."',
         q: 'Muruku goes soft after one day, so it cannot be made early.',
         choices: [
           { text: 'True', why: 'Not at all, dear. Think of all those jars in the cupboard.' },
@@ -450,6 +472,7 @@ export const QUIZ_BANK = {
       {
         id: 'open-house',
         teach: 'In Malaysia, many families hold an open house at Deepavali. Friends of every background drop in for muruku and sweets.',
+        story: 'My cousins in Malaysia keep an open house at Deepavali. The front door stays open all day, and friends of every background drop in for muruku and sweets.',
         q: 'What is a Deepavali open house?',
         choices: [
           { text: 'A home where friends can drop in', correct: true, why: 'Yes! In Malaysia, many families open their doors, and friends of every background drop in for muruku and sweets.' },

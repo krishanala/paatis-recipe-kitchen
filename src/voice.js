@@ -48,8 +48,8 @@ export function voiceScript() {
   const lines = [];
   const add = (where, text) => text && lines.push({ where, key: lineKey(text), text });
   for (const [id, story] of Object.entries(STORIES)) {
-    // Before a quiz, Paati tells the fact behind each question she might ask (whichever are picked on the day).
-    const lines = story.lines ?? [story.intro, ...(QUIZ_BANK[id]?.questions ?? []).flatMap((q) => [q.teach].flat()), story.outro];
+    // Before a quiz, Paati tells her story for each question she might ask (whichever are picked on the day).
+    const lines = story.lines ?? [story.intro, ...(QUIZ_BANK[id]?.questions ?? []).flatMap((q) => [q.story ?? q.teach].flat()), story.outro];
     lines.forEach((t) => add(`story ${id}`, t.ask ? NAME.ask : t));
   }
   const P = PUPPET.paati;
@@ -60,7 +60,7 @@ export function voiceScript() {
   const facts = [...EXTRA_FACTS];
   for (const [ch, bank] of Object.entries(QUIZ_BANK)) {
     for (const q of bank.questions) {
-      facts.push(q.fact ?? q.teach);
+      facts.push(q.teach);
       add(`quiz ${q.id}`, q.why);
       add(`quiz ${q.id}`, q.hint);
       q.choices?.forEach((c) => add(`quiz ${q.id}`, c.why));

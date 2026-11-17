@@ -2,7 +2,7 @@
 
 **Paati tells first, then asks** (since 17 Nov 2026, so the quiz isn't hard for anyone new to Deepavali; from 22 Oct she asked first, and before that she also taught first). Each chapter draws from a **question bank** in [`src/content.js`](../src/content.js) (`QUIZ_BANK`):
 
-- Paati's story page for the chapter opens with a line, tells the fact behind each question she is about to ask (`teach`; a long one is two pages), and closes with a line. Then the quiz.
+- Paati's story page for the chapter opens with a line, tells a little story from her own Deepavalis for each question she is about to ask (`story`, which holds the fact below; a long one is two pages), and closes with a line. Then the quiz. The stories are Paati's memories, written for the game: the facts in them are the ones in this table.
 - A wrong answer is set aside with a nudge that doesn't give the answer away, and the player picks again straight away. The right answer gets the full explanation (the "fact" below).
 - **Core** questions are asked every time. The rest are picked at random, so replaying the game brings new facts.
 - In the free kitchen, the facts that weren't asked come back as Paati's in-between facts, along with a few extras.
