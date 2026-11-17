@@ -27,7 +27,7 @@ export const INTRO = {
   title: 'Let us make muruku',
   lines: [
     'Today we learn how to *make muruku*, the crunchy spiral snack, from Paati\'s own recipe.',
-    'And along the way, we find out what *Deepavali* is, and why every home fills up with muruku for it.',
+    'Along the way, we find out what *Deepavali* is, and why every home fills with muruku for it.',
   ],
   start: 'Start Chapter 1',
 };
@@ -44,7 +44,7 @@ export const PUPPET = {
   title: 'Stories of Deepavali',
   // Paati, before the cards: what the stories mean, then after each one, why it matters to us.
   paati: {
-    first: 'Families tell these stories at Deepavali, dear. In each one, light wins over darkness, and each one explains something we still do today. Pick one, and I will open the curtains.',
+    first: 'Families tell these stories at Deepavali, dear. In each, light wins over darkness, and each explains something we still do today. Pick one, and I will open the curtains.',
     after: {
       pandavas: 'That is why we visit our elders for their blessings and share sweets at Deepavali. Being together again is the best part.',
       rama: 'That is why every doorstep glows with rows of lamps: light chases the darkness away, and every lamp says welcome home.',
@@ -62,10 +62,10 @@ export const PUPPET = {
       teaser: 'Why families get together at Deepavali',
       lines: [
         { id: 'kingdom', text: 'Long ago, five princes called the Pandavas lived happily in their kingdom with Draupadi, their queen.' },
-        { id: 'dice', text: 'Their cousin Duryodhana was jealous of them. He invited them to play a game of dice, and tricked them.' },
-        { id: 'lost', text: 'They lost the game, and their kingdom with it. The rule was that they must leave home for thirteen years.' },
+        { id: 'dice', text: 'Their cousin Duryodhana was jealous of them. He invited them to a game of dice and tricked them.' },
+        { id: 'lost', text: 'They lost the game, and their kingdom with it. Now they had to leave home for thirteen years.' },
         { id: 'forest', text: 'For twelve years they lived in the forest. In the last year they had to stay hidden, or start all over again.' },
-        { id: 'home', text: 'When the thirteen years were over, they came home at last, on a dark new moon night.' },
+        { id: 'home', text: 'When the thirteen years were over, they came home at last, on a dark new-moon night.' },
         { id: 'reunion', text: 'Their family had waited for them all those years. The brothers bowed to their elders, and everyone was together again.' },
         { id: 'together', text: 'Just like that homecoming, families get together at Deepavali: they ask the elders for blessings and share sweets.' },
       ],
@@ -75,14 +75,14 @@ export const PUPPET = {
       title: 'Rama comes home',
       teaser: 'Why we light rows of lamps',
       lines: [
-        { id: 'exile', text: 'Prince Rama of Ayodhya had to live in the forest for fourteen years, to keep a promise his father, the king, had made.' },
+        { id: 'exile', text: 'Prince Rama of Ayodhya had to live in the forest for fourteen years to keep a promise his father, the king, had made.' },
         { id: 'hut', text: 'His wife Sita and his brother Lakshmana went with him, and they made a little home in the forest.' },
         { id: 'ravana', text: 'One day, Ravana, the ten-headed king of Lanka, carried Sita away to his island, far across the sea.' },
         { id: 'friends', text: 'Rama and Lakshmana searched everywhere for her. Hanuman and an army of monkeys came to help them.' },
         { id: 'hanuman', text: 'Brave Hanuman leapt across the sea to Lanka, found Sita in a garden, and gave her Rama\'s ring: help was coming.' },
         { id: 'bridge', text: 'Then the monkey army built a bridge of stones across the sea, and Rama, Lakshmana and Hanuman crossed to Lanka.' },
         { id: 'battle', text: 'Rama fought Ravana, and Rama\'s arrow won the battle. Sita was free.' },
-        { id: 'ayodhya', text: 'The fourteen years were over, so they flew home to Ayodhya in a flying chariot, on a dark new moon night.' },
+        { id: 'ayodhya', text: 'The fourteen years were over, so they rode a flying chariot home to Ayodhya, on a dark new-moon night.' },
         { id: 'rows', text: 'The people lit rows of lamps to light their way home. Deepavali means just that: a row of lamps.' },
       ],
     },
@@ -96,7 +96,7 @@ export const PUPPET = {
         { id: 'garuda', text: 'Krishna and his brave wife Satyabhama flew to stop him, riding Garuda, the great eagle.' },
         { id: 'fight', text: 'In the battle, Krishna fell. Satyabhama had been Narakasura\'s mother in an earlier life, so her arrow could defeat him.' },
         { id: 'wish', text: 'Narakasura saw he had done wrong. His last wish: remember this day not with tears, but with joy.' },
-        { id: 'dawn', text: 'Krishna came home at dawn and bathed in warm oil, to wash away the battle.' },
+        { id: 'dawn', text: 'Krishna came home at dawn and bathed in warm oil to wash away the battle.' },
         { id: 'morning', text: 'So on Deepavali, Tamil families wake before sunrise for a warm oil bath, put on new clothes and burst crackers for joy.' },
       ],
     },
@@ -143,7 +143,7 @@ export const STORIES = {
     done: 'Go to the Store',
     lines: [
       'The store is full. Now the fun part: we cook. I will ask you a few things as we go.',
-      'Hot oil does not forgive, so younger cooks, call an adult. Older cooks, call your common sense.',
+      'Hot oil does not forgive. Younger cooks, call an adult. Older cooks, call your common sense.',
     ],
   },
   ch4: {
@@ -211,7 +211,7 @@ export const QUIZ_BANK = {
         id: 'new-moon',
         type: 'truefalse',
         teach: 'Deepavali comes on the new moon, the darkest night of the month. That is why every little lamp shines so bright.',
-        story: 'One Deepavali night, I looked up for the moon and could not find it. My father laughed. "It is the new moon, the darkest night of the month. That is why our lamps shine so bright."',
+        story: 'One Deepavali night, I looked for the moon and could not find it. My father laughed. "It is the new moon, the darkest night of the month. That is why our lamps shine so bright."',
         q: 'Deepavali comes on a night with a big, bright full moon.',
         choices: [
           { text: 'True', why: 'Think again, dear. Why would we need so many lamps on a bright night?' },
@@ -310,7 +310,7 @@ export const QUIZ_BANK = {
         choices: [
           { text: 'A drop of rose water', why: 'Rose water smells lovely, but this one is yellow and leaves a mark.' },
           { text: 'A pinch of salt', why: 'Not salt. Think of a yellow spice.' },
-          { text: 'A tiny dab of turmeric', correct: true, why: 'Yes. A little turmeric on one corner is a blessing, before anyone wears them.' },
+          { text: 'A tiny dab of turmeric', correct: true, why: 'Yes. A dab of turmeric blesses new clothes before anyone wears them.' },
         ],
       },
       {
@@ -494,11 +494,11 @@ export const REWARDS = {
 // `chip` is the label in the step strip.
 export const STEPS = [
   { id: 'add', title: 'Add', chip: 'Add', full: 'Drag each ingredient into the bowl in my order: rice flour, urad dal flour, flour, spices, then ghee. You can also tap them.', short: 'Same order as before: rice flour first.' },
-  { id: 'mix', title: 'Mix', chip: 'Mix', full: 'Swirl round and round the bowl to mix everything together, until the flours, spices and ghee are all one colour.', short: 'Swirl round the bowl to mix.' },
+  { id: 'mix', title: 'Mix', chip: 'Mix', full: 'Swirl round and round the bowl to mix everything until the flours, spices and ghee are all one colour.', short: 'Swirl round the bowl to mix.' },
   { id: 'water', title: 'Water', chip: 'Water', full: 'Hold the button to pour water. Let go when the meter is in the green zone.', short: 'Hold to pour. Stop in the green.' },
   { id: 'knead', title: 'Knead', chip: 'Knead', full: 'Rub the dough in circles until the ring is full. It should feel soft, like an earlobe.', short: 'Rub in circles until the ring is full.' },
-  { id: 'fill', title: 'Fill the press', chip: 'Fill', full: 'Drag the dough into the wooden press, drag the plunger on top, then drag the star plate under the press.', short: 'Dough in, plunger on, star plate.' },
-  { id: 'twist', title: 'Twist', chip: 'Twist', full: 'Press and hold the Hold to twist button, and watch the spiral grow from the middle. Or draw the spiral on the oil with your finger.', short: 'Hold the button, or draw a spiral.' },
+  { id: 'fill', title: 'Fill the press', chip: 'Fill', full: 'Drag the dough into the wooden press, the plunger on top, then the star plate under the press.', short: 'Dough in, plunger on, star plate.' },
+  { id: 'twist', title: 'Twist', chip: 'Twist', full: 'Press and hold Hold to twist, and watch the spiral grow from the middle. Or draw it on the oil with your finger.', short: 'Hold the button, or draw a spiral.' },
   { id: 'fry', title: 'Fry', chip: 'Fry', full: 'Watch the colour. Flip it once, then lift it out when it is golden.', short: 'Flip once. Lift when golden.' },
 ];
 
@@ -541,11 +541,11 @@ export const COOK_LINES = {
   // When the pour stops.
   waterLow: ['A little more, dear. This is muruku, not sand.', 'A little more.'],
   waterRight: ['Just right. Press Done pouring before you get ideas.', 'Just right.'],
-  waterHigh: ['That is not dough, dear, that is soup. Never mind, we will knead it in.', 'That is a lot of water.'],
+  waterHigh: ['That is not dough, dear. That is soup! Never mind, we will knead it in.', 'That is a lot of water.'],
   kneadStart: ['Now knead. Rub the dough round and round in the bowl. Put some love into it.', 'Rub in circles.'],
-  kneadDone: ['Soft like an earlobe. Go on, check yours. I will wait.', 'Soft and smooth.'],
+  kneadDone: ['Soft, like an earlobe. Go on, check yours. I will wait.', 'Soft and smooth.'],
   fillStart: ['Into the press it goes. Drag the dough into the wooden press.', 'Dough into the press.'],
-  plunger: ['Now drag the plunger on top. Gently, it is older than you.', 'Plunger on top.'],
+  plunger: ['Now drag the plunger on top. Gently! It is older than you.', 'Plunger on top.'],
   plates: ['Now the plate. Which one makes muruku? Drag it under the press.', 'Drag the right plate under the press.'],
   plateWrong: ['Lovely snack, wrong day. Muruku needs ridges.', 'Not that one. Muruku needs ridges.'],
   plateRight: ['That is the one. The star plate gives muruku its ridges. Very professional.', 'Star plate on.'],
@@ -575,7 +575,7 @@ export const COOK_QUESTIONS = {
   water: {
     q: 'How should the water go into the flour?',
     choices: [
-      { text: 'All at once, to save time', why: 'Fast is how soup happens. Think gentler.' },
+      { text: 'All at once, to save time', why: 'Fast is how soup happens. Go gently.' },
       { text: 'A little at a time', correct: true, why: 'Yes. You can always add more water, but you can never take it out.' },
       { text: 'As much water as flour, cup for cup', why: 'That much makes soup. Think smaller, and slower.' },
     ],
@@ -622,16 +622,16 @@ export const ASK_LINES = {
 
 export const RESULT_LINES = {
   3: { words: 'Perfect muruku', tone: 'success', line: 'Do not tell anyone, but that is better than mine.' },
-  2: { words: 'Very good muruku', tone: 'success', line: 'Lovely! A little more practice and I will have to watch my back.' },
-  1: { words: 'A good start', tone: 'warning', line: 'Every great cook has made a muruku like this. Most of them were me.' },
+  2: { words: 'Very good muruku', tone: 'success', line: 'Lovely! A little more practice, and I will have to watch my back.' },
+  1: { words: 'A good start', tone: 'warning', line: 'Every great cook has made a muruku like this. Most of them were mine.' },
 };
 
 // Shown between muruku in the free kitchen. Never a quiz. src/quiz.js adds the bank's facts that were not asked.
 export const EXTRA_FACTS = [
-  'Most of India\'s fireworks are made in one town in Tamil Nadu, called Sivakasi.',
-  'Deepavali is a public holiday in many countries, like India, Malaysia, Singapore, Sri Lanka, Mauritius, Fiji and Nepal.',
+  'Most of India\'s fireworks are made in one Tamil Nadu town: Sivakasi.',
+  'Deepavali is a public holiday in many countries: India, Malaysia, Singapore, Sri Lanka, Mauritius, Fiji and Nepal.',
   'Diyas are little clay lamps. Many families fill them with sesame oil or ghee and a cotton wick.',
-  'In many places Deepavali lasts five days, and each day has its own name and meaning.',
+  'In many places, Deepavali lasts five days, and each day has its own name and meaning.',
   'At Deepavali time, the Golden Temple in Amritsar glows with lamps for Bandi Chhor Divas.',
   'Many families wear bright new clothes on Deepavali and visit their elders for blessings.',
 ];
@@ -644,7 +644,7 @@ export const FINALE = {
   // The last page: watch the puppet show, make more muruku, or finish. `choiceMissed` is for when no story was watched.
   choiceRibbon: 'Well done, dear!',
   choiceTitle: 'What next?',
-  choiceText: 'Watch another of my stories of Deepavali, or make more muruku. In the free kitchen the store is always full.',
-  choiceMissed: 'You have not seen my stories of Deepavali yet, dear. Learn more about Deepavali now, or skip it and make more muruku.',
+  choiceText: 'Watch another of my Deepavali stories, or make more muruku. In the free kitchen, the store is always full.',
+  choiceMissed: 'You have not seen my Deepavali stories yet, dear. Learn more about Deepavali now, or skip it and make more muruku.',
   goodbye: 'Come back any time, dear. The kitchen is always open.',
 };
