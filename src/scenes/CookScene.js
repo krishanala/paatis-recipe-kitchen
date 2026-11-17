@@ -31,7 +31,8 @@ const TWIST_BUTTON = { x: PAN.x + PAN.width / 2 + 24 + TWIST_W / 2, y: PAN.y, wi
 const PRESS = pick({ x: 960, y: 400, width: 300 }, { x: 960, y: 380, width: 280 }); // press-*.svg is 270 × 300
 const RAW = 0xf3e2b8;
 const RICE = 0xfbf7ee; // rice flour on its own
-const FLOUR = 0xf4ead2; // the flours mixed
+const FLOUR = 0xf4ead2; // the flours, still in their heaps
+const MIXED = 0xf0dfba; // flours, spices and ghee swirled into one even colour
 const DOUGH = 0xe9d3a3;
 const ALT_BUTTON = pick({ x: 525, y: 540, width: 240 }, { x: 574, y: 420, width: 240 }); // tap-and-hold alternatives, clear of Paati's bubble
 const TOKENS = pick({ y: 262, art: 78, label: 46, badge: -52 }, { y: 246, art: 64, label: 38, badge: -48 }); // ingredient row in step 1, clear of the step tabs
@@ -42,8 +43,8 @@ const NOZZLE = { idle: 0.35, pressing: 0.55 }; // the press nozzle over the oil,
 
 const wrapAngle = (a) => (a > Math.PI ? a - 2 * Math.PI : a < -Math.PI ? a + 2 * Math.PI : a);
 
-// Screen 5 · Cook: one muruku in six steps. A wooden bowl (from the front) for steps 1–3, the press (side view)
-// for step 4, and a pot of oil (from above) for steps 5–6. Every step can be done by touch, mouse or keyboard, and nothing can fail.
+// Screen 5 · Cook: one muruku in seven steps. A wooden bowl (from the front) for steps 1–4 (add, mix, water, knead),
+// the press (side view) for step 5, and a pot of oil (from above) for steps 6–7. Every step can be done by touch, mouse or keyboard, and nothing can fail.
 export class CookScene extends BaseScene {
   constructor() {
     super('Cook');
@@ -128,6 +129,7 @@ export class CookScene extends BaseScene {
     this.drawChips();
     const run = {
       add: () => this.stepAdd(),
+      mix: () => this.stepMix(),
       water: () => this.stepWater(),
       knead: () => this.stepKnead(),
       fill: () => this.stepFill(),
@@ -151,15 +153,19 @@ export class CookScene extends BaseScene {
     run[id]();
   }
 
+  nextStep() {
+    this.goStep(this.stepIndex + 1);
+  }
+
   // Screen shortcuts (src/shortcuts.js) can open the kitchen at a later step. This sets up what the earlier steps
   // would have left: everything in the bowl, the water poured, or a spiral in the oil.
   skipTo(id) {
     const i = STEPS.findIndex((s) => s.id === id);
     if (i <= 0) return this.goStep(0);
-    if (id === 'water' || id === 'knead' || id === 'fill') {
+    if (['mix', 'water', 'knead', 'fill'].includes(id)) {
       this.drawBowl();
       const [, urad, flour] = ADD_ORDER.map(ingredient);
-      Object.assign(this.mix, { level: 0.9, specks: true, ghee: true });
+      Object.assign(this.mix, { level: 0.9, specks: true, ghee: true, mixed: id === 'mix' ? 0 : 1 });
       this.mix.layers.push({ dx: 46 * BS, colour: urad.colour }, { dx: -52 * BS, colour: flour.colour });
     }
     if (i > STEPS.findIndex((s) => s.id === 'water')) this.cook.water = 0.62;
@@ -312,7 +318,17 @@ export class CookScene extends BaseScene {
   drawChips() {
     this.chips.forEach((o) => o.destroy());
     this.chips = [];
-    const w = 148;
+    // Seven chips across: as wide as the longest label needs (bigger text makes them wider).
+    const label = (step, i) => `${i < this.stepIndex ? '✓' : i + 1}  ${step.chip}`;
+    const widest = Math.max(
+      ...STEPS.map((step, i) => {
+        const t = makeText(this, 0, 0, label(step, i), 'b3', { weight: 700 });
+        const w = t.width;
+        t.destroy();
+        return w;
+      }),
+    );
+    const w = Math.min(166, Math.max(136, Math.ceil(widest + 24)));
     const gap = 10;
     const x0 = 640 - (STEPS.length * w + (STEPS.length - 1) * gap) / 2;
     STEPS.forEach((step, i) => {
@@ -330,8 +346,7 @@ export class CookScene extends BaseScene {
         g.lineStyle(2, COLOR.grey300, 1);
         g.strokeRoundedRect(x, 144, w, 36, 18);
       }
-      const label = `${done ? '✓' : i + 1}  ${step.chip}`;
-      const t = makeText(this, x + w / 2, 162, label, 'b3', {
+      const t = makeText(this, x + w / 2, 162, label(step, i), 'b3', {
         weight: 700,
         color: now ? COLOR.grey900 : done ? COLOR.green700 : COLOR.grey600,
         origin: 0.5,
@@ -428,7 +443,7 @@ export class CookScene extends BaseScene {
     this.contents = this.add.graphics({ x: BOWL.x, y: RIM_Y });
     const front = art(this, BOWL.x, RIM_Y, 'bowl-front', BOWL_W).setOrigin(0.5, 62 / 230);
     this.bowlObjs.push(back, this.contents, front);
-    this.mix = { level: 0, layers: [], specks: false, ghee: false, water: 0, kneaded: 0 };
+    this.mix = { level: 0, layers: [], specks: false, ghee: false, mixed: 0, swirl: 0, water: 0, kneaded: 0 };
   }
 
   destroyBowl() {
@@ -470,26 +485,32 @@ export class CookScene extends BaseScene {
     return { rx: 132 * BS, h: HEAP_H * this.mix.level * (1 - 0.18 * wet), k: 1.3 - 0.65 * wet - 0.2 * kneaded * wet, wet };
   }
 
-  // Everything in the bowl: flour heaps (each flour its own little heap on top), spices, ghee, then as water goes
-  // in it turns to dough, rounder and smoother, and kneading smooths out the lumps.
+  // Everything in the bowl: flour heaps (each flour its own little heap on top), spices, ghee. Mixing swirls them round
+  // the bowl and blends them into one even colour (m.mixed, 0 to 1; m.swirl is how far round it has gone). Then as
+  // water goes in it turns to dough, rounder and smoother, and kneading smooths out the lumps.
   paintMix() {
     const g = this.contents;
     const m = this.mix;
     g.clear();
     if (m.level <= 0) return;
     const { rx, h, k, wet } = this.heapShape();
-    const colour = lerpColor(m.layers.length ? FLOUR : RICE, DOUGH, wet);
+    const mixed = m.mixed ?? 0;
+    const swirl = m.swirl ?? 0;
+    const colour = lerpColor(lerpColor(m.layers.length ? FLOUR : RICE, MIXED, mixed), DOUGH, wet);
     const rough = (1 - wet) * 3 * BS;
     // Shadowed body, the lit face up and to the left, and a soft highlight.
     this.heap(g, { rx, h, k, colour: lerpColor(colour, 0x8a6d3b, 0.22), rough, seed: 'body' });
     this.heap(g, { dx: -6 * BS, rx: rx * 0.94, h: h * 0.97, k, colour, rough, seed: 'body' });
-    if (wet < 0.5) {
-      // Before the water, each flour sits as its own little heap on the pile.
+    const gone = Math.min(1, Math.max(mixed, wet * 2));
+    if (gone < 1) {
+      // Until it is mixed, each flour sits as its own little heap on the pile. Mixing carries them round the bowl
+      // (seen from the front, side to side) as they sink in and take on the mix's colour.
       m.layers.forEach((layer, i) => {
-        const lh = 2 * BS - this.surfaceY(layer.dx, rx, h, k) + 14 * BS * (1 - wet * 2);
-        const lc = lerpColor(layer.colour, colour, wet * 2);
-        this.heap(g, { dx: layer.dx + 3 * BS, rx: rx * 0.48, h: lh, colour: lerpColor(lc, 0x8a6d3b, 0.2), rough, seed: `layer${i}` });
-        this.heap(g, { dx: layer.dx, rx: rx * 0.45, h: lh * 0.97, colour: lc, rough, seed: `layer${i}` });
+        const dx = layer.dx * Math.cos(swirl);
+        const lh = 2 * BS - this.surfaceY(dx, rx, h, k) + 14 * BS * (1 - gone);
+        const lc = lerpColor(layer.colour, colour, gone);
+        this.heap(g, { dx: dx + 3 * BS, rx: rx * 0.48, h: lh, colour: lerpColor(lc, 0x8a6d3b, 0.2 * (1 - gone)), rough, seed: `layer${i}` });
+        this.heap(g, { dx, rx: rx * 0.45, h: lh * 0.97, colour: lc, rough, seed: `layer${i}` });
       });
     }
     this.heap(g, { dx: -28 * BS, rx: rx * 0.46, h: h * 0.8, k, colour: lerpColor(colour, 0xffffff, 0.5), alpha: 0.55, seed: 'shine' });
@@ -507,21 +528,32 @@ export class CookScene extends BaseScene {
         g.fillCircle(p.x, p.y, rnd.realInRange(0.8, 1.6) * BS);
       }
     }
+    // Something on the pile at angle a round the bowl: x side to side, y lower on the face when it is at the front.
+    const round = (a, reach) => {
+      const x = rx * reach * Math.cos(a);
+      const top = this.surfaceY(x, rx, h, k);
+      const low = Math.max(top + 8 * BS, 2 * BS + 18 * BS);
+      return { x, y: top + 6 * BS + (low - top - 6 * BS) * (0.5 + 0.5 * Math.sin(a)) };
+    };
+    // Spices start in a little clump and spread all round as it is mixed; the bits get finer as they mix in.
     if (m.specks) {
       for (let k = 0; k < 46; k++) {
-        const p = spot(0.75);
+        const a = rnd.realInRange(0, Math.PI * 2);
+        const reach = rnd.realInRange(0.1, 0.8);
+        const p = round(-Math.PI / 2 + (a - Math.PI) * (0.25 + 0.75 * mixed) + swirl, reach * (0.55 + 0.45 * mixed));
         g.fillStyle([0xc8402a, 0xe8b323, 0x7a4a1e, 0x2e2a26][k % 4], 1 - wet * 0.35);
-        g.fillCircle(p.x, p.y, rnd.realInRange(1.6, 2.6) * BS);
+        g.fillCircle(p.x, p.y, rnd.realInRange(1.6, 2.6) * BS * (1 - 0.3 * mixed));
       }
     }
-    if (m.ghee && wet < 0.8) {
+    // Ghee sits in shiny drops until it is mixed in.
+    if (m.ghee && wet < 0.8 && mixed < 1) {
+      const fade = (1 - wet / 0.8) * (1 - mixed);
       for (let k = 0; k < 5; k++) {
-        const x = rnd.realInRange(-rx * 0.45, rx * 0.45);
-        const y = this.surfaceY(x, rx, h, k) + rnd.realInRange(8, 26) * BS;
-        g.fillStyle(0xf2c14e, 0.9 * (1 - wet / 0.8));
-        g.fillEllipse(x, y, rnd.realInRange(16, 24) * BS, rnd.realInRange(8, 11) * BS);
-        g.fillStyle(0xffffff, 0.7 * (1 - wet / 0.8));
-        g.fillCircle(x - 4 * BS, y - 2 * BS, 2 * BS);
+        const p = round(rnd.realInRange(0, Math.PI * 2) + swirl, rnd.realInRange(0.1, 0.45));
+        g.fillStyle(0xf2c14e, 0.9 * fade);
+        g.fillEllipse(p.x, p.y, rnd.realInRange(16, 24) * BS, rnd.realInRange(8, 11) * BS);
+        g.fillStyle(0xffffff, 0.7 * fade);
+        g.fillCircle(p.x - 4 * BS, p.y - 2 * BS, 2 * BS);
       }
     }
     // Wet dough is lumpy until it is kneaded smooth.
@@ -537,8 +569,10 @@ export class CookScene extends BaseScene {
         g.fillCircle(p.x, p.y, r);
       }
     }
-    if (wet > 0.15 && m.kneaded > 0 && m.kneaded < 1) {
-      const strength = Math.sin(Math.PI * m.kneaded);
+    // Swirl marks follow the finger while mixing (dry) and kneading (wet), and smooth away as each finishes.
+    const working = wet > 0.15 ? m.kneaded : wet === 0 ? mixed : 0;
+    if (working > 0 && working < 1) {
+      const strength = Math.sin(Math.PI * working);
       const cx = -6 * BS;
       const cy = 2 * BS - h * 0.5;
       g.lineStyle(4 * BS, lerpColor(colour, 0x8a6d3b, 0.38), 0.85 * strength);
@@ -694,11 +728,11 @@ export class CookScene extends BaseScene {
       this.line(LINES.addNext(token.ing, ingredient(ADD_ORDER[this.addIndex])));
     } else {
       this.line(LINES.allIn, 'success');
-      this.showNext('Next step', () => this.goStep(1));
+      this.showNext('Next step', () => this.nextStep());
     }
   }
 
-  // ---- step 2: water -------------------------------------------------------------------------------
+  // ---- step 3: water -------------------------------------------------------------------------------
 
   stepWater() {
     this.cook.water = 0;
@@ -811,7 +845,7 @@ export class CookScene extends BaseScene {
       if (this.cook.water > 0.05 && !this.nextBtn.enabled) this.nextBtn.setEnabled(true);
     };
     this.line(LINES.waterStart);
-    this.showNext('Done pouring', () => this.goStep(2), false);
+    this.showNext('Done pouring', () => this.nextStep(), false);
   }
 
   // A stream of water arcing from the spout into the bowl, with drops and a splash where it lands.
@@ -852,18 +886,19 @@ export class CookScene extends BaseScene {
     else this.line(LINES.waterHigh, 'warning');
   }
 
-  // ---- step 3: knead -------------------------------------------------------------------------------
+  // ---- round the bowl (mix and knead) --------------------------------------------------------------
 
-  stepKnead() {
-    const NEED = Math.PI * 2 * 5; // five circles
-    this.kneaded = 0;
-    this.kneading = false;
-    this.autoKnead = false;
-    this.mix.water = this.cook.water;
-    this.mix.kneaded = 0;
-    this.mix.swirl = 0;
-    this.paintMix();
-    // A ring around the bowl fills as you knead.
+  // Round and round the bowl: a ring around it fills as the finger circles (turns full circles; boost makes each one
+  // count for more). Until the first touch, a marigold dot circles the bowl to show the move. Holding the button
+  // does it too, for anyone who can't draw circles. onTurn(p) gets how far along it is (0 to 1) after every bit of
+  // turning, and the contents swirl the way the finger goes; onDone runs once the ring is full.
+  circleBowl({ turns, boost = 1, holdLabel, onTurn, onDone }) {
+    const NEED = Math.PI * 2 * turns;
+    let total = 0;
+    let circling = false;
+    let auto = false;
+    let lastAngle = 0;
+    let shown = 0;
     const ring = this.keep(this.add.graphics());
     const E = { x: BOWL.x, y: RIM_Y + 30 * BS, rx: BOWL_W / 2 + 26, ry: 130 * BS + 14 };
     const arc = (from, to) => {
@@ -876,7 +911,7 @@ export class CookScene extends BaseScene {
       return pts;
     };
     const drawRing = () => {
-      const p = Math.min(1, this.kneaded / NEED);
+      const p = Math.min(1, total / NEED);
       ring.clear();
       ring.lineStyle(10, COLOR.grey300, 0.7);
       ring.strokePoints(arc(0, Math.PI * 2), true);
@@ -886,7 +921,6 @@ export class CookScene extends BaseScene {
       }
     };
     drawRing();
-    // Until the first touch, a marigold dot circles the bowl to show the move, leaving a fading trail.
     let guide = null;
     if (!settings.reduceMotion) {
       const dot = this.keep(this.add.graphics().setDepth(6));
@@ -913,62 +947,98 @@ export class CookScene extends BaseScene {
       guide?.stop();
       guide = null;
     };
-    let shown = 0;
-    // da: how far round (always counts), turn: which way (the swirls follow it).
-    const knead = (da, turn = da) => {
-      if (this.kneaded >= NEED) return;
-      this.kneaded += da * (this.tips.knead ? 1.6 : 1);
+    // da: how far round (always counts), turn: which way (the contents swirl that way).
+    const turnBy = (da, turn = da) => {
+      if (total >= NEED) return;
+      total += da * boost;
       this.mix.swirl += turn;
       drawRing();
-      const p = Math.min(1, this.kneaded / NEED);
-      this.mix.kneaded = p;
+      const p = Math.min(1, total / NEED);
+      onTurn(p);
       this.paintMix();
       if (p - shown >= 0.08 || p >= 1) {
         shown = p;
         if (!settings.reduceMotion) this.tweens.add({ targets: this.contents, scaleX: 1.05, scaleY: 0.93, duration: 90, yoyo: true });
       }
       if (p >= 1) {
-        this.kneading = this.autoKnead = false;
-        sparkle(this, BOWL.x, this.heapTop().y + 20);
-        this.line(LINES.kneadDone, 'success');
-        this.showNext('Next step', () => this.goStep(3));
+        circling = auto = false;
+        onDone();
       }
     };
     const inRing = (p) => ((p.x - E.x) / (E.rx + 30)) ** 2 + ((p.y - E.y) / (E.ry + 30)) ** 2 <= 1;
     this.pointerDown = (p) => {
       if (!inRing(p)) return;
       stopGuide();
-      this.kneading = true;
-      this.lastAngle = Math.atan2(p.y - E.y, p.x - E.x);
+      circling = true;
+      lastAngle = Math.atan2(p.y - E.y, p.x - E.x);
     };
     this.pointerMove = (p) => {
-      if (!this.kneading || Math.hypot(p.x - E.x, p.y - E.y) < 12) return;
+      if (!circling || Math.hypot(p.x - E.x, p.y - E.y) < 12) return;
       const a = Math.atan2(p.y - E.y, p.x - E.x);
-      const turn = wrapAngle(a - this.lastAngle);
-      knead(Math.abs(turn), turn);
-      this.lastAngle = a;
+      const turn = wrapAngle(a - lastAngle);
+      turnBy(Math.abs(turn), turn);
+      lastAngle = a;
     };
     this.pointerUp = () => {
-      this.kneading = false;
+      circling = false;
     };
-    // Rubbing in circles is the main way; holding is there for anyone who can't draw circles.
     this.holdButton(
-      'Or hold to knead',
+      holdLabel,
       () => {
         stopGuide();
-        this.autoKnead = true;
+        auto = true;
       },
-      () => (this.autoKnead = false),
+      () => (auto = false),
       // On phones it wraps onto two lines rather than reaching the step card or the bowl.
       { ...ALT_BUTTON, size: 'medium', width: 240 },
     );
     this.tick = (dt) => {
-      if (this.autoKnead) knead(((dt / 1000) * Math.PI * 2) / 0.9);
+      if (auto) turnBy(((dt / 1000) * Math.PI * 2) / 0.9);
     };
+  }
+
+  // ---- step 2: mix ---------------------------------------------------------------------------------
+
+  // Swirl the dry ingredients together: the flours' little heaps, the spices and the ghee go round the bowl and blend
+  // into one even colour. Three circles.
+  stepMix() {
+    this.mix.mixed = 0;
+    this.paintMix();
+    this.circleBowl({
+      turns: 3,
+      holdLabel: 'Or hold to mix',
+      onTurn: (p) => (this.mix.mixed = p),
+      onDone: () => {
+        sparkle(this, BOWL.x, this.heapTop().y + 20);
+        this.line(LINES.mixDone, 'success');
+        this.showNext('Next step', () => this.nextStep());
+      },
+    });
+    this.line(LINES.mixStart);
+  }
+
+  // ---- step 4: knead -------------------------------------------------------------------------------
+
+  // Rub the dough in circles until it is smooth. Five circles; Paati's tip makes each count for more.
+  stepKnead() {
+    this.mix.water = this.cook.water;
+    this.mix.kneaded = 0;
+    this.paintMix();
+    this.circleBowl({
+      turns: 5,
+      boost: this.tips.knead ? 1.6 : 1,
+      holdLabel: 'Or hold to knead',
+      onTurn: (p) => (this.mix.kneaded = p),
+      onDone: () => {
+        sparkle(this, BOWL.x, this.heapTop().y + 20);
+        this.line(LINES.kneadDone, 'success');
+        this.showNext('Next step', () => this.nextStep());
+      },
+    });
     this.line(LINES.kneadStart);
   }
 
-  // ---- step 4: fill the press ----------------------------------------------------------------------
+  // ---- step 5: fill the press ----------------------------------------------------------------------
 
   stepFill() {
     this.destroyBowl();
@@ -1013,7 +1083,7 @@ export class CookScene extends BaseScene {
             this.keep(art(this, plateSpot.x, plateSpot.y + 4, 'plate-star', 56));
           });
           this.line(LINES.plateRight, 'success');
-          this.showNext('Next step', () => this.goStep(4));
+          this.showNext('Next step', () => this.nextStep());
         });
         this.followArrow(b, arrow);
         return b;
@@ -1163,7 +1233,7 @@ export class CookScene extends BaseScene {
     });
   }
 
-  // ---- step 5: twist -------------------------------------------------------------------------------
+  // ---- step 6: twist -------------------------------------------------------------------------------
 
   stepTwist() {
     this.pan = art(this, PAN.x, PAN.y, 'pot-oil', PAN.width);
@@ -1302,10 +1372,10 @@ export class CookScene extends BaseScene {
 
   finishTwist() {
     this.cook.twist = scoreTwist(this.samples);
-    this.goStep(5);
+    this.nextStep();
   }
 
-  // ---- step 6: fry ---------------------------------------------------------------------------------
+  // ---- step 7: fry ---------------------------------------------------------------------------------
 
   stepFry() {
     const fry = (this.fry = { a: 0, b: 0, flipped: false, warned: false, since: 0 });

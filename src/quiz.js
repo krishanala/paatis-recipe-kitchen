@@ -28,9 +28,12 @@ export function pickQuiz(chapter) {
   return progress.quizPick[chapter].map((id) => bank.questions.find((q) => q.id === id));
 }
 
-// Paati's story for a chapter. She asks first and explains after, so the story never gives an answer away.
+// Paati's story for a chapter: its fixed lines, or, before a quiz, her opening line, the fact behind each question she
+// is about to ask (in the order she asks them), and her closing line. She tells first and asks after.
 export function storyLines(id) {
-  return STORIES[id].lines;
+  const story = STORIES[id];
+  if (story.lines) return story.lines;
+  return [story.intro, ...pickQuiz(id).flatMap((q) => [q.teach].flat()), story.outro].filter(Boolean);
 }
 
 // Facts for the free kitchen: everything from the banks that wasn't asked this time, then the extra facts.
@@ -39,6 +42,6 @@ export function freeKitchenFacts() {
   const unasked = Object.values(QUIZ_BANK)
     .flatMap((bank) => bank.questions)
     .filter((q) => !asked.has(q.id))
-    .map((q) => q.teach);
+    .map((q) => q.fact ?? q.teach);
   return [...unasked, ...EXTRA_FACTS];
 }

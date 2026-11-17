@@ -25,6 +25,7 @@ const SCREENS = {
   ch3: ['Story', { story: 'ch3' }],
   'store-cook': ['Store', { mode: 'cook' }],
   kitchen: ['Cook', {}],
+  'kitchen-mix': ['Cook', {}, { data: { step: 'mix' } }],
   'kitchen-water': ['Cook', {}, { data: { step: 'water' } }],
   'kitchen-knead': ['Cook', {}, { data: { step: 'knead' } }],
   'kitchen-fill': ['Cook', {}, { data: { step: 'fill' } }],

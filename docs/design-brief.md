@@ -81,7 +81,7 @@ The game is one straight path of four chapters. There is no points score and no 
 | Welcome | What the game is and who Paati is | Taps through a short story | Chapter 1 opens |
 | 1. What is Deepavali? | The festival of lights, lamps, kolam, sharing | Answers 3 quiz questions | Rice flour, urad dal flour and flour in the Store |
 | 2. What is muruku? | The name means twisted, the main ingredients, why it is made before Deepavali | Answers 3 quiz questions | Spices, ghee and water in the Store, so all 6 ingredients are collected |
-| 3. How is it made? | Each step of the recipe, one at a time | Cooks one muruku in six steps with the wooden press | A fried muruku and its star rating |
+| 3. How is it made? | Each step of the recipe, one at a time | Cooks one muruku in seven steps with the wooden press | A fried muruku and its star rating |
 | 4. Why muruku at Deepavali? | Sharing, family, and the effort that goes into it | Answers 2 quiz questions and offers the muruku to Paati | A recap card and Paati's farewell |
 | Free kitchen (optional) | Short hints and a Deepavali fact between muruku | Chooses to make more muruku, as many as they like | The player choosing to finish |
 
@@ -129,24 +129,25 @@ The Store appears briefly after chapters 1 and 2 to show what was earned, and ag
 | Flour | Steel tin | Chapter 1 | 1 Add | Helps the dough bind and stay soft |
 | Spices | Round spice tin | Chapter 2 | 1 Add | Gives the taste |
 | Ghee | Jar | Chapter 2 | 1 Add | Makes the muruku richer |
-| Water | Clay pot | Chapter 2 | 2 Water | Brings the dough together |
+| Water | Clay pot | Chapter 2 | 3 Water | Brings the dough together |
 
 ## Making the muruku
 
-In chapter 3 the player makes one muruku in six steps. Paati shows an instruction card for each step, and the player does the action by touch or mouse.
+In chapter 3 the player makes one muruku in seven steps (the Mix step was added on 17 Nov 2026). Paati shows an instruction card for each step, and the player does the action by touch or mouse.
 
 | # | Step | What the player does | What is judged |
 |---|---|---|---|
 | 1 | Add | Drag the ingredients from the Store into the bowl in Paati's order: rice flour, urad dal flour, flour, spices, ghee | Right order and amounts |
-| 2 | Water | Hold to pour, release when the meter is in the green zone | Water level |
-| 3 | Knead | Rub in circles until the progress ring fills | Smooth, soft dough |
-| 4 | Fill the press | Drag the dough into the wooden press, fit the plunger and choose the star plate | Not scored, Paati checks it |
-| 5 | Twist | Hold the lever while drawing a spiral over the hot oil | Even rings, closed spiral, steady thickness |
-| 6 | Fry | Flip once, lift when golden | Colour and timing |
+| 2 | Mix | Swirl round the bowl until the flours, spices and ghee are one even colour | Not scored |
+| 3 | Water | Hold to pour, release when the meter is in the green zone | Water level |
+| 4 | Knead | Rub in circles until the progress ring fills | Smooth, soft dough |
+| 5 | Fill the press | Drag the dough into the wooden press, fit the plunger and choose the star plate | Not scored, Paati checks it |
+| 6 | Twist | Hold the lever while drawing a spiral over the hot oil | Even rings, closed spiral, steady thickness |
+| 7 | Fry | Flip once, lift when golden | Colour and timing |
 
 ### Perfection score and stars
 
-Steps 1 to 3 make up the dough (40), step 5 the twist (30) and step 6 the fry (30), out of 100. 90 or more earns 3 stars, 70 to 89 earns 2 stars, and anything lower earns 1 star. The player cannot fail: every muruku is served to Paati, who reacts to it kindly and explains each lost point in one line, for example "too pale, give it a little longer".
+Steps 1 to 4 make up the dough (40; mixing itself isn't scored), step 6 the twist (30) and step 7 the fry (30), out of 100. 90 or more earns 3 stars, 70 to 89 earns 2 stars, and anything lower earns 1 star. The player cannot fail: every muruku is served to Paati, who reacts to it kindly and explains each lost point in one line, for example "too pale, give it a little longer".
 
 > The scoop amounts on Paati's recipe card must come from a trusted family recipe, so the game teaches a real method. Placeholder ratios should not ship.
 
@@ -155,7 +156,7 @@ Steps 1 to 3 make up the dough (40), step 5 the twist (30) and step 6 the fry (3
 After the finale, Paati asks whether the player wants to make more muruku. Choosing yes opens the free kitchen, where the only thing to do is cook with Paati.
 
 - The Store is always fully stocked, so the player goes straight to **Start cooking**. There is no quiz, no shop and no points.
-- Each muruku follows the same six steps as chapter 3. Paati gives shorter hints and repeats the full instructions only if the player asks.
+- Each muruku follows the same seven steps as chapter 3. Paati gives shorter hints and repeats the full instructions only if the player asks.
 - After each muruku, the result screen shows stars and one line from Paati, with **Make another** and **Finish** buttons.
 - A plate on the counter fills up with the muruku the player has made, so progress stays visible.
 - Between muruku, Paati shares a small Deepavali fact. It is never a quiz, so there is still something to learn.
@@ -195,7 +196,7 @@ The game needs 7 screens. Settings (sound, text size, language) sit behind the H
 | 2 | Paati's story | Welcome and open each chapter | Paati, a short story in a few lines, Next |
 | 3 | Quiz | Learn through questions | Question, 3 answer choices, progress dots, Paati's explanation after each answer, ingredient flying to the Store |
 | 4 | Store | Show what has been collected | Six ingredient containers, tap for Paati's note, Start cooking |
-| 5 | Cook | Make the muruku | Bowl view (steps 1 to 3), press side view (step 4), frying pan top-down view (steps 5 and 6), instruction card, Paati's hints |
+| 5 | Cook | Make the muruku | Bowl view (steps 1 to 4), press side view (step 5), frying pan top-down view (steps 6 and 7), instruction card, Paati's hints |
 | 6 | Result | Judge the muruku | The finished muruku, stars, one-line reasons from Paati. In the free kitchen: Make another and Finish buttons |
 | 7 | Finale | Close the journey | Recap card of what was learned, Paati's farewell, a choice to make more muruku or finish |
 

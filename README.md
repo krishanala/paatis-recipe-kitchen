@@ -49,11 +49,12 @@ The links in the first column open your local copy (start it as above); the last
 | [`ch3`](http://localhost:8000/?screen=ch3) | Chapter 3 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch3) |
 | [`store-cook`](http://localhost:8000/?screen=store-cook) | The full Store, with Start cooking | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=store-cook) |
 | [`kitchen`](http://localhost:8000/?screen=kitchen) | Kitchen, step 1: Add | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen) |
-| [`kitchen-water`](http://localhost:8000/?screen=kitchen-water) | Kitchen, step 2: Water (the bowl already has the flours, spices and ghee) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-water) |
-| [`kitchen-knead`](http://localhost:8000/?screen=kitchen-knead) | Kitchen, step 3: Knead (the water is already in) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-knead) |
-| [`kitchen-fill`](http://localhost:8000/?screen=kitchen-fill) | Kitchen, step 4: Fill the press | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-fill) |
-| [`kitchen-twist`](http://localhost:8000/?screen=kitchen-twist) | Kitchen, step 5: Twist | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-twist) |
-| [`kitchen-fry`](http://localhost:8000/?screen=kitchen-fry) | Kitchen, step 6: Fry (a spiral is already in the oil) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-fry) |
+| [`kitchen-mix`](http://localhost:8000/?screen=kitchen-mix) | Kitchen, step 2: Mix (the flours, spices and ghee are in the bowl, not yet mixed) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-mix) |
+| [`kitchen-water`](http://localhost:8000/?screen=kitchen-water) | Kitchen, step 3: Water (the bowl is already mixed) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-water) |
+| [`kitchen-knead`](http://localhost:8000/?screen=kitchen-knead) | Kitchen, step 4: Knead (the water is already in) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-knead) |
+| [`kitchen-fill`](http://localhost:8000/?screen=kitchen-fill) | Kitchen, step 5: Fill the press | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-fill) |
+| [`kitchen-twist`](http://localhost:8000/?screen=kitchen-twist) | Kitchen, step 6: Twist | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-twist) |
+| [`kitchen-fry`](http://localhost:8000/?screen=kitchen-fry) | Kitchen, step 7: Fry (a spiral is already in the oil) | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=kitchen-fry) |
 | [`result`](http://localhost:8000/?screen=result) | Your muruku: stars, score and reasons | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=result) |
 | [`ch4`](http://localhost:8000/?screen=ch4) | Chapter 4 story | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=ch4) |
 | [`quiz-ch4`](http://localhost:8000/?screen=quiz-ch4) | Chapter 4 quiz | [live](https://krishanala.github.io/paatis-recipe-kitchen/?screen=quiz-ch4) |
@@ -91,7 +92,7 @@ src/
   trees.js            grows the puppet show's forest: palm, forest tree, banyan, far trees, grass and ferns
   ui/                 Button (all states), keyboard focus, Paati's bubble, header, settings sheet, text field
   scenes/             Title, Story, Intro (before we begin), Quiz, Puppet (the shadow puppet show), Store,
-                      Cook (6 steps), Result, Finale
+                      Cook (7 steps), Result, Finale
 assets/
   paati/              Paati's illustrated poses (welcome, teaching, proud, sharing, and four for tasting the muruku)
                       + round avatar; originals in source/
@@ -126,6 +127,12 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 - Reduce motion turns off sparkles, fireworks and fades. It follows the system setting by default.
 
 ## Design decisions since the brief
+
+- **17 Nov 2026, Paati teaches first, and a Mix step:** From the user's review:
+  - **Paati tells first, then asks.** The quiz was hard for anyone new to Deepavali, so before each quiz (chapters 1, 2 and 4) Paati's story page now tells the fact behind every question she is about to ask, in the order she will ask them, between an opening and a closing line. (Until now she asked first and explained after; before 22 Oct 2026 she also taught first.) In the quiz, the wrong answers still get a nudge and the right one her explanation.
+  - **What Deepavali medicine is.** Paati now explains it before asking about it: a thick, dark paste made at home from dry ginger, pepper and other herbs, cooked with ghee and jaggery (a dark cane sugar), sweet and a little spicy, eaten by the spoonful after the oil bath to settle the tummy before a day of sweets and muruku. The morning-order fact explains it too, and the quiz question was reworded. A fact this long is two short pages, so it fits beside Paati on a phone; the free kitchen's smaller box shows a one-line version.
+  - **The story page fits longer facts.** The "2 of 5" counter moved up beside the chapter label, and Paati's bubble has all the room down to Next (bigger text steps down to fit, never below the default size). On phones held sideways with a wider screen, the bubble widens a little. Checked every fact at every text size at 1280 × 720, 844 × 390 and 667 × 375.
+  - **A new Mix step in the kitchen** (now seven steps: Add, Mix, Water, Knead, Fill, Twist, Fry). After the five dry ingredients go in, they sit as separate little heaps, with the spices in a clump on top and drops of ghee. Swirling a finger round the bowl (three circles, or holding Or hold to mix) carries them round and blends them into one even colour, with the spices spread all through. Mixing has the same ring, guide dot and hold button as kneading, and isn't scored. The step chips size themselves to fit seven across, at any text size.
 
 - **16 Nov 2026, a festive turn-your-phone page:** The page a phone shows when held upright was plain (a round Paati, a line of text and an orange outline). It is now a small poster in the Title's look: the mango-leaf garland along the top, a Rani pink "Happy Deepavali!" ribbon with a diya at each end, Paati welcoming with open arms at her doorstep kolam in a golden sunburst, lamps around the kolam and the lotus diya in front, the game's name in the Title's maroon serif, and the new line "Please **rotate your phone** to start your game." Under it a phone turns sideways beside a curved arrow, waits, and turns back, with a round golden muruku on its screen. (A first version faded the phone out after each turn and spun a little diya on its screen the other way; on a phone that looked broken, so the phone is now a plain page element that turns about its own middle in every browser and never disappears.) Paati's size follows the screen's height, so it fits from 360 × 600 up to small tablets held upright. Reduce motion (the system setting) stills the turning phone, the sunburst, the lamps and the sparkles. It is all in `index.html` (HTML and CSS), because it shows before the game starts.
 - **16 Nov 2026, story cards and new wording:** From the user's review:

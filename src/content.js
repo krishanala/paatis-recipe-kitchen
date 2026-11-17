@@ -112,8 +112,10 @@ export const NAME = {
   skip: 'Skip',
 };
 
-// Paati's short stories: two lines each. `paati` is the full-body pose shown beside the story. The stories set
-// the scene without giving any quiz answers away: Paati asks first and explains after (QUIZ_BANK).
+// Paati's story pages. `paati` is the full-body pose shown beside the story. The Welcome and chapter 3 have fixed
+// `lines`. Before a quiz, Paati tells first and asks after, so nobody meets a question cold: her `intro`, then the fact
+// behind each question she is about to ask (its `teach`, in the order she will ask them), then her `outro`.
+// src/quiz.js puts them together.
 export const STORIES = {
   welcome: {
     paati: PAATI.proud,
@@ -127,18 +129,14 @@ export const STORIES = {
   ch1: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    lines: [
-      'Deepavali! New clothes, kolams at the door, and far too many sweets.',
-      'So, how much do you really know? I ask, you answer, then I tell you the story behind it.',
-    ],
+    intro: 'Deepavali! New clothes, kolams at the door, and far too many sweets. First, let me tell you a few things.',
+    outro: 'Got all that? Now I ask, you answer. Every right answer puts an ingredient on my shelf.',
   },
   ch2: {
     paati: PAATI.teaching,
     done: 'Start the quiz',
-    lines: [
-      'Now, muruku. Crunchy, a little salty, and impossible to eat just one.',
-      'Now my questions. Every right answer puts an ingredient on my shelf.',
-    ],
+    intro: 'Now, muruku. Crunchy, a little salty, and impossible to eat just one. Here is what every muruku maker knows.',
+    outro: 'Now my questions. Every right answer puts another ingredient on my shelf.',
   },
   ch3: {
     paati: PAATI.teaching,
@@ -151,10 +149,8 @@ export const STORIES = {
   ch4: {
     paati: PAATI.celebrating,
     done: 'Start the quiz',
-    lines: [
-      'You made muruku with your own two hands! I will try not to cry.',
-      'Two last questions, and then we celebrate. I saved the good ones.',
-    ],
+    intro: 'You made muruku with your own two hands! I will try not to cry. Two more things before we celebrate.',
+    outro: 'Now, two last questions. I saved the good ones for the end.',
   },
 };
 
@@ -173,9 +169,11 @@ export const ingredient = (id) => INGREDIENTS.find((i) => i.id === id);
 // Paati's order for step 1. Water has its own step.
 export const ADD_ORDER = ['riceFlour', 'uradFlour', 'flour', 'spices', 'ghee'];
 
-// The quiz bank. Paati asks first, then explains: a wrong answer is set aside with a nudge (without giving the answer
-// away), and the player picks again; the right answer's `why` is the explanation. `teach` is the fact on its own, used as a "Did you know?"
-// in the free kitchen when the question wasn't asked.
+// The quiz bank. Paati tells first, then asks: each question's `teach` is the fact on its own, which she tells on the
+// chapter's story page just before the quiz (and which the free kitchen uses as a "Did you know?" when the question
+// wasn't asked). A longer fact is a list of pages, each shown on its own so it fits beside Paati on a phone; it then
+// has a one-line `fact` for the free kitchen's smaller box. In the quiz, a wrong answer is set aside with a nudge (without giving the answer away), and the player
+// picks again; the right answer's `why` is the explanation.
 // Each chapter asks `ask` questions: the `core` ones every time, the rest picked at random (mixing formats, and
 // never two from the same `group`), so a replay brings new facts.
 // Formats (`type`): 'choice' (default, 3 choices), 'truefalse' (True / Not true), 'picture' (3 choices with `art`),
@@ -231,10 +229,14 @@ export const QUIZ_BANK = {
       {
         id: 'medicine',
         group: 'morning',
-        teach: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: dry ginger, pepper and herbs, cooked with jaggery and ghee. It gets tummies ready for the sweets.',
-        q: 'After the oil bath on Deepavali morning, many families eat a spoonful of Deepavali medicine. Why?',
+        teach: [
+          'After the oil bath, many Tamil families eat one spoonful of Deepavali medicine. It is a thick, dark paste, made at home from dry ginger, pepper and other herbs.',
+          'The herbs are cooked with ghee and jaggery, a dark cane sugar, so it tastes sweet and a little spicy. It settles the tummy before a whole day of sweets and muruku.',
+        ],
+        fact: 'After the oil bath, many Tamil families eat a spoonful of Deepavali medicine: a sweet, spicy paste of dry ginger and herbs that settles the tummy.',
+        q: 'Why do many families eat a spoonful of Deepavali medicine after the oil bath?',
         choices: [
-          { text: 'To help the tummy with all the sweets', correct: true, why: 'Exactly. It is dry ginger, pepper and herbs, cooked with jaggery and ghee. One spoonful after the oil bath, and the tummy is ready for a whole day of sweets and muruku.' },
+          { text: 'To help the tummy with all the sweets', correct: true, why: 'Exactly. The dry ginger and pepper settle the tummy, so one sweet, spicy spoonful gets it ready for a whole day of sweets and muruku.' },
           { text: 'To bring good luck for the year', why: 'Not luck, dear. Something more practical. Think about everything you will eat that day.' },
           { text: 'To keep mosquitoes away', why: 'Mosquitoes are not invited, but no. Think about the day ahead: what will you be eating?' },
         ],
@@ -243,7 +245,11 @@ export const QUIZ_BANK = {
         id: 'morning-order',
         type: 'order',
         group: 'morning',
-        teach: 'In many Tamil homes, Deepavali morning goes like this: a warm oil bath before sunrise, then a spoonful of Deepavali medicine, then new clothes and blessings from the elders.',
+        teach: [
+          'Deepavali medicine is a sweet, spicy paste of dry ginger and herbs that settles the tummy. Many Tamil families eat a spoonful of it on Deepavali morning.',
+          'Their morning goes like this: a warm oil bath before sunrise, then the spoonful of Deepavali medicine, then new clothes and blessings from the elders.',
+        ],
+        fact: 'A Tamil Deepavali morning: an oil bath before sunrise, a spoonful of Deepavali medicine for the tummy, then new clothes and blessings.',
         q: 'Put a Tamil Deepavali morning in order.',
         items: ['Oil bath before sunrise', 'Deepavali medicine', 'New clothes and blessings'],
         why: 'Perfect! Oil bath, Deepavali medicine, then new clothes and blessings. The day can begin.',
@@ -461,10 +467,11 @@ export const REWARDS = {
   ch2: ['spices', 'ghee', 'water'],
 };
 
-// The six cooking steps. `full` is the journey instruction; `short` is the free-kitchen (and phone) hint;
+// The seven cooking steps. `full` is the journey instruction; `short` is the free-kitchen (and phone) hint;
 // `chip` is the label in the step strip.
 export const STEPS = [
   { id: 'add', title: 'Add', chip: 'Add', full: 'Drag each ingredient into the bowl in my order: rice flour, urad dal flour, flour, spices, then ghee. You can also tap them.', short: 'Same order as before: rice flour first.' },
+  { id: 'mix', title: 'Mix', chip: 'Mix', full: 'Swirl round and round the bowl to mix everything together, until the flours, spices and ghee are all one colour.', short: 'Swirl round the bowl to mix.' },
   { id: 'water', title: 'Water', chip: 'Water', full: 'Hold the button to pour water. Let go when the meter is in the green zone.', short: 'Hold to pour. Stop in the green.' },
   { id: 'knead', title: 'Knead', chip: 'Knead', full: 'Rub the dough in circles until the ring is full. It should feel soft, like an earlobe.', short: 'Rub in circles until the ring is full.' },
   { id: 'fill', title: 'Fill the press', chip: 'Fill', full: 'Drag the dough into the wooden press, drag the plunger on top, then drag the star plate under the press.', short: 'Dough in, plunger on, star plate.' },
@@ -499,7 +506,9 @@ export const COOK_LINES = {
   addStart: ['Let us start. Rice flour goes in first. It is the crunch, and the crunch is everything.', 'Rice flour first.'],
   addWrong: (expected) => [`Not yet, dear. The ${expected.name.toLowerCase()} comes first. ${expected.note}`, `${expected.name} comes next.`],
   addNext: (added, next) => [`${added.note} Next, the ${next.name.toLowerCase()}.`, `Next: ${next.name.toLowerCase()}.`],
-  allIn: ['All in! It looks like snowfall. Now we bring it together with water.', 'All in!'],
+  allIn: ['All in! It looks like snowfall. Now we mix it all together.', 'All in!'],
+  mixStart: ['Now swirl it round and round, until it is all one colour. Nobody sits alone in my bowl.', 'Swirl to mix.'],
+  mixDone: ['All one colour. A well-mixed bowl! Now, water.', 'All mixed.'],
   waterStart: ['Now water. Hold to pour, and let go in the green. Slowly, dear. Nobody can un-water dough.', 'Hold to pour. Stop in the green.'],
   // While pouring, Paati keeps up.
   pourGoing: ['Keep going…', 'Keep going…'],

@@ -19,7 +19,7 @@ flowchart TD
 
     ST2 --> C3["2 · Story<br/>Ch 3: How is it made?"]
     C3 --> ST3["4 · Store<br/>Start cooking"]
-    ST3 --> K["5 · Cook<br/>Add → Water → Knead → Fill press → Twist → Fry"]
+    ST3 --> K["5 · Cook<br/>Add → Mix → Water → Knead → Fill press → Twist → Fry"]
     K --> R["6 · Result<br/>stars + score /100 + one-line reasons"]
 
     R --> C4["2 · Story<br/>Ch 4: Why muruku at Deepavali?"]
@@ -42,14 +42,14 @@ flowchart TD
 | Rule | Where it applies |
 |---|---|
 | A wrong answer is never a dead end: Paati explains, the choice is set aside, and the player tries again | Quiz (all chapters) |
-| Stories are two short lines each, read with Next | Story |
+| Paati's story pages are read one line at a time with Next. Before a quiz, she opens, tells the fact behind each question she is about to ask (a long fact takes two pages), and closes | Story |
 | The puppet show fills the screen. In front of the closed curtains, Paati first says what the stories mean; once there has been time to read it, the three story cards follow on their own (a tap or Enter moves on sooner). A card opens the curtains on its story, which plays scene by scene with a subtitle for each, shown long enough to read. At its end (or Skip story) the curtains close, Paati says why that story matters, and the cards come back with it ticked. Next (Skip before any story is watched) moves on. Each card shows a picture and the story's name; a story already watched is greyed over with a Watched tag, for the rest of the visit | Puppet |
 | The last page offers the stories of Deepavali again (Learn more about Deepavali, or Watch another story) and the free kitchen, with Finish under them; the stories open straight on the three cards. If no story has been watched, Paati says so, the stories are the main button, and Skip both and finish is there to skip them. Players never see the words "puppet show" | Last page |
 | Paati asks what to call the player on the Welcome page (or Skip). She uses the name wherever she would say "dear"; it is kept for this visit only. Help & settings shows the name and can change it at any time, from her next line on | Welcome, then every screen; Help |
 | Before we begin shows its words one at a time at reading pace, then Start Chapter 1. A tap or key press shows it all at once | Intro |
 | Each correct answer in chapters 1 and 2 earns one ingredient, which flies into the Store | Quiz → Store |
 | Chapter 4 answers earn nothing | Quiz (chapter 4) |
-| Paati asks first and explains after. Stories are short hooks that don't give answers away | Story, Quiz |
+| Paati tells first, then asks: her story page teaches each fact just before the quiz, so nobody meets a question cold | Story, Quiz |
 | Paati asks one question at the start of five cooking steps; right first time unlocks her tip for that step (no penalty otherwise) | Cook (not the free kitchen) |
 | Start cooking only appears once all six ingredients are collected | Store |
 | Every muruku is served: no fail state, no timers | Cook → Result |
