@@ -1,5 +1,6 @@
 import { COLOR, RES, STAGE } from '../theme.js';
 import { shortcut } from '../shortcuts.js';
+import { GREETING } from '../ui/widgets.js';
 
 // [file in assets/art, largest display scale used] — SVGs are rasterised at that scale × render resolution.
 const ART = [
@@ -58,6 +59,8 @@ export class BootScene extends Phaser.Scene {
     for (const pose of ['welcome', 'teaching', 'proud', 'sharing', 'avatar', 'taste-bite', 'taste-wipe', 'taste-happy']) {
       this.load.image(`paati-${pose}`, `assets/paati/${pose}.png`);
     }
+    // Her greeting on the Title: four frames side by side, played like a GIF (paatiGreeting in src/ui/widgets.js).
+    this.load.spritesheet('paati-greeting', 'assets/paati/greeting.png', { frameWidth: GREETING.w, frameHeight: GREETING.h });
   }
 
   create() {

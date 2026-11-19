@@ -94,7 +94,8 @@ src/
   scenes/             Title, Story, Intro (before we begin), Quiz, Puppet (the shadow puppet show), Store,
                       Cook (7 steps), Result, Finale
 assets/
-  paati/              Paati's illustrated poses (welcome, teaching, proud, sharing, and four for tasting the muruku)
+  paati/              Paati's illustrated poses (welcome, teaching, proud, sharing, four for tasting the muruku, and
+                      the Title's four-frame greeting)
                       + round avatar; originals in source/
   art/                placeholder SVG art (press, pan, water jar, diyas, kolam, garland…) and the user's illustrations
                       as PNGs (the five dry ingredients, banana leaf, plate of muruku)
@@ -127,6 +128,8 @@ Paati's lines, the quiz and the facts all live in [`src/content.js`](src/content
 - Reduce motion turns off sparkles, fireworks and fades. It follows the system setting by default.
 
 ## Design decisions since the brief
+
+- **19 Nov 2026, Paati greets you on the Title:** The Title's Paati is now an animation made from the user's four-frame sprite sheet (`assets/paati/source/greeting.webp`): she stands smiling, beams with her hands raised, then folds her hands and says "Vanakkam!" with her eyes closed, then smiling. It loops like a GIF: 1.3, 1, 0.8 and 2.7 seconds per frame, 5.8 seconds round (tuned with the user). (A first version flickered through the frames many times a second: Phaser 3.88 plays every frame of an animation at one frame rate and ignores each frame's own duration, so a small timer now shows each frame for its time.) The frames were cut out of their white background with `tools/cutout.swift` and lined up on the middle and bottom of her saree's hem, so only her hands and face change, and laid side by side in `assets/paati/greeting.png` (4 × 524 × 704 px). `paatiGreeting` in `src/ui/widgets.js` shows it. Reduce motion shows the last frame, still. The last page keeps its own pose. The speech bubble's "Vanakkam!" is in the user's art, so it stays, the one Tamil word on screen besides names.
 
 - **17 Nov 2026, a grammar pass:** Every line players read was checked, and 25 were fixed or smoothed without getting longer (four grew by a comma or a word). For example: run-on sentences split ("That is not dough, dear. That is soup!"), a dangling "them" fixed in the turmeric answer, "new-moon night" hyphenated, "drag… drag… drag" trimmed in the Fill step, "flew home in a flying chariot" reworded, "Most of them were mine", and "my Deepavali stories" in place of "my stories of Deepavali". Paati's careful, contraction-free voice and British spelling stay as they were.
 - **17 Nov 2026, Paati tells stories first, and a Mix step:** From the user's review:

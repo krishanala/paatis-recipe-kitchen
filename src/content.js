@@ -14,6 +14,7 @@ export const CHAPTERS = {
 // There is no gentle-correction pose yet, so it borrows the teaching one.
 export const PAATI = {
   welcome: 'paati-welcome', // open arms
+  greeting: 'paati-greeting', // stands, beams, then vanakkam: an animation, on the Title
   teaching: 'paati-teaching', // book in hand, finger raised
   proud: 'paati-proud', // laughing, thumbs up, waving
   gentle: 'paati-teaching',

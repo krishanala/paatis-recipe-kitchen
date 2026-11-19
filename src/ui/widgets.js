@@ -26,6 +26,32 @@ export function paati(scene, x, bottom, key, height) {
   return img;
 }
 
+// Paati's greeting (assets/paati/greeting.png, from assets/paati/source/greeting.webp): four frames side by side, each
+// w × h, lined up on the middle of her hem (x) and its bottom edge (y); body is her height in a frame. She stands,
+// beams, then folds her hands and says vanakkam, and it loops like a GIF.
+export const GREETING = { w: 524, h: 704, x: 262, y: 699, body: 667 };
+const GREETING_MS = [1300, 1000, 800, 2700]; // how long each frame shows: 5.8 seconds round
+
+// Full-body Paati greeting, feet at (x, bottom), sized by height like paati(). Reduce motion keeps her still, with her
+// hands together.
+export function paatiGreeting(scene, x, bottom, height) {
+  const s = scene.add.sprite(x, bottom, 'paati-greeting', 3).setOrigin(GREETING.x / GREETING.w, GREETING.y / GREETING.h);
+  s.setScale(height / GREETING.body);
+  if (settings.reduceMotion) return s;
+  // A timer rather than a Phaser animation: Phaser 3.88 plays every frame at the animation's one frame rate and
+  // ignores each frame's own duration. The scene's clock stops it when the screen closes.
+  let frame = 0;
+  const show = () => {
+    s.setFrame(frame);
+    scene.time.delayedCall(GREETING_MS[frame], () => {
+      frame = (frame + 1) % GREETING_MS.length;
+      if (s.active) show();
+    });
+  };
+  show();
+  return s;
+}
+
 // Silk-border trim: two thin gold lines around a Marigold or Rani pink band.
 export function silkTrim(scene, y, band = COLOR.marigold500, x = 0, w = STAGE.width) {
   const g = scene.add.graphics();
@@ -765,6 +791,7 @@ export function welcomeStage(scene, poseKey) {
     [560, 130, 9],
   ]);
   doorstepKolam(scene, 930, 634, 430);
-  paati(scene, 930, 562, poseKey, 440);
+  if (poseKey === 'paati-greeting') paatiGreeting(scene, 930, 562, 440);
+  else paati(scene, 930, 562, poseKey, 440);
   art(scene, 930, 706, 'lotus-diya', 204).setOrigin(0.5, 1).setDepth(4);
 }

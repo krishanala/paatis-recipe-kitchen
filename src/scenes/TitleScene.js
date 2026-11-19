@@ -20,8 +20,8 @@ export class TitleScene extends BaseScene {
   create() {
     this.setStage('festive');
 
-    // Paati invites the player in from the doorstep kolam, in warm festive light.
-    welcomeStage(this, PAATI.welcome);
+    // Paati greets the player from the doorstep kolam, in warm festive light: she beams, then says vanakkam.
+    welcomeStage(this, PAATI.greeting);
 
     // Left column: the name, Play, then Sound / Help / Full screen in a row under it, centred vertically and
     // stacked by real heights so it still fits when phones enlarge the text.
