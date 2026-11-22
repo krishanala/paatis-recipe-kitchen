@@ -1,0 +1,5 @@
+# Recorded frames (several GB) and the finished videos (hundreds of MB) stay on this computer, out of git.
+frames/
+out/
+# The built encoder (tools/make-videos.sh builds it from tools/encode.swift).
+tools/.encode

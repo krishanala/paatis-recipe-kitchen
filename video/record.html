@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Record the playthrough</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #131927;
+        --muted: #5a6070;
+        --line: #e4ddd0;
+        --marigold: #d96500;
+        --paper: #fffbf5;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--paper);
+        color: var(--ink);
+        font: 16px/1.5 Inter, system-ui, sans-serif;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 24px;
+      }
+      p {
+        margin: 0 0 16px;
+        color: var(--muted);
+        max-width: 760px;
+      }
+      .bar {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      button {
+        padding: 10px 22px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--marigold);
+        color: #fff;
+        font: 600 16px/1 Inter, system-ui, sans-serif;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      #status {
+        font-variant-numeric: tabular-nums;
+      }
+      /* The game runs at exactly 1280 × 720 inside the frame (the recording is 1920 × 1080); shown smaller here. */
+      .stage {
+        width: 768px;
+        height: 432px;
+        max-width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+      }
+      iframe {
+        width: 1280px;
+        height: 720px;
+        border: 0;
+        transform: scale(0.6);
+        transform-origin: 0 0;
+      }
+      ol {
+        columns: 2;
+        max-width: 760px;
+        color: var(--muted);
+      }
+      li.now {
+        color: var(--ink);
+        font-weight: 700;
+      }
+      li.done {
+        color: #308242;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Record the playthrough</h1>
+    <p>
+      Press Record and the game plays itself from the Title to the goodbye, saving every frame to
+      <code>video/frames/</code>. Leave this tab open until it says done (about 10 to 15 minutes). Then run
+      <code>sh video/tools/make-videos.sh</code> to make the MP4s.
+    </p>
+    <div class="bar">
+      <button id="record">Record</button>
+      <span id="status">Ready.</span>
+    </div>
+    <div class="stage"><iframe id="game" title="Paati's Recipe, playing itself"></iframe></div>
+    <ol id="clips"></ol>
+    <script type="module">
+      const frame = document.getElementById('game');
+      const status = document.getElementById('status');
+      const list = document.getElementById('clips');
+      const recordButton = document.getElementById('record');
+
+      // Waits without timers (a background tab slows timers down to once a second).
+      const channel = new MessageChannel();
+      const tick = () => new Promise((resolve) => ((channel.port1.onmessage = () => resolve()), channel.port2.postMessage(0)));
+
+      async function start() {
+        recordButton.disabled = true;
+        status.textContent = 'Loading the game…';
+        frame.src = '/index.html';
+        // As soon as the game exists inside the frame, load the recorder into the frame (so it shares the game's own
+        // modules) and start it, before the Title appears.
+        while (!frame.contentWindow?.muruku) await tick();
+        const w = frame.contentWindow;
+        const script = w.document.createElement('script');
+        script.type = 'module';
+        script.textContent = "import('/video/record/driver.js').then((m) => { window.recorder = m; m.record(window.muruku); });";
+        w.document.head.appendChild(script);
+        while (!w.recorder) await tick();
+        list.innerHTML = w.recorder.clips.map((name) => `<li data-clip="${name}">${name}</li>`).join('');
+        const started = performance.now();
+        const show = () => {
+          const s = w.recorder.state;
+          const mins = ((performance.now() - started) / 60000).toFixed(1);
+          const seconds = (s.total / 30).toFixed(0);
+          let reached = false;
+          for (const li of list.children) {
+            const now = li.dataset.clip === s.clip;
+            li.className = now && !s.done ? 'now' : reached || now ? (s.done ? 'done' : '') : 'done';
+            if (now) reached = true;
+          }
+          if (s.error) status.textContent = `Stopped at ${s.error}`;
+          else if (s.done) status.textContent = `Done: ${seconds} s of video in ${mins} min. Now run sh video/tools/make-videos.sh`;
+          else status.textContent = `Recording ${s.clip}: ${s.frames} frames (${seconds} s of video so far, ${mins} min)`;
+          if (!s.done && !s.error) setTimeout(show, 500);
+        };
+        show();
+      }
+      recordButton.addEventListener('click', start);
+      // record.html?auto starts straight away.
+      if (new URLSearchParams(location.search).has('auto')) start();
+    </script>
+  </body>
+</html>
